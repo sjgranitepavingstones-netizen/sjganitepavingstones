@@ -22,7 +22,7 @@ const TABS: { id: Tab; label: string }[] = [
 const Admin = () => {
   const [tab, setTab] = useState<Tab>("products");
 
-  useEffect(() => { document.title = "Admin Panel | Marbella Stone Co."; }, []);
+  useEffect(() => { document.title = "Admin Panel | SJ Granite Paving Stone"; }, []);
 
   return (
     <main className="min-h-screen bg-background">
@@ -598,10 +598,10 @@ const HeroImagesAdmin = () => {
   );
 };
 
-// ============ SITE SETTINGS (Google Maps lat/lng) ============
+// ============ SITE SETTINGS ============
 const SettingsAdmin = () => {
-  const [form, setForm] = useState<{ map_latitude: string; map_longitude: string; map_zoom: string }>({
-    map_latitude: "", map_longitude: "", map_zoom: "15",
+  const [form, setForm] = useState<{ map_latitude: string; map_longitude: string; map_zoom: string; owner_image_url: string }>({
+    map_latitude: "", map_longitude: "", map_zoom: "15", owner_image_url: "",
   });
   const [loading, setLoading] = useState(true);
 
@@ -614,6 +614,7 @@ const SettingsAdmin = () => {
             map_latitude: data.map_latitude?.toString() ?? "",
             map_longitude: data.map_longitude?.toString() ?? "",
             map_zoom: (data.map_zoom ?? 15).toString(),
+            owner_image_url: data.owner_image_url ?? "",
           });
         }
         setLoading(false);
@@ -629,7 +630,13 @@ const SettingsAdmin = () => {
       toast.error("Please enter valid latitude and longitude");
       return;
     }
-    const payload = { id: "main", map_latitude: lat, map_longitude: lng, map_zoom: parseInt(form.map_zoom) || 15 };
+    const payload = {
+      id: "main",
+      map_latitude: lat,
+      map_longitude: lng,
+      map_zoom: parseInt(form.map_zoom) || 15,
+      owner_image_url: form.owner_image_url || null,
+    };
     try {
       await adminApi.update("site_settings", "main", payload);
       toast.success("Settings saved");
@@ -646,11 +653,16 @@ const SettingsAdmin = () => {
 
   return (
     <div className="max-w-2xl">
-      <h3 className="font-serif text-2xl mb-2">Google Maps Location</h3>
+      <h3 className="font-serif text-2xl mb-2">Business Settings</h3>
       <p className="text-xs text-foreground/60 mb-6">
-        Tip: Open Google Maps, right-click your location, then click the lat/long values to copy them.
+        Upload the company owner image for the About page and keep the Google Maps location updated.
       </p>
       <form onSubmit={save} className="space-y-4">
+        <ImageUploader
+          label="Company owner image"
+          value={form.owner_image_url || null}
+          onChange={(url) => setForm({ ...form, owner_image_url: url })}
+        />
         <div className="grid grid-cols-2 gap-4">
           <Field label="Latitude">
             <input className={inputCls} placeholder="12.9716" value={form.map_latitude}

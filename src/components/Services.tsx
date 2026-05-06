@@ -2,12 +2,12 @@ import { SectionHeading } from "./SectionHeading";
 import { Hammer, Compass, Truck, Shield, Sparkles, Ruler } from "lucide-react";
 
 const services = [
-  { icon: Compass, title: "Bespoke Design", desc: "Custom granite & stone designs tailored to your villa, garden, or estate." },
-  { icon: Hammer, title: "Master Craftsmanship", desc: "Hand-carved by artisans with decades of stoneworking heritage." },
-  { icon: Ruler, title: "On-Site Surveying", desc: "Precise measurement and 3D visualization before a single cut is made." },
-  { icon: Truck, title: "White-Glove Delivery", desc: "Insured transport and professional installation across the region." },
-  { icon: Sparkles, title: "Restoration & Polish", desc: "Bring heritage stonework back to its original gleam and grandeur." },
-  { icon: Shield, title: "Lifetime Guarantee", desc: "Premium-grade granite backed by our lifetime structural warranty." },
+  { icon: Compass, title: "Stone Design Guidance", desc: "Granite paving stone, cobblestone and floor stone planning for Bangalore homes, villas and commercial spaces." },
+  { icon: Hammer, title: "Granite Craftsmanship", desc: "Neat cutting, finishing and placement for paving stone, parking pavers, stone chairs, benches and outdoor stonework." },
+  { icon: Ruler, title: "On-Site Measurement", desc: "Professional site measurement for parking areas, pathways, gardens, patios, terraces and floor stone projects." },
+  { icon: Truck, title: "Bangalore Delivery", desc: "Material coordination and delivery support for Bengaluru and nearby Karnataka locations." },
+  { icon: Sparkles, title: "Polish & Finishing", desc: "Surface finishing, edge detailing and practical guidance for maintaining outdoor granite and floor stone." },
+  { icon: Shield, title: "Reliable Service", desc: "Clear communication, careful handling and durable workmanship from inquiry to installation support." },
 ];
 
 export const Services = () => {
@@ -15,9 +15,9 @@ export const Services = () => {
     <section id="services" className="py-24 md:py-32 bg-background relative">
       <div className="container">
         <SectionHeading
-          eyebrow="Our Atelier"
+          eyebrow="Bangalore Stone Services"
           title="Crafted Stone, Curated Service"
-          subtitle="From the first sketch to the final polish — every project is treated as a one-of-one commission."
+          subtitle="From granite paving stone and cobblestone to floor stone and stone furniture, every project is planned for the site, usage and finish the customer needs."
         />
 
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border">

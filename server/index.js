@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-before-live";
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:8080";
 const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "granitepavingstone@gmail.com";
-const SMTP_FROM = process.env.SMTP_FROM || `SJ Enterprises <${INQUIRY_RECIPIENT_EMAIL}>`;
+const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
   .split(",")
   .map((email) => email.trim().toLowerCase())
@@ -127,6 +127,7 @@ const SiteSetting = mongoose.model("SiteSetting", new mongoose.Schema({
   map_latitude: Number,
   map_longitude: Number,
   map_zoom: { type: Number, default: 15 },
+  owner_image_url: String,
 }, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   toJSON: {

@@ -19,6 +19,8 @@ import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
+import TermsAndConditions from "./pages/TermsAndConditions.tsx";
+import BangaloreStoneServices from "./pages/BangaloreStoneServices.tsx";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,12 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/granite-paving-stone-bangalore" element={<BangaloreStoneServices />} />
+            <Route path="/paving-stone-bangalore" element={<BangaloreStoneServices />} />
+            <Route path="/cobblestone-bangalore" element={<BangaloreStoneServices />} />
+            <Route path="/floor-stone-bangalore" element={<BangaloreStoneServices />} />
             <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

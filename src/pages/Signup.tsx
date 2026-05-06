@@ -27,7 +27,8 @@ const Signup = () => {
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
     setLoading(true);
     try {
-      const { token } = await authApi.signup(parsed.data);
+      const { full_name, email, password } = parsed.data;
+      const { token } = await authApi.signup({ full_name, email, password });
       authStore.setToken(token);
       await refreshAuth();
       toast.success("Account created");

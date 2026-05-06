@@ -11,11 +11,11 @@ import { publicApi } from "@/lib/api";
 type Slide = { id: string; image_url: string; caption: string | null };
 
 const defaultSlides: Slide[] = [
-  { id: "default-parking", image_url: heroImg, caption: "Luxury granite parking design" },
-  { id: "default-bench", image_url: benchImg, caption: "Granite garden bench" },
-  { id: "default-chair", image_url: chairImg, caption: "Granite outdoor chair" },
-  { id: "default-flooring", image_url: flooringImg, caption: "Decorative granite flooring" },
-  { id: "default-paving", image_url: parkingImg, caption: "Outdoor stone paving" },
+  { id: "default-parking", image_url: heroImg, caption: "Granite paving stone parking design in Bangalore" },
+  { id: "default-bench", image_url: benchImg, caption: "Granite stone bench and garden furniture" },
+  { id: "default-chair", image_url: chairImg, caption: "Stone chair for outdoor seating" },
+  { id: "default-flooring", image_url: flooringImg, caption: "Floor stone and outdoor flooring" },
+  { id: "default-paving", image_url: parkingImg, caption: "Cobblestone and outdoor stone paving" },
 ];
 
 export const Hero = () => {
@@ -39,13 +39,12 @@ export const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen w-full overflow-hidden bg-secondary">
-      {/* Background carousel */}
       <div className="absolute inset-0">
         {items.map((s, i) => (
           <img
             key={s.id}
             src={s.image_url}
-            alt={s.caption || "Luxury granite stone showcase"}
+            alt={s.caption || "Granite paving stone and floor stone showcase in Bangalore"}
             width={1920}
             height={1088}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity [transition-duration:2000ms] ease-in-out ${i === idx ? "opacity-100 animate-ken-burns" : "opacity-0"}`}
@@ -54,7 +53,6 @@ export const Hero = () => {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_0%/0.55)_0%,hsl(0_0%_0%/0.3)_40%,hsl(0_0%_0%/0.85)_100%)]" />
       </div>
 
-      {/* Carousel controls */}
       {items.length > 1 && (
         <>
           <button
@@ -84,33 +82,31 @@ export const Hero = () => {
         </>
       )}
 
-      {/* Content */}
       <div className="relative z-10 container min-h-screen flex flex-col justify-center pt-32 pb-20">
         <div className="max-w-4xl">
           <div className="flex items-center gap-3 mb-6 animate-fade-in-down">
             <span className="h-px w-12 bg-gold-gradient" />
             <span className="text-xs uppercase tracking-[0.4em] text-primary font-medium">
-              Luxury Stone & Granite Atelier
+              Professional Granite Paving Since 2013
             </span>
           </div>
 
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light leading-[0.95] text-white animate-fade-in">
-            Premium Granite
-            <span className="block italic text-gold-gradient mt-2">& Luxury Outdoor</span>
-            <span className="block">Designs</span>
+            SJ Granite
+            <span className="block italic text-gold-gradient mt-2">Paving Stone</span>
+            <span className="block">Bangalore</span>
           </h1>
 
-          <p className="mt-8 max-w-xl text-base md:text-lg text-white/80 font-light leading-relaxed animate-fade-in [animation-delay:200ms]">
-            Hand-crafted granite benches, sculptural stone seating, and bespoke decorative paving — designed
-            for villas, estates and gardens that demand timeless elegance.
+          <p className="mt-8 max-w-2xl text-base md:text-lg text-white/80 font-light leading-relaxed animate-fade-in [animation-delay:200ms]">
+            Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore and Karnataka projects.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-in [animation-delay:400ms]">
             <Link
-              to="/products"
+              to="/granite-paving-stone-bangalore"
               className="group inline-flex items-center gap-3 px-8 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.3em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500"
             >
-              Explore Products
+              Bangalore Stone Services
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
@@ -122,16 +118,15 @@ export const Hero = () => {
             </Link>
           </div>
 
-          {/* Stats */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl animate-fade-in [animation-delay:600ms]">
             {[
-              { v: "850+", l: "Estates Served" },
-              { v: "17", l: "Years of Craft" },
-              { v: "32", l: "Stone Varieties" },
-              { v: "100%", l: "Bespoke" },
+              { v: "Bengaluru", l: "Service Area" },
+              { v: "2013", l: "Established" },
+              { v: "5+", l: "Stone Categories" },
+              { v: "100%", l: "Service Focus" },
             ].map((s) => (
               <div key={s.l} className="border-l border-primary/40 pl-4">
-                <div className="font-serif text-3xl md:text-4xl text-gold-gradient">{s.v}</div>
+                <div className="font-serif text-2xl md:text-3xl text-gold-gradient">{s.v}</div>
                 <div className="text-[10px] uppercase tracking-[0.3em] text-white/60 mt-1">{s.l}</div>
               </div>
             ))}
@@ -139,9 +134,8 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll cue */}
       <a
-        href="#services"
+        href="#products"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/60 hover:text-primary transition-colors animate-gold-pulse"
       >
         <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>

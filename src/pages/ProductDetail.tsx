@@ -4,6 +4,7 @@ import { ArrowLeft, Check } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
+import { useSeo, absoluteUrl, breadcrumbSchema } from "@/lib/seo";
 
 type Variant = { id: string; name: string; color: string | null; material: string | null; image_url: string; price: number | null };
 type Product = { id: string; slug: string; name: string; tagline: string | null; description: string | null; price_label: string | null; main_image_url: string | null };
@@ -14,13 +15,56 @@ const ProductDetail = () => {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [active, setActive] = useState<Variant | null>(null);
 
+  useSeo({
+    title: product ? `${product.name} Bangalore Granite Stone Product` : "Granite Stone Product Bangalore",
+    description:
+      product?.description ||
+      "Granite paving stone, cobblestone, floor stone, parking stone and outdoor stone furniture product details from SJ Granite Paving Stone in Bangalore.",
+    path: slug ? `/products/${slug}` : "/products",
+    image: active?.image_url || product?.main_image_url || undefined,
+    keywords: [
+      product?.name || "granite paving stone Bangalore",
+      "stone product Bangalore",
+      "granite paving stone",
+      "cobblestone Bangalore",
+      "floor stone Bangalore",
+    ],
+    schema: product
+      ? [
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Products", path: "/products" },
+            { name: product.name, path: `/products/${product.slug}` },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.description || `${product.name} from SJ Granite Paving Stone in Bangalore.`,
+            image: absoluteUrl(active?.image_url || product.main_image_url || "/placeholder.svg"),
+            brand: {
+              "@type": "Brand",
+              name: "SJ Granite Paving Stone",
+            },
+            category: "Granite paving stone and outdoor stone product",
+            areaServed: "Bangalore, Karnataka",
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "INR",
+              availability: "https://schema.org/InStock",
+              url: absoluteUrl(`/products/${product.slug}`),
+            },
+          },
+        ]
+      : undefined,
+  });
+
   useEffect(() => {
     if (!slug) return;
     (async () => {
       const [p] = await publicApi.list<Product>("products", { slug });
       if (!p) return;
       setProduct(p);
-      document.title = `${p.name} | Marbella Stone Co.`;
       const v = await publicApi.list<Variant>("product_variants", { product_id: p.id, orderBy: "sort_order" });
       setVariants(v);
       setActive(v[0] || null);
@@ -46,7 +90,7 @@ const ProductDetail = () => {
           <div>
             <div className="aspect-square overflow-hidden bg-secondary img-zoom shadow-luxury">
               <img src={active?.image_url || product.main_image_url || "/placeholder.svg"}
-                   alt={active?.name || product.name}
+                   alt={`${active?.name || product.name} Bangalore granite stone`}
                    className="h-full w-full object-cover" />
             </div>
           </div>
@@ -70,7 +114,7 @@ const ProductDetail = () => {
                 {variants.map((v) => (
                   <button key={v.id} onClick={() => setActive(v)}
                     className={`group relative aspect-square overflow-hidden border-2 transition-all ${active?.id===v.id?"border-primary shadow-gold-glow":"border-transparent hover:border-primary/40"}`}>
-                    <img src={v.image_url} alt={v.name} className="h-full w-full object-cover" />
+                    <img src={v.image_url} alt={`${v.name} granite stone variant in Bangalore`} className="h-full w-full object-cover" />
                     {active?.id===v.id && (
                       <span className="absolute top-1 right-1 h-5 w-5 rounded-full bg-gold-gradient text-primary-foreground inline-flex items-center justify-center">
                         <Check className="h-3 w-3" />

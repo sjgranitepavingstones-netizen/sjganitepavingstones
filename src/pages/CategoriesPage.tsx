@@ -4,11 +4,30 @@ import { ArrowUpRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
+import { useSeo, breadcrumbSchema, serviceSchema } from "@/lib/seo";
 
 const CategoriesPage = () => {
   const [cats, setCats] = useState<any[]>([]);
+  useSeo({
+    title: "Stone Categories Bangalore | Paving Stone, Cobblestone & Floor Stone",
+    description:
+      "Explore granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture categories for Bangalore and Karnataka projects.",
+    path: "/categories",
+    keywords: ["stone categories Bangalore", "paving stone category Bangalore", "cobblestone floor stone Bangalore"],
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Categories", path: "/categories" },
+      ]),
+      serviceSchema(
+        "Stone product categories in Bangalore",
+        "Granite paving stone, cobblestone, floor stone and stone furniture categories for Bangalore customers.",
+        "/categories"
+      ),
+    ],
+  });
+
   useEffect(() => {
-    document.title = "Stone Categories | Marbella Stone Co.";
     publicApi.list("categories", { orderBy: "sort_order", withCounts: true }).then(setCats).catch(() => undefined);
   }, []);
 
@@ -17,8 +36,11 @@ const CategoriesPage = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Collections</span>
-          <h1 className="font-serif text-5xl md:text-7xl text-white mt-4">Our <span className="italic text-gold-gradient">Categories</span></h1>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Bangalore Collections</span>
+          <h1 className="font-serif text-5xl md:text-7xl text-white mt-4">Stone <span className="italic text-gold-gradient">Categories</span></h1>
+          <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
+            Granite paving stone, cobblestone, floor stone, parking pavers and outdoor stone furniture categories.
+          </p>
         </div>
       </section>
 

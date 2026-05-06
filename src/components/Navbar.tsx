@@ -3,12 +3,13 @@ import { Link, NavLink as RouterLink, useLocation, useNavigate } from "react-rou
 import { Menu, X, User, LogOut, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import sjLogo from "@/assets/sj-logo.jpeg";
+import sjLogoMark from "@/assets/sj-granite-paving-stone-mark.jpg";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/products", label: "Products" },
   { to: "/categories", label: "Categories" },
+  { to: "/granite-paving-stone-bangalore", label: "Bangalore" },
   { to: "/workflow", label: "Workflow" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
@@ -41,10 +42,10 @@ export const Navbar = () => {
     >
       <nav className="container flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0 group">
-          <img src={sjLogo} alt="SJ Enterprises" className="h-10 w-10 md:h-12 md:w-12 object-contain bg-white rounded p-0.5" />
+          <img src={sjLogoMark} alt="SJ Granite Paving Stone" className="h-10 w-10 md:h-12 md:w-12 object-cover rounded border border-primary/25" />
           <span className="hidden sm:flex flex-col leading-none">
-            <span className="font-serif text-lg md:text-xl text-gold-gradient tracking-tight">SJ Enterprises</span>
-            <span className="text-[8px] uppercase tracking-[0.25em] text-secondary-foreground/60 mt-1">Driven by Vision</span>
+            <span className="font-serif text-lg md:text-xl text-gold-gradient tracking-tight">SJ Granite Paving Stone</span>
+            <span className="text-[8px] uppercase tracking-[0.25em] text-secondary-foreground/60 mt-1">Est. 2013</span>
           </span>
         </Link>
 

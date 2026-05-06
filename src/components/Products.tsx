@@ -19,10 +19,10 @@ export const Products = () => {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <span className="h-px w-10 bg-gold-gradient" />
-              <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">Featured Collection</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">Bangalore Stone Collection</span>
             </div>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light leading-[1.05] text-white max-w-2xl">
-              Signature Pieces, <span className="italic text-gold-gradient">Crafted in Stone</span>
+              Granite Paving Stone, <span className="italic text-gold-gradient">Cobblestone & Stone Furniture</span>
             </h2>
           </div>
           <Link to="/products" className="link-gold text-xs uppercase tracking-[0.3em] text-primary inline-flex items-center gap-2 self-start md:self-end">

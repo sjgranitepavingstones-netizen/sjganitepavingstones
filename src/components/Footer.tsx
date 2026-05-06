@@ -1,17 +1,17 @@
 import { Instagram, Facebook, Linkedin } from "lucide-react";
 import { Link } from "react-router-dom";
-import sjLogo from "@/assets/sj-logo.jpeg";
+import sjLogo from "@/assets/sj-granite-paving-stone-logo.jpg";
 
 export const Footer = () => {
   return (
     <footer className="bg-secondary text-secondary-foreground border-t border-primary/20">
       <div className="container py-16 grid md:grid-cols-4 gap-10">
         <div className="md:col-span-2">
-          <img src={sjLogo} alt="SJ Enterprises logo" className="h-20 w-auto bg-white p-2 rounded" />
-          <div className="font-serif text-2xl text-gold-gradient mt-4">SJ Enterprises</div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-secondary-foreground/60 mt-1">Driven by Vision · Powered by Passion</div>
+          <img src={sjLogo} alt="SJ Granite Paving Stone logo" className="h-28 w-auto max-w-full object-contain border border-primary/20" />
+          <div className="font-serif text-2xl text-gold-gradient mt-4">SJ Granite Paving Stone</div>
+          <div className="text-[10px] uppercase tracking-[0.3em] text-secondary-foreground/60 mt-1">Established 2013</div>
           <p className="mt-6 text-sm text-secondary-foreground/70 max-w-md leading-relaxed">
-            A luxury granite and stone atelier crafting bespoke pieces for the world's most exceptional estates.
+            Professional granite paving, outdoor stonework, flooring, parking designs and custom stone products built with care.
           </p>
           <div className="mt-6 flex gap-3">
             {[Instagram, Facebook, Linkedin].map((Icon, i) => (
@@ -33,9 +33,11 @@ export const Footer = () => {
             {[
               { l: "Products", to: "/products" },
               { l: "Categories", to: "/categories" },
+              { l: "Bangalore Services", to: "/granite-paving-stone-bangalore" },
               { l: "Workflow", to: "/workflow" },
               { l: "About", to: "/about" },
               { l: "Contact", to: "/contact" },
+              { l: "Terms & Conditions", to: "/terms-and-conditions" },
             ].map((x) => (
               <li key={x.l}><Link to={x.to} className="link-gold hover:text-primary transition-colors">{x.l}</Link></li>
             ))}
@@ -53,8 +55,8 @@ export const Footer = () => {
       </div>
       <div className="border-t border-primary/10">
         <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-secondary-foreground/50">
-          <div>© {new Date().getFullYear()} SJ Enterprises. All rights reserved.</div>
-          <div>Crafted with reverence for stone.</div>
+          <div>© {new Date().getFullYear()} SJ Granite Paving Stone. All rights reserved.</div>
+          <Link to="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
         </div>
       </div>
     </footer>

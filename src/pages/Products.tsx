@@ -4,10 +4,16 @@ import { ArrowUpRight, Search } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
+import { useSeo, breadcrumbSchema, serviceSchema } from "@/lib/seo";
 
 type Product = {
-  id: string; slug: string; name: string; tagline: string | null;
-  price_label: string | null; main_image_url: string | null; category_id: string | null;
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string | null;
+  price_label: string | null;
+  main_image_url: string | null;
+  category_id: string | null;
 };
 type Category = { id: string; name: string; slug: string };
 
@@ -17,8 +23,32 @@ const ProductsPage = () => {
   const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
 
+  useSeo({
+    title: "Granite Paving Stone Products Bangalore | Cobblestone & Floor Stone",
+    description:
+      "Browse granite paving stone, cobblestone pavers, floor stone, parking pavers, stone chairs and outdoor stone furniture from SJ Granite Paving Stone in Bangalore.",
+    path: "/products",
+    keywords: [
+      "granite products Bangalore",
+      "paving stone products Bangalore",
+      "cobblestone pavers Bangalore",
+      "floor stone Bangalore",
+      "stone chair Bangalore",
+    ],
+    schema: [
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Products", path: "/products" },
+      ]),
+      serviceSchema(
+        "Granite paving stone products in Bangalore",
+        "Granite paving stone, cobblestone, floor stone and outdoor stone furniture products for Bangalore projects.",
+        "/products"
+      ),
+    ],
+  });
+
   useEffect(() => {
-    document.title = "Luxury Stone Products | Marbella Stone Co.";
     (async () => {
       const [p, c] = await Promise.all([
         publicApi.list<Product>("products", { orderBy: "created_at" }),
@@ -39,35 +69,34 @@ const ProductsPage = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16 md:pb-20">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Collection</span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Bangalore Collection</span>
           <h1 className="font-serif text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
-            Luxury <span className="italic text-gold-gradient">Stone Catalogue</span>
+            Bangalore <span className="italic text-gold-gradient">Stone Catalogue</span>
           </h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
-            Each piece is hand-crafted from premium granite, marble, travertine and onyx — sourced from the world's finest quarries.
+            Granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture for Bangalore and Karnataka projects.
           </p>
         </div>
       </section>
 
       <section className="py-14 md:py-20">
         <div className="container">
-          {/* Filters */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setFilter("all")}
-                className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter==="all"?"bg-foreground text-background border-foreground":"border-foreground/15 hover:border-primary"}`}>
+                className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter === "all" ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
                 All
               </button>
               {cats.map((c) => (
                 <button key={c.id} onClick={() => setFilter(c.id)}
-                  className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter===c.id?"bg-foreground text-background border-foreground":"border-foreground/15 hover:border-primary"}`}>
+                  className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter === c.id ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
                   {c.name}
                 </button>
               ))}
             </div>
             <div className="relative md:w-72">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products"
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search paving stone, cobblestone..."
                 className="w-full pl-10 pr-3 py-2.5 bg-transparent border border-foreground/15 text-sm focus:border-primary outline-none" />
             </div>
           </div>
@@ -76,7 +105,7 @@ const ProductsPage = () => {
             {filtered.map((p) => (
               <Link key={p.id} to={`/products/${p.slug}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden bg-secondary img-zoom">
-                  <img src={p.main_image_url || "/placeholder.svg"} alt={p.name} loading="lazy"
+                  <img src={p.main_image_url || "/placeholder.svg"} alt={`${p.name} Bangalore granite stone product`} loading="lazy"
                     className="h-full w-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-0 inset-x-0 p-5">
