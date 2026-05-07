@@ -84,7 +84,7 @@ const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | n
       <label className="block text-[10px] uppercase tracking-[0.25em] text-foreground/60 mb-2">{label}</label>
       <div className="flex items-center gap-3">
         <div className="h-16 w-16 bg-muted overflow-hidden border border-foreground/10 grid place-items-center">
-          {value ? <img src={value} className="h-full w-full object-cover" /> : <ImgIcon className="h-5 w-5 text-foreground/30" />}
+          {value ? <img src={imageSrc(value)} onError={imageFallback} className="h-full w-full object-cover" /> : <ImgIcon className="h-5 w-5 text-foreground/30" />}
         </div>
         <input ref={ref} type="file" accept="image/*" hidden onChange={(e) => {
           const file = e.target.files?.[0];
@@ -110,6 +110,11 @@ const Field = ({ label, children }: { label: string; children: ReactNodeLike }) 
 type ReactNodeLike = React.ReactNode;
 
 const inputCls = "w-full px-3 py-2.5 bg-transparent border border-foreground/15 text-sm focus:border-primary outline-none";
+
+const imageSrc = (url?: string | null) => url || "/placeholder.svg";
+const imageFallback = (event: React.SyntheticEvent<HTMLImageElement>) => {
+  event.currentTarget.src = "/placeholder.svg";
+};
 
 // ============ PRODUCTS ============
 const ProductsAdmin = () => {
@@ -162,7 +167,7 @@ const ProductsAdmin = () => {
       <div className="border border-foreground/10 divide-y divide-foreground/5">
         {items.map((p) => (
           <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-muted/40">
-            <img src={p.main_image_url || "/placeholder.svg"} className="h-14 w-14 object-cover bg-muted" />
+            <img src={imageSrc(p.main_image_url)} onError={imageFallback} className="h-14 w-14 object-cover bg-muted" />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{p.name}</div>
               <div className="text-xs text-foreground/50">{p.categories?.name} · {p.price_label || "—"} {p.featured && "· ★"}</div>
@@ -261,7 +266,7 @@ const VariantsAdmin = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {items.map((v) => (
           <div key={v.id} className="border border-foreground/10 group relative">
-            <img src={v.image_url} className="aspect-square w-full object-cover" />
+            <img src={imageSrc(v.image_url)} onError={imageFallback} className="aspect-square w-full object-cover" />
             <div className="p-2 text-xs">
               <div className="truncate font-medium">{v.color || v.name}</div>
               <div className="text-foreground/50 truncate text-[10px]">{v.material}</div>
@@ -301,7 +306,7 @@ const CategoriesAdmin = () => <SimpleCrud
   columns={[{ k: "name", label: "Name" }, { k: "slug", label: "Slug" }, { k: "sort_order", label: "Order", type: "number" }]}
   textareas={[{ k: "description", label: "Description" }]}
   imageField="image_url"
-  display={(r) => <><img src={r.image_url || "/placeholder.svg"} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">{r.name}</div><div className="text-xs text-foreground/50">{r.slug}</div></div></>}
+  display={(r) => <><img src={imageSrc(r.image_url)} onError={imageFallback} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">{r.name}</div><div className="text-xs text-foreground/50">{r.slug}</div></div></>}
 />;
 
 const WorkflowAdmin = () => <SimpleCrud
@@ -313,7 +318,7 @@ const WorkflowAdmin = () => <SimpleCrud
   ]}
   textareas={[{ k: "description", label: "Description" }]}
   imageField="image_url"
-  display={(r) => <><img src={r.image_url || "/placeholder.svg"} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">0{r.step_number} · {r.title}</div><div className="text-xs text-foreground/50 truncate">{r.description}</div></div></>}
+  display={(r) => <><img src={imageSrc(r.image_url)} onError={imageFallback} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">0{r.step_number} · {r.title}</div><div className="text-xs text-foreground/50 truncate">{r.description}</div></div></>}
 />;
 
 const ReviewsAdmin = () => <SimpleCrud
@@ -567,7 +572,7 @@ const HeroImagesAdmin = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((h) => (
           <div key={h.id} className="border border-foreground/10 group relative">
-            <img src={h.image_url} className="aspect-[16/9] w-full object-cover" />
+            <img src={imageSrc(h.image_url)} onError={imageFallback} className="aspect-[16/9] w-full object-cover" />
             <div className="p-3 text-xs">
               <div className="font-medium truncate">#{h.sort_order} {h.caption || "(no caption)"}</div>
             </div>

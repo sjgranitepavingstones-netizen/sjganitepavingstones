@@ -486,6 +486,10 @@ const optimizeImage = async (file) => {
 };
 
 const uploadImage = async (file) => {
+  if (process.env.VERCEL === "1" && !useBlobStorage) {
+    throw new Error("Image storage is not configured. Please connect Vercel Blob and redeploy.");
+  }
+
   const optimized = await optimizeImage(file);
 
   if (useBlobStorage) {
