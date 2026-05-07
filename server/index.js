@@ -525,8 +525,13 @@ const connectDatabase = async () => {
   }
 };
 
-void connectDatabase();
+const databaseReady = connectDatabase();
 
-app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
-});
+if (process.env.VERCEL !== "1") {
+  app.listen(PORT, () => {
+    console.log(`API server running on http://localhost:${PORT}`);
+  });
+}
+
+export { app, databaseReady };
+export default app;
