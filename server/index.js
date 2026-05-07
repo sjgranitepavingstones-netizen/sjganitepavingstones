@@ -10,6 +10,7 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import dns from "dns";
+import { put } from "@vercel/blob";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -455,7 +456,8 @@ app.post("/api/reviews", auth, asyncHandler(async (req, res) => {
   res.status(201).json(doc.toJSON());
 }));
 
-const storage = multer.diskStorage({
+const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const storage = useBlobStorage ? multer.memoryStorage() : multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -472,15 +474,29 @@ const upload = multer({
   },
 });
 
-app.post("/api/admin/upload", auth, adminOnly, upload.single("image"), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: "Image file is required." });
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
-});
+const uploadImage = async (file) => {
+  if (useBlobStorage) {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, "_");
+    const blob = await put(`uploads/${Date.now()}-${base}${ext}`, file.buffer, {
+      access: "public",
+      contentType: file.mimetype,
+    });
+    return blob.url;
+  }
 
-app.post("/api/review-upload", auth, upload.single("image"), (req, res) => {
+  return `/uploads/${file.filename}`;
+};
+
+app.post("/api/admin/upload", auth, adminOnly, upload.single("image"), asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Image file is required." });
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
-});
+  res.status(201).json({ url: await uploadImage(req.file) });
+}));
+
+app.post("/api/review-upload", auth, upload.single("image"), asyncHandler(async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "Image file is required." });
+  res.status(201).json({ url: await uploadImage(req.file) });
+}));
 
 app.post("/api/admin/:table", auth, adminOnly, asyncHandler(async (req, res) => {
   const { table } = req.params;
