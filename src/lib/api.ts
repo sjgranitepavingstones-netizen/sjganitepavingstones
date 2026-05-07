@@ -10,6 +10,18 @@ export type AuthUser = {
 
 type RequestOptions = RequestInit & { auth?: boolean };
 
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 export const authStore = {
   getToken: () => localStorage.getItem(TOKEN_KEY),
   setToken: (token: string) => localStorage.setItem(TOKEN_KEY, token),
@@ -24,19 +36,33 @@ const request = async <T>(path: string, options: RequestOptions = {}): Promise<T
   const token = authStore.getToken();
   if (options.auth && token) headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
-  const data = await response.json().catch(() => null);
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    throw new ApiError("Server is not reachable. Please make sure the backend is running.", 0, "NETWORK_ERROR");
+  }
+
+  const responseText = await response.text();
+  const data = responseText ? (() => {
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      return null;
+    }
+  })() : null;
 
   if (!response.ok) {
-    throw new Error(data?.error || "Request failed");
+    throw new ApiError(data?.error || response.statusText || "Request failed", response.status, data?.code);
   }
   return data as T;
 };
 
 export const authApi = {
+  status: () => request<{ hasUsers: boolean }>("/auth/status"),
   signup: (payload: { full_name: string; email: string; password: string }) =>
     request<{ token: string; user: AuthUser }>("/auth/signup", {
       method: "POST",

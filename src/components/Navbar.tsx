@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, User, LogOut, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import sjLogoMark from "@/assets/sj-granite-paving-stone-mark.jpg";
 
 const links = [
@@ -40,16 +40,16 @@ export const Navbar = () => {
           : "bg-secondary/40 backdrop-blur-sm py-3.5"
       )}
     >
-      <nav className="container flex items-center justify-between gap-6">
+      <nav className="container flex items-center justify-between gap-3 xl:gap-5">
         <Link to="/" className="flex items-center gap-2 shrink-0 group">
           <img src={sjLogoMark} alt="SJ Granite Paving Stone" className="h-10 w-10 md:h-12 md:w-12 object-cover rounded border border-primary/25" />
           <span className="hidden sm:flex flex-col leading-none">
-            <span className="font-serif text-lg md:text-xl text-gold-gradient tracking-tight">SJ Granite Paving Stone</span>
+            <span className="font-serif text-lg xl:text-xl text-gold-gradient tracking-tight whitespace-nowrap">SJ Granite Paving Stone</span>
             <span className="text-[8px] uppercase tracking-[0.25em] text-secondary-foreground/60 mt-1">Est. 2013</span>
           </span>
         </Link>
 
-        <ul className="hidden lg:flex items-center gap-7">
+        <ul className="hidden xl:flex items-center gap-5">
           {links.map((l) => (
             <li key={l.to}>
               <RouterLink
@@ -57,7 +57,7 @@ export const Navbar = () => {
                 end={l.to === "/"}
                 className={({ isActive }) =>
                   cn(
-                    "link-gold text-[11px] uppercase tracking-[0.22em] font-medium transition-colors",
+                    "link-gold text-[10px] uppercase tracking-[0.18em] font-medium transition-colors whitespace-nowrap",
                     isActive ? "text-primary" : "text-secondary-foreground/85 hover:text-primary"
                   )
                 }
@@ -68,7 +68,7 @@ export const Navbar = () => {
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center gap-3 shrink-0">
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           {user ? (
             <>
               {!loading && isAdmin && (
@@ -96,14 +96,14 @@ export const Navbar = () => {
           )}
           <Link
             to="/contact"
-            className="inline-flex items-center px-5 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500"
+            className="inline-flex items-center px-4 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.2em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 whitespace-nowrap"
           >
             Get Quote
           </Link>
         </div>
 
         <button
-          className="md:hidden text-secondary-foreground p-2 -mr-2"
+          className="xl:hidden text-secondary-foreground p-2 -mr-2 shrink-0"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -111,10 +111,10 @@ export const Navbar = () => {
         </button>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile and tablet drawer */}
       <div
         className={cn(
-          "md:hidden overflow-hidden bg-secondary/98 backdrop-blur-xl transition-[max-height] duration-500 ease-out",
+          "xl:hidden overflow-hidden bg-secondary/98 backdrop-blur-xl transition-[max-height] duration-500 ease-out",
           open ? "max-h-[640px]" : "max-h-0"
         )}
       >
@@ -161,3 +161,4 @@ export const Navbar = () => {
     </header>
   );
 };
+

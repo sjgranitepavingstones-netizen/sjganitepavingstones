@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -217,12 +217,12 @@ const VariantsAdmin = () => {
     }).catch(() => undefined);
   }, []);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!productId) return;
     const data = await adminApi.list("product_variants", { product_id: productId, orderBy: "sort_order" });
     setItems(data || []);
-  };
-  useEffect(() => { load(); }, [productId]);
+  }, [productId]);
+  useEffect(() => { load(); }, [load]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -344,11 +344,11 @@ const SimpleCrud = ({ table, columns, textareas = [], imageField, orderBy, desc,
   const [items, setItems] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const data = await adminApi.list(table, { orderBy, desc: !!desc });
     setItems(data || []);
-  };
-  useEffect(() => { load(); }, []);
+  }, [desc, orderBy, table]);
+  useEffect(() => { load(); }, [load]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();

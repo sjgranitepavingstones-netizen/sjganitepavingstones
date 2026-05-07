@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { authApi, authStore } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { ApiError, authApi, authStore } from "@/lib/api";
+import { useAuth } from "@/context/useAuth";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -24,8 +24,16 @@ const Login = () => {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [resetUrl, setResetUrl] = useState<string | null>(null);
+  const [hasRegisteredUsers, setHasRegisteredUsers] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+
+  useEffect(() => {
+    authApi
+      .status()
+      .then(({ hasUsers }) => setHasRegisteredUsers(hasUsers))
+      .catch(() => undefined);
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +47,17 @@ const Login = () => {
       toast.success("Welcome back");
       nav(redirectTo);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Sign in failed");
+      if (error instanceof ApiError && ["NO_USERS", "USER_NOT_FOUND"].includes(error.code || "")) {
+        toast.error(error.message, {
+          description: "Registration takes less than a minute.",
+          action: {
+            label: "Create account",
+            onClick: () => nav("/signup"),
+          },
+        });
+      } else {
+        toast.error(error instanceof Error ? error.message : "Sign in failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -71,6 +89,21 @@ const Login = () => {
           <h1 className="font-serif text-4xl md:text-5xl text-white mt-3">Welcome Back</h1>
           <p className="text-secondary-foreground/60 mt-3 text-sm">Sign in to manage quotes & orders</p>
         </div>
+
+        {hasRegisteredUsers === false && (
+          <div className="mb-6 border border-primary/30 bg-primary/10 px-5 py-4 text-center shadow-gold-glow">
+            <div className="font-serif text-2xl text-white">Create your first account</div>
+            <p className="mt-2 text-sm text-secondary-foreground/70">
+              No user is registered yet. Please create an account first to continue.
+            </p>
+            <Link
+              to="/signup"
+              className="mt-4 inline-flex px-5 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.22em]"
+            >
+              Register now
+            </Link>
+          </div>
+        )}
 
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -130,3 +163,4 @@ const Login = () => {
 };
 
 export default Login;
+

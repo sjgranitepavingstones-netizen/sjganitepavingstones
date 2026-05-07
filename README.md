@@ -122,7 +122,7 @@ Image upload limit ekhon 25MB. JPG, PNG, WebP moto normal image file upload korb
 
 Production-e deploy korle uploads folder persistent rakhar jonno server storage ba cloud storage setup kora bhalo.
 
-## Test & Build
+## Build
 
 Build check:
 
@@ -130,12 +130,6 @@ Build check:
 npm run build
 ```
 
-Test run:
-
-```bash
-npm run test
-```
-
 ## Note
 
-Old Supabase integration files project-e ache, kintu main frontend ekhon `src/lib/api.ts` diye MongoDB backend-er shathe kaj kore. Existing UI/design part nosto na korar jonno unrelated files delete kora hoyni.
+Project ekhon MongoDB backend-er shathe `src/lib/api.ts` diye kaj kore. Old Supabase leftover remove kora hoyeche.

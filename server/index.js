@@ -9,6 +9,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
+import dns from "dns";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +17,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const uploadsDir = path.join(rootDir, "uploads");
 
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 fs.mkdirSync(uploadsDir, { recursive: true });
 
 const app = express();
@@ -258,6 +260,17 @@ const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, ne
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, database: mongoose.connection.readyState === 1 }));
 
+app.use("/api", (req, res, next) => {
+  if (req.path === "/health") return next();
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      code: "DATABASE_UNAVAILABLE",
+      error: "Database is not connected. Please check MongoDB Atlas Network Access and try again.",
+    });
+  }
+  next();
+});
+
 app.post("/api/auth/signup", asyncHandler(async (req, res) => {
   const { full_name, email, password } = req.body;
   if (!full_name || !email || !password || password.length < 8) {
@@ -277,10 +290,31 @@ app.post("/api/auth/signup", asyncHandler(async (req, res) => {
   res.status(201).json({ token: signToken(user), user: user.toJSON() });
 }));
 
+app.get("/api/auth/status", asyncHandler(async (_req, res) => {
+  const userCount = await User.estimatedDocumentCount();
+  res.json({ hasUsers: userCount > 0 });
+}));
+
 app.post("/api/auth/login", asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email: String(email || "").toLowerCase().trim() });
-  if (!user || !(await bcrypt.compare(password || "", user.password_hash))) {
+  const normalizedEmail = String(email || "").toLowerCase().trim();
+  const userCount = await User.countDocuments();
+  if (userCount === 0) {
+    return res.status(404).json({
+      code: "NO_USERS",
+      error: "No account has been registered yet. Please create an account first.",
+    });
+  }
+
+  const user = await User.findOne({ email: normalizedEmail });
+  if (!user) {
+    return res.status(404).json({
+      code: "USER_NOT_FOUND",
+      error: "No account was found with this email. Please create an account first.",
+    });
+  }
+
+  if (!(await bcrypt.compare(password || "", user.password_hash))) {
     return res.status(401).json({ error: "Email or password is not correct." });
   }
   res.json({ token: signToken(user), user: user.toJSON() });
@@ -476,10 +510,22 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err?.message || "Something went wrong." });
 });
 
-await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/granite-paving-stone");
-await SiteSetting.findByIdAndUpdate("main", {
-  $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
-}, { upsert: true });
+const connectDatabase = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/granite-paving-stone", {
+      family: 4,
+      serverSelectionTimeoutMS: 15000,
+    });
+    await SiteSetting.findByIdAndUpdate("main", {
+      $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
+    }, { upsert: true });
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection failed:", error?.message || error);
+  }
+};
+
+void connectDatabase();
 
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);

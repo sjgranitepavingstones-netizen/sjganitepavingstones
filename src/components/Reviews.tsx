@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SectionHeading } from "./SectionHeading";
 import { Quote, Star, ChevronLeft, ChevronRight, Upload } from "lucide-react";
 import { publicApi } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -188,3 +188,4 @@ export const Reviews = () => {
     </section>
   );
 };
+

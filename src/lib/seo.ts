@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
 
 const DEFAULT_SITE_URL = "https://www.sjgranitepavingstone.com";
@@ -158,6 +158,13 @@ export const useSeo = ({
   image = logoImage,
   schema,
 }: SeoOptions) => {
+  const keywordsMeta = keywords.join(", ");
+  const schemaJson = useMemo(() => {
+    if (!schema) return "";
+    const graph = Array.isArray(schema) ? schema.map(removeContext) : [removeContext(schema)];
+    return JSON.stringify({ "@context": "https://schema.org", "@graph": graph });
+  }, [schema]);
+
   useEffect(() => {
     const canonical = absoluteUrl(path || `${window.location.pathname}${window.location.search}`);
     const imageUrl = absoluteUrl(image);
@@ -166,7 +173,7 @@ export const useSeo = ({
     document.title = fullTitle;
     upsertMeta('meta[name="description"]', { content: description });
     upsertMeta('meta[name="robots"]', { content: "index, follow, max-image-preview:large" });
-    if (keywords.length) upsertMeta('meta[name="keywords"]', { content: keywords.join(", ") });
+    if (keywordsMeta) upsertMeta('meta[name="keywords"]', { content: keywordsMeta });
     upsertMeta('meta[property="og:type"]', { content: "website" });
     upsertMeta('meta[property="og:title"]', { content: fullTitle });
     upsertMeta('meta[property="og:description"]', { content: description });
@@ -178,8 +185,7 @@ export const useSeo = ({
     upsertMeta('meta[name="twitter:image"]', { content: imageUrl });
     upsertLink("canonical", canonical);
 
-    if (schema) {
-      const graph = Array.isArray(schema) ? schema.map(removeContext) : [removeContext(schema)];
+    if (schemaJson) {
       let script = document.getElementById("page-json-ld") as HTMLScriptElement | null;
       if (!script) {
         script = document.createElement("script");
@@ -187,7 +193,7 @@ export const useSeo = ({
         script.type = "application/ld+json";
         document.head.appendChild(script);
       }
-      script.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": graph });
+      script.textContent = schemaJson;
     }
-  }, [title, description, path, image, JSON.stringify(keywords), JSON.stringify(schema)]);
+  }, [title, description, path, image, keywordsMeta, schemaJson]);
 };

@@ -1,25 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { AuthUser, authApi, authStore } from "@/lib/api";
-
-type AuthCtx = {
-  user: AuthUser | null;
-  session: { token: string } | null;
-  isAdmin: boolean;
-  loading: boolean;
-  signOut: () => Promise<void>;
-  refreshAuth: () => Promise<void>;
-};
-
-const Ctx = createContext<AuthCtx>({
-  user: null,
-  session: null,
-  isAdmin: false,
-  loading: true,
-  signOut: async () => {},
-  refreshAuth: async () => {},
-});
-
-export const useAuth = () => useContext(Ctx);
+import { AuthContext } from "@/context/auth-context";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<{ token: string } | null>(null);
@@ -60,8 +41,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <Ctx.Provider value={{ user, session, isAdmin: user?.role === "admin", loading, signOut, refreshAuth }}>
+    <AuthContext.Provider value={{ user, session, isAdmin: user?.role === "admin", loading, signOut, refreshAuth }}>
       {children}
-    </Ctx.Provider>
+    </AuthContext.Provider>
   );
 };
