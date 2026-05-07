@@ -15,7 +15,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
-const uploadsDir = path.join(rootDir, "uploads");
+const uploadsDir = process.env.VERCEL === "1" ? "/tmp/uploads" : path.join(rootDir, "uploads");
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 fs.mkdirSync(uploadsDir, { recursive: true });
@@ -23,7 +23,11 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-before-live";
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:8080";
+const CLIENT_URLS = (process.env.CLIENT_URL || "http://localhost:8080")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+if (process.env.VERCEL_URL) CLIENT_URLS.push(`https://${process.env.VERCEL_URL}`);
 const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "granitepavingstone@gmail.com";
 const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
@@ -31,7 +35,16 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
 
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || CLIENT_URLS.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "2mb" }));
 app.use("/uploads", express.static(uploadsDir));
 
