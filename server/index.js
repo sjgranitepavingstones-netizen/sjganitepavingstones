@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
+import sharp from "sharp";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -457,16 +458,8 @@ app.post("/api/reviews", auth, asyncHandler(async (req, res) => {
 }));
 
 const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-const storage = useBlobStorage ? multer.memoryStorage() : multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, "_");
-    cb(null, `${Date.now()}-${base}${ext}`);
-  },
-});
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) return cb(new Error("Only image files can be uploaded."));
@@ -474,18 +467,37 @@ const upload = multer({
   },
 });
 
+const optimizeImage = async (file) => {
+  const ext = ".webp";
+  const base = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-z0-9_-]/gi, "_");
+  const filename = `${Date.now()}-${base}${ext}`;
+  const buffer = await sharp(file.buffer)
+    .rotate()
+    .resize({
+      width: 1600,
+      height: 1600,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 78 })
+    .toBuffer();
+
+  return { buffer, filename, contentType: "image/webp" };
+};
+
 const uploadImage = async (file) => {
+  const optimized = await optimizeImage(file);
+
   if (useBlobStorage) {
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, "_");
-    const blob = await put(`uploads/${Date.now()}-${base}${ext}`, file.buffer, {
+    const blob = await put(`uploads/${optimized.filename}`, optimized.buffer, {
       access: "public",
-      contentType: file.mimetype,
+      contentType: optimized.contentType,
     });
     return blob.url;
   }
 
-  return `/uploads/${file.filename}`;
+  await fs.promises.writeFile(path.join(uploadsDir, optimized.filename), optimized.buffer);
+  return `/uploads/${optimized.filename}`;
 };
 
 app.post("/api/admin/upload", auth, adminOnly, upload.single("image"), asyncHandler(async (req, res) => {
