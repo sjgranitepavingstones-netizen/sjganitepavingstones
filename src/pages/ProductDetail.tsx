@@ -4,16 +4,34 @@ import { ArrowLeft, Check } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
+import { colorToCss, variantColorLabel } from "@/lib/colors";
 import { useSeo, absoluteUrl, breadcrumbSchema } from "@/lib/seo";
 
-type Variant = { id: string; name: string; color: string | null; material: string | null; image_url: string; price: number | null };
-type Product = { id: string; slug: string; name: string; tagline: string | null; description: string | null; price_label: string | null; main_image_url: string | null };
+type Variant = {
+  id: string;
+  name: string;
+  color: string | null;
+  material: string | null;
+  image_url: string;
+  price: number | null;
+};
+
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  price_label: string | null;
+  main_image_url: string | null;
+};
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [active, setActive] = useState<Variant | null>(null);
+  const activeLabel = active ? variantColorLabel(active.color, active.name) : "";
 
   useSeo({
     title: product ? `${product.name} Bangalore Granite Stone Product` : "Granite Stone Product Bangalore",
@@ -71,11 +89,14 @@ const ProductDetail = () => {
     })();
   }, [slug]);
 
-  if (!product) return (
-    <main className="min-h-screen bg-background"><Navbar />
-      <div className="container pt-40 pb-20 text-center text-foreground/60">Loading…</div>
-    </main>
-  );
+  if (!product) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container pt-40 pb-20 text-center text-foreground/60">Loading...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background">
@@ -86,50 +107,73 @@ const ProductDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Image */}
           <div>
             <div className="aspect-square overflow-hidden bg-secondary img-zoom shadow-luxury">
-              <img src={active?.image_url || product.main_image_url || "/placeholder.svg"}
-                   alt={`${active?.name || product.name} Bangalore granite stone`}
-                   className="h-full w-full object-cover" />
+              <img
+                src={active?.image_url || product.main_image_url || "/placeholder.svg"}
+                alt={`${active?.name || product.name} Bangalore granite stone`}
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
 
-          {/* Info */}
           <div>
             {product.tagline && <span className="text-[10px] uppercase tracking-[0.3em] text-primary">{product.tagline}</span>}
             <h1 className="font-serif text-4xl md:text-5xl mt-3 leading-[1.05]">{product.name}</h1>
-            <p className="text-2xl text-gold-gradient font-serif mt-4">{active?.price ? `₹${active.price}` : product.price_label}</p>
+            <p className="text-2xl text-gold-gradient font-serif mt-4">
+              {active?.price ? `Rs. ${active.price}` : product.price_label}
+            </p>
             <p className="text-foreground/70 mt-6 leading-relaxed">{product.description}</p>
 
-            {/* Variants */}
-            <div className="mt-10">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-px w-8 bg-gold-gradient" />
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
-                  {variants.length} Stone & Color Options
-                </span>
-              </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {variants.map((v) => (
-                  <button key={v.id} onClick={() => setActive(v)}
-                    className={`group relative aspect-square overflow-hidden border-2 transition-all ${active?.id===v.id?"border-primary shadow-gold-glow":"border-transparent hover:border-primary/40"}`}>
-                    <img src={v.image_url} alt={`${v.name} granite stone variant in Bangalore`} className="h-full w-full object-cover" />
-                    {active?.id===v.id && (
-                      <span className="absolute top-1 right-1 h-5 w-5 rounded-full bg-gold-gradient text-primary-foreground inline-flex items-center justify-center">
-                        <Check className="h-3 w-3" />
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {active && (
-                <div className="mt-4 text-xs text-foreground/70">
-                  <span className="font-medium">{active.color}</span>
-                  {active.material && <span className="text-foreground/50"> · {active.material}</span>}
+            {variants.length > 0 && (
+              <div className="mt-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="h-px w-8 bg-gold-gradient" />
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
+                    {variants.length} Color Options
+                  </span>
                 </div>
-              )}
-            </div>
+
+                <div className="flex flex-wrap gap-4">
+                  {variants.map((variant) => {
+                    const label = variantColorLabel(variant.color, variant.name);
+                    const selected = active?.id === variant.id;
+
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => setActive(variant)}
+                        className={`group flex w-24 flex-col items-center gap-2 text-center transition-colors ${selected ? "text-primary" : "text-foreground/65 hover:text-foreground"}`}
+                        aria-pressed={selected}
+                        aria-label={`Select ${label}`}
+                      >
+                        <span
+                          className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border-2 shadow-sm transition-all ${selected ? "border-primary shadow-gold-glow" : "border-foreground/15 group-hover:border-primary/60"}`}
+                          style={{ backgroundColor: colorToCss(label) }}
+                        >
+                          {selected && (
+                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-background/90 text-primary">
+                              <Check className="h-3 w-3" />
+                            </span>
+                          )}
+                        </span>
+                        <span className="line-clamp-2 text-[10px] uppercase leading-4 tracking-[0.16em]">
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {active && (
+                  <div className="mt-5 border-l border-primary/40 pl-4 text-sm text-foreground/70">
+                    <div className="font-medium text-foreground">{activeLabel}</div>
+                    {active.material && <div className="text-xs text-foreground/50">{active.material}</div>}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-3 mt-10">
               <Link to="/contact" className="inline-flex items-center justify-center px-8 py-3.5 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">

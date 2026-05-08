@@ -4,6 +4,7 @@ import { ArrowUpRight, Search } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
+import { colorToCss, variantColorLabel } from "@/lib/colors";
 import { useSeo, breadcrumbSchema, serviceSchema } from "@/lib/seo";
 
 type Product = {
@@ -16,10 +17,13 @@ type Product = {
   category_id: string | null;
 };
 type Category = { id: string; name: string; slug: string };
+type Variant = { id: string; product_id: string; name: string; color: string | null; image_url: string; sort_order?: number };
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
+  const [variantsByProduct, setVariantsByProduct] = useState<Record<string, Variant[]>>({});
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, Variant>>({});
   const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
 
@@ -56,6 +60,13 @@ const ProductsPage = () => {
       ]);
       setProducts(p);
       setCats(c);
+      const variantEntries = await Promise.all(
+        p.map(async (product) => [
+          product.id,
+          await publicApi.list<Variant>("product_variants", { product_id: product.id, orderBy: "sort_order" }),
+        ] as const)
+      );
+      setVariantsByProduct(Object.fromEntries(variantEntries));
     })();
   }, []);
 
@@ -102,25 +113,59 @@ const ProductsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((p) => (
-              <Link key={p.id} to={`/products/${p.slug}`} className="group block">
-                <div className="relative aspect-[3/4] overflow-hidden bg-secondary img-zoom">
-                  <img src={p.main_image_url || "/placeholder.svg"} alt={`${p.name} Bangalore granite stone product`} loading="lazy"
-                    className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-0 inset-x-0 p-5">
-                    <h3 className="font-serif text-lg text-white">{p.name}</h3>
-                    {p.tagline && <p className="text-[10px] uppercase tracking-[0.22em] text-primary mt-1">{p.tagline}</p>}
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs text-white/75">{p.price_label}</span>
-                      <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gold-gradient text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </span>
+            {filtered.map((p) => {
+              const variants = variantsByProduct[p.id] || [];
+              const selected = selectedVariants[p.id];
+              const image = selected?.image_url || p.main_image_url || "/placeholder.svg";
+
+              return (
+                <div key={p.id} className="group">
+                  <Link to={`/products/${p.slug}`} className="block">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-secondary img-zoom">
+                      <img src={image} alt={`${p.name} Bangalore granite stone product`} loading="lazy"
+                        className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-0 inset-x-0 p-5">
+                        <h3 className="font-serif text-lg text-white">{p.name}</h3>
+                        {p.tagline && <p className="text-[10px] uppercase tracking-[0.22em] text-primary mt-1">{p.tagline}</p>}
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs text-white/75">{selected?.name || p.price_label}</span>
+                          <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gold-gradient text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
+
+                  {variants.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {variants.map((variant) => {
+                        const label = variantColorLabel(variant.color, variant.name);
+                        const active = selected?.id === variant.id;
+
+                        return (
+                          <button
+                            key={variant.id}
+                            type="button"
+                            onClick={() => setSelectedVariants((current) => ({ ...current, [p.id]: variant }))}
+                            className={`flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.14em] transition-colors ${active ? "border-primary text-primary" : "border-foreground/15 text-foreground/60 hover:border-primary/50 hover:text-foreground"}`}
+                            aria-pressed={active}
+                            aria-label={`Show ${label} ${p.name}`}
+                          >
+                            <span
+                              className="h-3.5 w-3.5 rounded-full border border-foreground/15"
+                              style={{ backgroundColor: colorToCss(label) }}
+                            />
+                            <span>{label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
           {filtered.length === 0 && <p className="text-center text-foreground/50 py-16">No products found.</p>}
         </div>

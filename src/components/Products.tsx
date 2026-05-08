@@ -2,11 +2,27 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { publicApi } from "@/lib/api";
+import { colorToCss, variantColorLabel } from "@/lib/colors";
+
+type Variant = { id: string; product_id: string; name: string; color: string | null; image_url: string };
 
 export const Products = () => {
   const [items, setItems] = useState<any[]>([]);
+  const [variantsByProduct, setVariantsByProduct] = useState<Record<string, Variant[]>>({});
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, Variant>>({});
+
   useEffect(() => {
-    publicApi.list("products", { featured: true, orderBy: "created_at", limit: 4 }).then(setItems).catch(() => undefined);
+    (async () => {
+      const products = await publicApi.list<any>("products", { featured: true, orderBy: "created_at", limit: 4 });
+      setItems(products);
+      const variantEntries = await Promise.all(
+        products.map(async (product) => [
+          product.id,
+          await publicApi.list<Variant>("product_variants", { product_id: product.id, orderBy: "sort_order" }),
+        ] as const)
+      );
+      setVariantsByProduct(Object.fromEntries(variantEntries));
+    })().catch(() => undefined);
   }, []);
 
   return (
@@ -31,30 +47,64 @@ export const Products = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {items.map((p) => (
-            <Link to={`/products/${p.slug}`} key={p.id} className="group relative cursor-pointer block">
-              <div className="relative aspect-[3/4] overflow-hidden bg-black img-zoom">
-                <img src={p.main_image_url || "/placeholder.svg"} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                {p.tagline && (
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] font-medium">
-                    Signature
-                  </span>
-                )}
-                <div className="absolute bottom-0 inset-x-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  {p.tagline && <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">{p.tagline}</div>}
-                  <h3 className="font-serif text-xl text-white leading-tight">{p.name}</h3>
-                  <div className="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                    <span className="text-sm text-white/80">{p.price_label}</span>
-                    <span className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gold-gradient text-primary-foreground">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </span>
+          {items.map((p) => {
+            const variants = variantsByProduct[p.id] || [];
+            const selected = selectedVariants[p.id];
+            const image = selected?.image_url || p.main_image_url || "/placeholder.svg";
+
+            return (
+              <div key={p.id} className="group">
+                <Link to={`/products/${p.slug}`} className="relative cursor-pointer block">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-black img-zoom">
+                    <img src={image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    {p.tagline && (
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] font-medium">
+                        Signature
+                      </span>
+                    )}
+                    <div className="absolute bottom-0 inset-x-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      {p.tagline && <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">{p.tagline}</div>}
+                      <h3 className="font-serif text-xl text-white leading-tight">{p.name}</h3>
+                      <div className="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        <span className="text-sm text-white/80">{selected?.name || p.price_label}</span>
+                        <span className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gold-gradient text-primary-foreground">
+                          <ArrowUpRight className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </Link>
+
+                {variants.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {variants.map((variant) => {
+                      const label = variantColorLabel(variant.color, variant.name);
+                      const active = selected?.id === variant.id;
+
+                      return (
+                        <button
+                          key={variant.id}
+                          type="button"
+                          onClick={() => setSelectedVariants((current) => ({ ...current, [p.id]: variant }))}
+                          className={`flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.14em] transition-colors ${active ? "border-primary text-primary" : "border-white/20 text-white/65 hover:border-primary/50 hover:text-white"}`}
+                          aria-pressed={active}
+                          aria-label={`Show ${label} ${p.name}`}
+                        >
+                          <span
+                            className="h-3.5 w-3.5 rounded-full border border-white/25"
+                            style={{ backgroundColor: colorToCss(label) }}
+                          />
+                          <span>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </Link>
-          ))}
-        </div>
+            );
+          })}
+                </div>
       </div>
     </section>
   );
