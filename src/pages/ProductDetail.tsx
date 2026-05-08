@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
@@ -26,12 +26,33 @@ type Product = {
   main_image_url: string | null;
 };
 
+const WHATSAPP_NUMBER = "918217257354";
+
 const ProductDetail = () => {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [active, setActive] = useState<Variant | null>(null);
   const activeLabel = active ? variantColorLabel(active.color, active.name) : "";
+  const productUrl = product ? absoluteUrl(`/products/${product.slug}`) : "";
+  const whatsappMessage = product
+    ? [
+        "Hello SJ Granite Paving Stone,",
+        "",
+        "I am interested in this product:",
+        `Product: ${product.name}`,
+        product.tagline ? `Type: ${product.tagline}` : null,
+        active ? `Selected color: ${activeLabel}` : null,
+        active?.material ? `Material: ${active.material}` : null,
+        active?.price ? `Price: Rs. ${active.price}` : product.price_label ? `Price: ${product.price_label}` : null,
+        `Product link: ${productUrl}`,
+        "",
+        "Please share more details.",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "";
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 
   useSeo({
     title: product ? `${product.name} Bangalore Granite Stone Product` : "Granite Stone Product Bangalore",
@@ -176,6 +197,15 @@ const ProductDetail = () => {
             )}
 
             <div className="flex flex-col sm:flex-row gap-3 mt-10">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-[#25D366] text-white text-xs uppercase tracking-[0.22em] hover:brightness-105 transition-all"
+              >
+                <MessageCircle className="h-4 w-4" fill="currentColor" />
+                WhatsApp This Item
+              </a>
               <Link to="/contact" className="inline-flex items-center justify-center px-8 py-3.5 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">
                 Request Quote
               </Link>
