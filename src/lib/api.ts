@@ -1,4 +1,24 @@
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+const getApiUrl = () => {
+  const configuredUrl = import.meta.env.VITE_API_URL || "/api";
+
+  if (typeof window === "undefined") return configuredUrl;
+  if (!configuredUrl.startsWith("http")) return configuredUrl;
+
+  try {
+    const apiUrl = new URL(configuredUrl);
+    const isVercelPreviewApi = apiUrl.hostname.endsWith(".vercel.app");
+    const isCustomDomain = !window.location.hostname.endsWith(".vercel.app")
+      && !["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+    if (import.meta.env.PROD && isVercelPreviewApi && isCustomDomain) return "/api";
+  } catch {
+    return "/api";
+  }
+
+  return configuredUrl;
+};
+
+const API_URL = getApiUrl();
 const TOKEN_KEY = "granite_auth_token";
 
 export type AuthUser = {

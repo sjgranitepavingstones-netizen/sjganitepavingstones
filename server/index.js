@@ -30,6 +30,7 @@ const CLIENT_URLS = (process.env.CLIENT_URL || "http://localhost:8080")
   .map((url) => url.trim())
   .filter(Boolean);
 if (process.env.VERCEL_URL) CLIENT_URLS.push(`https://${process.env.VERCEL_URL}`);
+const PRIMARY_CLIENT_URL = CLIENT_URLS[0] || "http://localhost:8080";
 const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "granitepavingstone@gmail.com";
 const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
@@ -273,10 +274,46 @@ const adminOnly = (req, res, next) => {
 
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-app.get("/api/health", (_req, res) => res.json({ ok: true, database: mongoose.connection.readyState === 1 }));
+let databaseConnectionPromise = null;
 
-app.use("/api", (req, res, next) => {
+const connectDatabase = async () => {
+  if (mongoose.connection.readyState === 1) return true;
+  if (databaseConnectionPromise) return databaseConnectionPromise;
+
+  databaseConnectionPromise = mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/granite-paving-stone", {
+    family: 4,
+    serverSelectionTimeoutMS: 15000,
+  })
+    .then(async () => {
+      await SiteSetting.findByIdAndUpdate("main", {
+        $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
+      }, { upsert: true });
+      console.log("MongoDB connected");
+      return true;
+    })
+    .catch((error) => {
+      console.error("MongoDB connection failed:", error?.message || error);
+      throw error;
+    })
+    .finally(() => {
+      databaseConnectionPromise = null;
+    });
+
+  return databaseConnectionPromise;
+};
+
+app.get("/api/health", asyncHandler(async (_req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDatabase().catch(() => false);
+  }
+  res.json({ ok: true, database: mongoose.connection.readyState === 1 });
+}));
+
+app.use("/api", asyncHandler(async (req, res, next) => {
   if (req.path === "/health") return next();
+  if (mongoose.connection.readyState !== 1) {
+    await connectDatabase().catch(() => false);
+  }
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
       code: "DATABASE_UNAVAILABLE",
@@ -284,7 +321,7 @@ app.use("/api", (req, res, next) => {
     });
   }
   next();
-});
+}));
 
 app.post("/api/auth/signup", asyncHandler(async (req, res) => {
   const { full_name, email, password } = req.body;
@@ -346,7 +383,7 @@ app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
     user.reset_token_expires_at = new Date(Date.now() + 60 * 60 * 1000);
     await user.save();
 
-    resetUrl = `${CLIENT_URL}/reset-password?token=${token}`;
+    resetUrl = `${PRIMARY_CLIENT_URL}/reset-password?token=${token}`;
     console.log(`Password reset link for ${email}: ${resetUrl}`);
   }
 
@@ -555,22 +592,7 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err?.message || "Something went wrong." });
 });
 
-const connectDatabase = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/granite-paving-stone", {
-      family: 4,
-      serverSelectionTimeoutMS: 15000,
-    });
-    await SiteSetting.findByIdAndUpdate("main", {
-      $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
-    }, { upsert: true });
-    console.log("MongoDB connected");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error?.message || error);
-  }
-};
-
-const databaseReady = connectDatabase();
+const databaseReady = connectDatabase().catch(() => false);
 
 if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {
