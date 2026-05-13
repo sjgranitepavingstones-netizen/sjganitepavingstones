@@ -34,6 +34,9 @@ const CLIENT_URLS = (process.env.CLIENT_URL || DEFAULT_CLIENT_URLS.join(","))
   .split(",")
   .map((url) => url.trim())
   .filter(Boolean);
+DEFAULT_CLIENT_URLS.forEach((url) => {
+  if (!CLIENT_URLS.includes(url)) CLIENT_URLS.push(url);
+});
 if (process.env.VERCEL_URL) CLIENT_URLS.push(`https://${process.env.VERCEL_URL}`);
 const PRIMARY_CLIENT_URL = CLIENT_URLS[0] || "http://localhost:8080";
 const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "granitepavingstone@gmail.com";
