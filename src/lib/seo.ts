@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
 
-const DEFAULT_SITE_URL = "https://www.sjgranitepavingstone.com";
+const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
   "SJ Granite Paving Stone provides granite paving stone, cobblestone, floor stone, parking pavers and stone chairs in Bangalore, Karnataka.";
