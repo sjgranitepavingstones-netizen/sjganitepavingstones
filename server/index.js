@@ -25,7 +25,12 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-before-live";
-const CLIENT_URLS = (process.env.CLIENT_URL || "http://localhost:8080")
+const DEFAULT_CLIENT_URLS = [
+  "http://localhost:8080",
+  "https://pavingstones.in",
+  "https://www.pavingstones.in",
+];
+const CLIENT_URLS = (process.env.CLIENT_URL || DEFAULT_CLIENT_URLS.join(","))
   .split(",")
   .map((url) => url.trim())
   .filter(Boolean);
@@ -44,7 +49,27 @@ app.use(cors({
       callback(null, true);
       return;
     }
-    callback(new Error("Not allowed by CORS"));
+
+    try {
+      const originUrl = new URL(origin);
+      const allowedHostnames = new Set(
+        CLIENT_URLS.flatMap((url) => {
+          const hostname = new URL(url).hostname;
+          return hostname.startsWith("www.")
+            ? [hostname, hostname.replace(/^www\./, "")]
+            : [hostname, `www.${hostname}`];
+        })
+      );
+
+      if (allowedHostnames.has(originUrl.hostname)) {
+        callback(null, true);
+        return;
+      }
+    } catch {
+      // Fall through to the CORS error below.
+    }
+
+    callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
 }));
