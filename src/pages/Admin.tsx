@@ -60,7 +60,7 @@ const Admin = () => {
 };
 
 // ============ Reusable image uploader ============
-const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | null; onChange: (url: string) => void; label?: string }) => {
+const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | null; onChange: (url: string) => void | Promise<void>; label?: string }) => {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const upload = async (f: File) => {
@@ -71,7 +71,7 @@ const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | n
     setBusy(true);
     try {
       const { url } = await adminApi.upload(f);
-      onChange(url);
+      await onChange(url);
       toast.success("Uploaded");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed");
@@ -627,27 +627,38 @@ const SettingsAdmin = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const lat = parseFloat(form.map_latitude);
-    const lng = parseFloat(form.map_longitude);
-    if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      toast.error("Please enter valid latitude and longitude");
-      return;
+  const settingsPayload = (nextForm = form) => {
+    const lat = nextForm.map_latitude.trim() ? parseFloat(nextForm.map_latitude) : null;
+    const lng = nextForm.map_longitude.trim() ? parseFloat(nextForm.map_longitude) : null;
+
+    if ((nextForm.map_latitude.trim() && Number.isNaN(lat)) || (nextForm.map_longitude.trim() && Number.isNaN(lng))) {
+      throw new Error("Please enter valid latitude and longitude");
     }
-    const payload = {
+
+    return {
       id: "main",
       map_latitude: lat,
       map_longitude: lng,
-      map_zoom: parseInt(form.map_zoom) || 15,
-      owner_image_url: form.owner_image_url || null,
+      map_zoom: parseInt(nextForm.map_zoom) || 15,
+      owner_image_url: nextForm.owner_image_url || null,
     };
+  };
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await adminApi.update("site_settings", "main", payload);
+      await adminApi.update("site_settings", "main", settingsPayload());
       toast.success("Settings saved");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Settings save failed");
     }
+  };
+
+  const saveOwnerImage = async (url: string) => {
+    const nextForm = { ...form, owner_image_url: url };
+    setForm(nextForm);
+    await adminApi.update("site_settings", "main", settingsPayload(nextForm));
+    toast.success("About page image saved");
   };
 
   if (loading) return <p className="text-sm text-foreground/50">Loading…</p>;
@@ -666,7 +677,7 @@ const SettingsAdmin = () => {
         <ImageUploader
           label="About page founder image"
           value={form.owner_image_url || null}
-          onChange={(url) => setForm({ ...form, owner_image_url: url })}
+          onChange={saveOwnerImage}
         />
         <div className="grid grid-cols-2 gap-4">
           <Field label="Latitude">
