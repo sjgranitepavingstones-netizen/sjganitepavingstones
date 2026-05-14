@@ -24,7 +24,7 @@ const AboutPage = () => {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24"><AtelierInfo /><About /></div>
+      <div className="pt-24"><About /><AtelierInfo /></div>
       <Reviews />
       <Footer />
     </main>

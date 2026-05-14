@@ -660,11 +660,11 @@ const SettingsAdmin = () => {
     <div className="max-w-2xl">
       <h3 className="font-serif text-2xl mb-2">Business Settings</h3>
       <p className="text-xs text-foreground/60 mb-6">
-        Upload the company owner image for the About page and keep the Google Maps location updated.
+        Upload the small founder image for the About page and keep the Google Maps location updated.
       </p>
       <form onSubmit={save} className="space-y-4">
         <ImageUploader
-          label="Company owner image"
+          label="About page founder image"
           value={form.owner_image_url || null}
           onChange={(url) => setForm({ ...form, owner_image_url: url })}
         />
