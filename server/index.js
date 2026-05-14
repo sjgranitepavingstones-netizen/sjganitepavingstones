@@ -11,7 +11,7 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import dns from "dns";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -208,6 +208,16 @@ const tableConfig = {
   inquiries: { orderBy: "created_at", public: false },
 };
 
+const imageFieldsByTable = {
+  categories: ["image_url"],
+  products: ["main_image_url"],
+  product_variants: ["image_url"],
+  workflow_steps: ["image_url"],
+  reviews: ["avatar_url"],
+  hero_images: ["image_url"],
+  site_settings: ["owner_image_url"],
+};
+
 const asId = (id) => mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
 const clean = (value) => value === "" ? null : value;
 const clampRating = (value) => Math.min(5, Math.max(1, Number(value) || 5));
@@ -216,6 +226,58 @@ const cleanPayload = (payload = {}) => Object.fromEntries(
     .filter(([key]) => !["id", "_id", "__v", "created_at", "updated_at", "categories", "products"].includes(key))
     .map(([key, value]) => [key, clean(value)])
 );
+
+const imageUrlsFromDoc = (table, doc) => {
+  if (!doc) return [];
+  return (imageFieldsByTable[table] || [])
+    .map((field) => doc[field])
+    .filter(Boolean);
+};
+
+const changedImageUrls = (table, previousDoc, nextPayload) => {
+  if (!previousDoc) return [];
+  return (imageFieldsByTable[table] || [])
+    .filter((field) => Object.prototype.hasOwnProperty.call(nextPayload, field))
+    .map((field) => previousDoc[field])
+    .filter((url) => url && !Object.values(nextPayload).includes(url));
+};
+
+const isImageStillReferenced = async (url) => {
+  const checks = await Promise.all(Object.entries(imageFieldsByTable).map(async ([table, fields]) => {
+    const Model = models[table];
+    if (!Model) return false;
+    return Boolean(await Model.exists({ $or: fields.map((field) => ({ [field]: url })) }));
+  }));
+  return checks.some(Boolean);
+};
+
+const removeStoredImage = async (url) => {
+  if (!url || url === "/placeholder.svg") return;
+
+  try {
+    if (url.startsWith("/uploads/")) {
+      const filename = path.basename(url);
+      await fs.promises.unlink(path.join(uploadsDir, filename)).catch((error) => {
+        if (error?.code !== "ENOENT") throw error;
+      });
+      return;
+    }
+
+    const hostname = new URL(url).hostname;
+    if (hostname.endsWith(".public.blob.vercel-storage.com")) {
+      await del(url);
+    }
+  } catch (error) {
+    console.warn("Failed to remove stored image:", error?.message || error);
+  }
+};
+
+const removeUnusedImages = async (urls) => {
+  const uniqueUrls = [...new Set(urls.filter(Boolean))];
+  await Promise.all(uniqueUrls.map(async (url) => {
+    if (!(await isImageStillReferenced(url))) await removeStoredImage(url);
+  }));
+};
 
 const signToken = (user) => jwt.sign(
   { id: user.id, email: user.email, role: user.role },
@@ -599,8 +661,12 @@ app.put("/api/admin/:table/:id", auth, adminOnly, asyncHandler(async (req, res) 
   if (!Model) return res.status(404).json({ error: "Not found." });
   const payload = cleanPayload(req.body);
   if (table === "reviews") payload.rating = clampRating(payload.rating);
-  const doc = await Model.findByIdAndUpdate(id === "main" ? "main" : asId(id), payload, { new: true, runValidators: true });
+  const targetId = id === "main" ? "main" : asId(id);
+  const previousDoc = await Model.findById(targetId);
+  const oldImageUrls = changedImageUrls(table, previousDoc, payload);
+  const doc = await Model.findByIdAndUpdate(targetId, payload, { new: true, runValidators: true });
   if (!doc) return res.status(404).json({ error: "Record not found." });
+  await removeUnusedImages(oldImageUrls);
   res.json(doc.toJSON());
 }));
 
@@ -608,8 +674,19 @@ app.delete("/api/admin/:table/:id", auth, adminOnly, asyncHandler(async (req, re
   const { table, id } = req.params;
   const Model = models[table];
   if (!Model) return res.status(404).json({ error: "Not found." });
-  if (table === "products") await ProductVariant.deleteMany({ product_id: asId(id) });
-  await Model.findByIdAndDelete(asId(id));
+  const targetId = id === "main" ? "main" : asId(id);
+  const imageUrls = [];
+  const doc = await Model.findById(targetId);
+  imageUrls.push(...imageUrlsFromDoc(table, doc));
+
+  if (table === "products") {
+    const variants = await ProductVariant.find({ product_id: asId(id) });
+    variants.forEach((variant) => imageUrls.push(...imageUrlsFromDoc("product_variants", variant)));
+    await ProductVariant.deleteMany({ product_id: asId(id) });
+  }
+
+  await Model.findByIdAndDelete(targetId);
+  await removeUnusedImages(imageUrls);
   res.json({ ok: true });
 }));
 
