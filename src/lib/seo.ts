@@ -4,7 +4,39 @@ import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
 const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
-  "SJ Granite Paving Stone provides granite paving stone, cobblestone, floor stone, parking pavers and stone chairs in Bangalore, Karnataka.";
+  "SJ Granite Paving Stone provides granite paving stone, cobblestone, floor stone, parking pavers and stone chairs across Bangalore, Karnataka and Mumbai.";
+
+export const SERVICE_LOCATIONS = [
+  "Bangalore",
+  "Bengaluru",
+  "Mumbai",
+  "Karnataka",
+  "Mysuru",
+  "Mangalore",
+  "Hubli",
+  "Dharwad",
+  "Belgaum",
+  "Tumkur",
+  "Davangere",
+  "Shimoga",
+  "Udupi",
+  "Manipal",
+  "Hassan",
+  "Mandya",
+  "Ballari",
+  "Vijayapura",
+  "Gulbarga",
+  "Whitefield",
+  "Electronic City",
+  "HSR Layout",
+  "Koramangala",
+  "Indiranagar",
+  "Jayanagar",
+  "JP Nagar",
+  "Hebbal",
+  "Yelahanka",
+  "Sarjapur Road",
+];
 
 type SeoOptions = {
   title: string;
@@ -81,21 +113,7 @@ export const localBusinessSchema = () => ({
     addressRegion: "Karnataka",
     addressCountry: "IN",
   },
-  areaServed: [
-    "Bangalore",
-    "Bengaluru",
-    "Karnataka",
-    "Whitefield",
-    "Electronic City",
-    "HSR Layout",
-    "Koramangala",
-    "Indiranagar",
-    "Jayanagar",
-    "JP Nagar",
-    "Hebbal",
-    "Yelahanka",
-    "Sarjapur Road",
-  ],
+  areaServed: SERVICE_LOCATIONS,
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -115,7 +133,7 @@ export const localBusinessSchema = () => ({
     itemOffered: {
       "@type": "Service",
       name,
-      areaServed: "Bangalore, Karnataka",
+      areaServed: SERVICE_LOCATIONS,
       provider: {
         "@type": "LocalBusiness",
         name: BRAND_NAME,
@@ -141,10 +159,10 @@ export const serviceSchema = (name: string, description: string, path: string) =
   name,
   description,
   serviceType: name,
-  areaServed: {
-    "@type": "City",
-    name: "Bangalore",
-  },
+  areaServed: SERVICE_LOCATIONS.map((name) => ({
+    "@type": ["City", "AdministrativeArea"],
+    name,
+  })),
   provider: {
     "@type": "LocalBusiness",
     name: BRAND_NAME,

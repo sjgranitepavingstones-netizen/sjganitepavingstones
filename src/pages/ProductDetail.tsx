@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
 import { colorToCss, variantColorLabel } from "@/lib/colors";
-import { useSeo, absoluteUrl, breadcrumbSchema } from "@/lib/seo";
+import { useSeo, absoluteUrl, breadcrumbSchema, SERVICE_LOCATIONS } from "@/lib/seo";
 import { createProductWhatsAppUrl } from "@/lib/whatsapp";
 
 type Variant = {
@@ -48,6 +48,10 @@ const ProductDetail = () => {
       "granite paving stone",
       "cobblestone Bangalore",
       "floor stone Bangalore",
+      "granite paving stone Mumbai",
+      "granite paving stone Karnataka",
+      "paving stone Mysuru",
+      "cobblestone Mangalore",
     ],
     schema: product
       ? [
@@ -67,7 +71,7 @@ const ProductDetail = () => {
               name: "SJ Granite Paving Stone",
             },
             category: "Granite paving stone and outdoor stone product",
-            areaServed: "Bangalore, Karnataka",
+            areaServed: SERVICE_LOCATIONS,
             offers: {
               "@type": "Offer",
               priceCurrency: "INR",

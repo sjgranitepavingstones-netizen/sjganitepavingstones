@@ -120,7 +120,7 @@ export const Hero = () => {
 
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl animate-fade-in [animation-delay:600ms]">
             {[
-              { v: "Bengaluru", l: "Service Area" },
+              { v: "BLR + KA", l: "Service Area" },
               { v: "2013", l: "Established" },
               { v: "5+", l: "Stone Categories" },
               { v: "100%", l: "Service Focus" },

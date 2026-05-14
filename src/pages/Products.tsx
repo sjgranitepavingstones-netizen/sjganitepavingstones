@@ -31,7 +31,7 @@ const ProductsPage = () => {
   useSeo({
     title: "Granite Paving Stone Products Bangalore | Cobblestone & Floor Stone",
     description:
-      "Browse granite paving stone, cobblestone pavers, floor stone, parking pavers, stone chairs and outdoor stone furniture from SJ Granite Paving Stone in Bangalore.",
+      "Browse granite paving stone, cobblestone pavers, floor stone, parking pavers, stone chairs and outdoor stone furniture from SJ Granite Paving Stone for Bangalore, Karnataka and Mumbai.",
     path: "/products",
     keywords: [
       "granite products Bangalore",
@@ -39,6 +39,11 @@ const ProductsPage = () => {
       "cobblestone pavers Bangalore",
       "floor stone Bangalore",
       "stone chair Bangalore",
+      "granite products Mumbai",
+      "paving stone Mysuru",
+      "cobblestone Mangalore",
+      "floor stone Belgaum",
+      "parking stone Tumkur",
     ],
     schema: [
       breadcrumbSchema([
@@ -46,8 +51,8 @@ const ProductsPage = () => {
         { name: "Products", path: "/products" },
       ]),
       serviceSchema(
-        "Granite paving stone products in Bangalore",
-        "Granite paving stone, cobblestone, floor stone and outdoor stone furniture products for Bangalore projects.",
+        "Granite paving stone products in Bangalore, Karnataka and Mumbai",
+        "Granite paving stone, cobblestone, floor stone and outdoor stone furniture products for Bangalore, Karnataka and Mumbai projects.",
         "/products"
       ),
     ],
@@ -86,7 +91,7 @@ const ProductsPage = () => {
             Bangalore <span className="italic text-gold-gradient">Stone Catalogue</span>
           </h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
-            Granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture for Bangalore and Karnataka projects.
+            Granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture for Bangalore, Karnataka and Mumbai projects.
           </p>
         </div>
       </section>
