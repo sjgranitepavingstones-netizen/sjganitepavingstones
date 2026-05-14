@@ -110,12 +110,27 @@ const ProductDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div>
-            <div className="aspect-square overflow-hidden bg-secondary img-zoom shadow-luxury">
+            <div className="group relative aspect-square overflow-hidden bg-secondary img-zoom shadow-luxury">
               <img
                 src={active?.image_url || product.main_image_url || "/placeholder.svg"}
                 alt={`${active?.name || product.name} Bangalore granite stone`}
                 className="h-full w-full object-cover"
               />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-24">
+                <div className="mb-3 text-xs text-white/85">
+                  <span className="font-serif text-xl text-white">{active ? activeLabel : product.name}</span>
+                  {active?.material && <span className="mt-1 block text-white/65">{active.material}</span>}
+                </div>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-3 bg-[#25D366] px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-white transition-all hover:brightness-105 sm:w-auto"
+                >
+                  <MessageCircle className="h-4 w-4" fill="currentColor" />
+                  WhatsApp This Image
+                </a>
+              </div>
             </div>
           </div>
 
