@@ -17,7 +17,11 @@ type SeoOptions = {
 
 const siteOrigin = () => {
   const configured = import.meta.env.VITE_SITE_URL;
-  if (configured) return String(configured).replace(/\/+$/, "");
+  if (configured) {
+    const origin = String(configured).replace(/\/+$/, "");
+    if (!origin.includes(".vercel.app")) return origin;
+  }
+  if (import.meta.env.PROD) return DEFAULT_SITE_URL;
   if (typeof window !== "undefined" && window.location.origin) return window.location.origin;
   return DEFAULT_SITE_URL;
 };
