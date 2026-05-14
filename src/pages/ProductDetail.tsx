@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { publicApi } from "@/lib/api";
 import { colorToCss, variantColorLabel } from "@/lib/colors";
 import { useSeo, absoluteUrl, breadcrumbSchema } from "@/lib/seo";
+import { createProductWhatsAppUrl } from "@/lib/whatsapp";
 
 type Variant = {
   id: string;
@@ -26,33 +27,13 @@ type Product = {
   main_image_url: string | null;
 };
 
-const WHATSAPP_NUMBER = "918217257354";
-
 const ProductDetail = () => {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [active, setActive] = useState<Variant | null>(null);
   const activeLabel = active ? variantColorLabel(active.color, active.name) : "";
-  const productUrl = product ? absoluteUrl(`/products/${product.slug}`) : "";
-  const whatsappMessage = product
-    ? [
-        "Hello SJ Granite Paving Stone,",
-        "",
-        "I am interested in this product:",
-        `Product: ${product.name}`,
-        product.tagline ? `Type: ${product.tagline}` : null,
-        active ? `Selected color: ${activeLabel}` : null,
-        active?.material ? `Material: ${active.material}` : null,
-        active?.price ? `Price: Rs. ${active.price}` : product.price_label ? `Price: ${product.price_label}` : null,
-        `Product link: ${productUrl}`,
-        "",
-        "Please share more details.",
-      ]
-        .filter(Boolean)
-        .join("\n")
-    : "";
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = product ? createProductWhatsAppUrl(product, active, activeLabel) : "#";
 
   useSeo({
     title: product ? `${product.name} Bangalore Granite Stone Product` : "Granite Stone Product Bangalore",
@@ -155,7 +136,7 @@ const ProductDetail = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {variants.map((variant) => {
                     const label = variantColorLabel(variant.color, variant.name);
                     const selected = active?.id === variant.id;
@@ -165,22 +146,37 @@ const ProductDetail = () => {
                         key={variant.id}
                         type="button"
                         onClick={() => setActive(variant)}
-                        className={`group flex w-24 flex-col items-center gap-2 text-center transition-colors ${selected ? "text-primary" : "text-foreground/65 hover:text-foreground"}`}
+                        className={`group grid grid-cols-[88px_1fr] items-center gap-4 border p-3 text-left transition-all ${selected ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
                         aria-pressed={selected}
                         aria-label={`Select ${label}`}
                       >
-                        <span
-                          className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border-2 shadow-sm transition-all ${selected ? "border-primary shadow-gold-glow" : "border-foreground/15 group-hover:border-primary/60"}`}
-                          style={{ backgroundColor: colorToCss(label) }}
-                        >
-                          {selected && (
-                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-background/90 text-primary">
-                              <Check className="h-3 w-3" />
-                            </span>
-                          )}
+                        <span className="relative block aspect-square overflow-hidden bg-secondary">
+                          <img
+                            src={variant.image_url || product.main_image_url || "/placeholder.svg"}
+                            alt={`${label} ${product.name}`}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <span
+                            className={`absolute left-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 shadow-sm ${selected ? "border-primary" : "border-white/70"}`}
+                            style={{ backgroundColor: colorToCss(label) }}
+                          >
+                            {selected && (
+                              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-background/90 text-primary">
+                                <Check className="h-2.5 w-2.5" />
+                              </span>
+                            )}
+                          </span>
                         </span>
-                        <span className="line-clamp-2 text-[10px] uppercase leading-4 tracking-[0.16em]">
-                          {label}
+                        <span className="min-w-0">
+                          <span className={`block font-serif text-xl leading-tight ${selected ? "text-primary" : "text-foreground"}`}>
+                            {label}
+                          </span>
+                          {variant.material && (
+                            <span className="mt-1 block text-xs text-foreground/55">{variant.material}</span>
+                          )}
+                          <span className="mt-2 block text-xs text-foreground/70">
+                            {variant.price ? `Rs. ${variant.price}` : product.price_label || "Contact for price"}
+                          </span>
                         </span>
                       </button>
                     );

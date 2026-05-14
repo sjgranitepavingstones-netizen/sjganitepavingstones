@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MessageCircle } from "lucide-react";
 import { publicApi } from "@/lib/api";
 import { colorToCss, variantColorLabel } from "@/lib/colors";
+import { createProductWhatsAppUrl } from "@/lib/whatsapp";
 
-type Variant = { id: string; product_id: string; name: string; color: string | null; image_url: string };
+type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string; price?: number | null };
 
 export const Products = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -51,6 +52,8 @@ export const Products = () => {
             const variants = variantsByProduct[p.id] || [];
             const selected = selectedVariants[p.id];
             const image = selected?.image_url || p.main_image_url || "/placeholder.svg";
+            const selectedLabel = selected ? variantColorLabel(selected.color, selected.name) : "";
+            const whatsappUrl = createProductWhatsAppUrl(p, selected, selectedLabel);
 
             return (
               <div key={p.id} className="group">
@@ -101,6 +104,16 @@ export const Products = () => {
                     })}
                   </div>
                 )}
+
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366]/60 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-[#25D366] transition-colors hover:bg-[#25D366] hover:text-white"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
+                  WhatsApp
+                </a>
               </div>
             );
           })}
