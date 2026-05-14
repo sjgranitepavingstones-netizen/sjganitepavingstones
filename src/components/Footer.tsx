@@ -1,8 +1,31 @@
-import { Instagram, Facebook, Linkedin } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import sjLogo from "@/assets/sj-granite-paving-stone-logo.jpg";
 
 export const Footer = () => {
+  const socialLinks = [
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/p/DOYmGwZARN3/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      Icon: Instagram,
+    },
+    {
+      label: "X",
+      href: "https://x.com/granitepav57662/status/1965417213286121741",
+      Icon: Twitter,
+    },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/permalink.php?story_fbid=pfbid0G2ua3sAjPajhRWVcuWLU5VBF3TJSgCLLdCcSqcEorimHv44u64dPSZbAYww69S68l&id=100065436781316",
+      Icon: Facebook,
+    },
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/feed/update/urn:li:activity:7371183035062390784",
+      Icon: Linkedin,
+    },
+  ];
+
   return (
     <footer className="bg-secondary text-secondary-foreground border-t border-primary/20">
       <div className="container py-16 grid md:grid-cols-4 gap-10">
@@ -14,12 +37,14 @@ export const Footer = () => {
             Professional granite paving, outdoor stonework, flooring, parking designs and custom stone products built with care.
           </p>
           <div className="mt-6 flex gap-3">
-            {[Instagram, Facebook, Linkedin].map((Icon, i) => (
+            {socialLinks.map(({ label, href, Icon }) => (
               <a
-                key={i}
-                href="#"
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full border border-primary/30 inline-flex items-center justify-center text-primary hover:bg-gold-gradient hover:text-primary-foreground hover:border-transparent transition-all duration-500"
-                aria-label="Social link"
+                aria-label={label}
               >
                 <Icon className="h-4 w-4" />
               </a>
