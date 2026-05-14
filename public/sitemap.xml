@@ -1,42 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.sjgranitepavingstone.com/</loc>
+    <loc>https://www.pavingstones.in/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/granite-paving-stone-bangalore</loc>
+    <loc>https://www.pavingstones.in/granite-paving-stone-bangalore</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/products</loc>
+    <loc>https://www.pavingstones.in/paving-stone-bangalore</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/cobblestone-bangalore</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/floor-stone-bangalore</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/granite-paving-stone-mumbai</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/natural-stone-india</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/parking-stone-india</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/stone-furniture-india</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/garden-stone-india</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.pavingstones.in/products</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/categories</loc>
+    <loc>https://www.pavingstones.in/categories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/workflow</loc>
+    <loc>https://www.pavingstones.in/workflow</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/about</loc>
+    <loc>https://www.pavingstones.in/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/contact</loc>
+    <loc>https://www.pavingstones.in/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sjgranitepavingstone.com/terms-and-conditions</loc>
+    <loc>https://www.pavingstones.in/terms-and-conditions</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

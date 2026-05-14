@@ -10,6 +10,7 @@ export const SERVICE_LOCATIONS = [
   "Bangalore",
   "Bengaluru",
   "Mumbai",
+  "India",
   "Karnataka",
   "Mysuru",
   "Mangalore",

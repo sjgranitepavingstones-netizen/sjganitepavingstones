@@ -56,6 +56,11 @@ const App = () => (
           <Route path="/paving-stone-bangalore" element={<BangaloreStoneServices />} />
           <Route path="/cobblestone-bangalore" element={<BangaloreStoneServices />} />
           <Route path="/floor-stone-bangalore" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-mumbai" element={<BangaloreStoneServices />} />
+          <Route path="/natural-stone-india" element={<BangaloreStoneServices />} />
+          <Route path="/parking-stone-india" element={<BangaloreStoneServices />} />
+          <Route path="/stone-furniture-india" element={<BangaloreStoneServices />} />
+          <Route path="/garden-stone-india" element={<BangaloreStoneServices />} />
           <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

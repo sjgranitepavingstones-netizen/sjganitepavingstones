@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, CheckCircle2, MapPin, PhoneCall } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -50,6 +50,10 @@ const searchTerms = [
   "floor stone Belgaum",
   "parking stone Tumkur",
   "garden stone furniture Bangalore",
+  "natural stone India",
+  "parking stone India",
+  "stone furniture India",
+  "garden stone India",
 ];
 
 const bengaluruAreas = [
@@ -69,6 +73,7 @@ const bengaluruAreas = [
 
 const regionalAreas = [
   "Mumbai",
+  "India",
   "Mysuru",
   "Mangalore",
   "Hubli",
@@ -83,11 +88,18 @@ const regionalAreas = [
 ];
 
 const BangaloreStoneServices = () => {
+  const { pathname } = useLocation();
+  const pageTitle = pathname.includes("mumbai")
+    ? "Granite Paving Stone Mumbai | Natural Stone, Parking Stone & Stone Furniture"
+    : pathname.includes("india")
+      ? "Natural Stone India | Parking Stone, Garden Stone & Stone Furniture"
+      : "Granite Paving Stone Bangalore | Cobblestone, Floor Stone & Stone Chairs";
+
   useSeo({
-    title: "Granite Paving Stone Bangalore | Cobblestone, Floor Stone & Stone Chairs",
+    title: pageTitle,
     description:
       "SJ Granite Paving Stone supplies granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and outdoor stone furniture across Bangalore, Karnataka and Mumbai.",
-    path: "/granite-paving-stone-bangalore",
+    path: pathname,
     keywords: searchTerms,
     schema: [
       localBusinessSchema(),
