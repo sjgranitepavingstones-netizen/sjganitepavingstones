@@ -87,7 +87,7 @@ const ProductDetail = () => {
       setProduct(p);
       const v = await publicApi.list<Variant>("product_variants", { product_id: p.id, orderBy: "sort_order" });
       setVariants(v);
-      setActive(v[0] || null);
+      setActive(null);
     })();
   }, [slug]);
 
@@ -127,17 +127,48 @@ const ProductDetail = () => {
             </p>
             <p className="text-foreground/70 mt-6 leading-relaxed">{product.description}</p>
 
-            {variants.length > 0 && (
-              <div className="mt-10">
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="h-px w-8 bg-gold-gradient" />
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
-                    {variants.length} Color Options
-                  </span>
-                </div>
+            <div className="mt-10">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="h-px w-8 bg-gold-gradient" />
+                <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
+                  Product & Variant Options
+                </span>
+              </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {variants.map((variant) => {
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setActive(null)}
+                  className={`group grid grid-cols-[88px_1fr] items-center gap-4 border p-3 text-left transition-all ${!active ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
+                  aria-pressed={!active}
+                  aria-label={`Select ${product.name}`}
+                >
+                  <span className="relative block aspect-square overflow-hidden bg-secondary">
+                    <img
+                      src={product.main_image_url || "/placeholder.svg"}
+                      alt={`${product.name} original product`}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {!active && (
+                      <span className="absolute left-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-primary bg-background/90 text-primary shadow-sm">
+                        <Check className="h-3 w-3" />
+                      </span>
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className={`block font-serif text-xl leading-tight ${!active ? "text-primary" : "text-foreground"}`}>
+                      {product.name}
+                    </span>
+                    {product.tagline && (
+                      <span className="mt-1 block text-xs text-foreground/55">{product.tagline}</span>
+                    )}
+                    <span className="mt-2 block text-xs text-foreground/70">
+                      {product.price_label || "Contact for price"}
+                    </span>
+                  </span>
+                </button>
+
+                {variants.map((variant) => {
                     const label = variantColorLabel(variant.color, variant.name);
                     const selected = active?.id === variant.id;
 
@@ -180,17 +211,15 @@ const ProductDetail = () => {
                         </span>
                       </button>
                     );
-                  })}
-                </div>
-
-                {active && (
-                  <div className="mt-5 border-l border-primary/40 pl-4 text-sm text-foreground/70">
-                    <div className="font-medium text-foreground">{activeLabel}</div>
-                    {active.material && <div className="text-xs text-foreground/50">{active.material}</div>}
-                  </div>
-                )}
+                })}
               </div>
-            )}
+
+              <div className="mt-5 border-l border-primary/40 pl-4 text-sm text-foreground/70">
+                <div className="font-medium text-foreground">{active ? activeLabel : product.name}</div>
+                {active?.material && <div className="text-xs text-foreground/50">{active.material}</div>}
+                {!active && product.tagline && <div className="text-xs text-foreground/50">{product.tagline}</div>}
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-10">
               <a
