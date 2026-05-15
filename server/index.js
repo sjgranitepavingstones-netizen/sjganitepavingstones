@@ -342,6 +342,55 @@ const sendInquiryEmail = async (inquiry) => {
   });
 };
 
+const getRequestClientUrl = (req) => {
+  const origin = req.get("origin");
+  if (origin && CLIENT_URLS.includes(origin)) return origin;
+
+  const forwardedHost = req.get("x-forwarded-host");
+  if (forwardedHost) {
+    const forwardedProto = req.get("x-forwarded-proto") || "https";
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  return PRIMARY_CLIENT_URL;
+};
+
+const sendPasswordResetEmail = async ({ email, resetUrl }) => {
+  const mailer = createMailer();
+  if (!mailer) {
+    console.warn("Password reset email was not sent because SMTP settings are missing.");
+    return false;
+  }
+
+  await mailer.sendMail({
+    from: SMTP_FROM,
+    to: email,
+    subject: "Reset your SJ Granite Paving Stone password",
+    text: [
+      "We received a request to reset your SJ Granite Paving Stone account password.",
+      "",
+      `Open this secure link to create a new password: ${resetUrl}`,
+      "",
+      "This link will expire in 1 hour. If you did not request this, you can ignore this email.",
+    ].join("\n"),
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#222;max-width:560px">
+        <h2 style="margin:0 0 12px;color:#111">Reset your password</h2>
+        <p>We received a request to reset your SJ Granite Paving Stone account password.</p>
+        <p style="margin:24px 0">
+          <a href="${escapeHtml(resetUrl)}" style="background:#c9962e;color:#111;text-decoration:none;padding:12px 18px;display:inline-block;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
+            Create new password
+          </a>
+        </p>
+        <p style="font-size:13px;color:#555">This link will expire in 1 hour. If you did not request this, you can ignore this email.</p>
+        <p style="font-size:12px;color:#777;word-break:break-all">Reset link: ${escapeHtml(resetUrl)}</p>
+      </div>
+    `,
+  });
+
+  return true;
+};
+
 const auth = async (req, res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
@@ -466,6 +515,7 @@ app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
   const email = String(req.body.email || "").toLowerCase().trim();
   const user = await User.findOne({ email });
   let resetUrl = null;
+  let emailSent = false;
 
   if (user) {
     const token = crypto.randomBytes(32).toString("hex");
@@ -473,12 +523,13 @@ app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
     user.reset_token_expires_at = new Date(Date.now() + 60 * 60 * 1000);
     await user.save();
 
-    resetUrl = `${PRIMARY_CLIENT_URL}/reset-password?token=${token}`;
-    console.log(`Password reset link for ${email}: ${resetUrl}`);
+    resetUrl = `${getRequestClientUrl(req)}/reset-password?token=${token}`;
+    emailSent = await sendPasswordResetEmail({ email: user.email, resetUrl });
   }
 
   res.json({
-    message: "If this email exists, a password reset link has been prepared.",
+    message: "If this email exists, a password reset link has been sent.",
+    emailSent,
     resetUrl: process.env.NODE_ENV === "production" ? null : resetUrl,
   });
 }));

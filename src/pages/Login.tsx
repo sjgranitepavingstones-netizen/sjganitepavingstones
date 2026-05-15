@@ -24,6 +24,7 @@ const Login = () => {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [resetUrl, setResetUrl] = useState<string | null>(null);
+  const [resetRequested, setResetRequested] = useState(false);
   const [hasRegisteredUsers, setHasRegisteredUsers] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -69,10 +70,12 @@ const Login = () => {
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
     setForgotLoading(true);
     setResetUrl(null);
+    setResetRequested(false);
     try {
       const result = await authApi.forgotPassword({ email: parsed.data });
       setResetUrl(result.resetUrl);
-      toast.success("Password reset request received");
+      setResetRequested(true);
+      toast.success(result.emailSent ? "Password reset email sent" : "Password reset request received");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Reset request failed");
     } finally {
@@ -144,8 +147,13 @@ const Login = () => {
                 className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
             </div>
             <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.22em] hover:bg-primary/5 transition-colors disabled:opacity-50">
-              {forgotLoading ? "Preparing..." : "Get reset link"}
+              {forgotLoading ? "Sending..." : "Send reset email"}
             </button>
+            {resetRequested && (
+              <p className="text-center text-xs text-secondary-foreground/60 leading-relaxed">
+                If an account exists for this email, a reset link has been sent. Please check inbox and spam folder.
+              </p>
+            )}
             {resetUrl && (
               <Link to={resetUrl.replace(window.location.origin, "")} className="block text-center text-xs text-primary link-gold break-all">
                 Open password reset link
