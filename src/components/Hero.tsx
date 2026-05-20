@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import heroImg from "@/assets/hero-parking.jpg";
 import benchImg from "@/assets/product-bench.jpg";
 import chairImg from "@/assets/product-chair.jpg";
+import cobblestoneImg from "@/assets/product-cobblestone.jpg";
 import flooringImg from "@/assets/product-flooring.jpg";
 import parkingImg from "@/assets/product-parking.jpg";
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,7 +16,8 @@ const defaultSlides: Slide[] = [
   { id: "default-bench", image_url: benchImg, caption: "Granite stone bench and garden furniture" },
   { id: "default-chair", image_url: chairImg, caption: "Stone chair for outdoor seating" },
   { id: "default-flooring", image_url: flooringImg, caption: "Floor stone and outdoor flooring" },
-  { id: "default-paving", image_url: parkingImg, caption: "Cobblestone and outdoor stone paving" },
+  { id: "default-paving", image_url: parkingImg, caption: "Granite paving stone slabs with grass joints" },
+  { id: "default-cobblestone", image_url: cobblestoneImg, caption: "Cobblestone pavers for landscape pathways" },
 ];
 
 export const Hero = () => {

@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import { SectionHeading } from "./SectionHeading";
 import bench from "@/assets/product-bench.jpg";
 import chair from "@/assets/product-chair.jpg";
+import cobblestone from "@/assets/product-cobblestone.jpg";
 import flooring from "@/assets/product-flooring.jpg";
 import parking from "@/assets/product-parking.jpg";
 
 const categories = [
-  { img: parking, name: "Granite Paving Stone", count: 24, desc: "Decorative cobblestone paving for gardens, courtyards and landscape pathways." },
+  { img: parking, name: "Granite Paving Stone", count: 24, desc: "Large granite paving slabs for driveways, courtyards, parking areas and villa landscapes." },
+  { img: cobblestone, name: "Cobblestone Pavers", count: 18, desc: "Decorative cobblestone paving for gardens, courtyards and landscape pathways." },
   { img: flooring, name: "Floor Stone", count: 36, desc: "Outdoor floor stone for temple, terrace, patio, parking and walkway use." },
   { img: bench, name: "Stone Benches & Tables", count: 15, desc: "Granite bench, table and garden furniture products for premium outdoor spaces." },
   { img: chair, name: "Garden Stone Seating", count: 12, desc: "Durable granite seating sets for resorts, homes, gardens and landscape projects." },
