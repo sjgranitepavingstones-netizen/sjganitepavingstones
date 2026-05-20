@@ -9,14 +9,16 @@ import { About } from "@/components/About";
 import { Reviews } from "@/components/Reviews";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
-import { useSeo, localBusinessSchema, serviceSchema } from "@/lib/seo";
+import { useSeo, localBusinessSchema, serviceSchema, homePageSchema } from "@/lib/seo";
+import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
 
 const Index = () => {
   useSeo({
-    title: "Granite Paving Stone Bangalore | Cobblestone & Floor Stone",
+    title: "SJ Granite Paving Stone | Paving Stone, Cobblestone & Stone Furniture",
     description:
-      "SJ Granite Paving Stone provides granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and outdoor stone furniture in Bangalore, Karnataka and Mumbai.",
+      "Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for Bangalore, Karnataka and Mumbai.",
     path: "/",
+    image: logoImage,
     keywords: [
       "granite paving stone Bangalore",
       "paving stone Bangalore",
@@ -35,9 +37,10 @@ const Index = () => {
     ],
     schema: [
       localBusinessSchema(),
+      homePageSchema(),
       serviceSchema(
-        "Granite paving stone and cobblestone service in Bangalore, Karnataka and Mumbai",
-        "Granite paving stone, cobblestone, floor stone, parking pavers and stone furniture for Bangalore, Karnataka and Mumbai customers.",
+        "Granite paving stone, cobblestone and outdoor stone furniture services",
+        "Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for Bangalore, Karnataka and Mumbai customers.",
         "/"
       ),
     ],

@@ -1,10 +1,17 @@
 import { useEffect, useMemo } from "react";
 import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
+import pavingImage from "@/assets/product-parking.jpg";
+import cobblestoneImage from "@/assets/product-cobblestone.jpg";
+import flooringImage from "@/assets/product-flooring.jpg";
+import benchImage from "@/assets/product-bench.jpg";
+import chairImage from "@/assets/product-chair.jpg";
 
 const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
-  "SJ Granite Paving Stone provides granite paving stone, cobblestone, floor stone, parking pavers and stone chairs across Bangalore, Karnataka and Mumbai.";
+  "SJ Granite Paving Stone supplies granite paving stone, cobblestone, floor stone, parking pavers, stone benches, stone chairs and outdoor stone furniture across Bangalore, Karnataka and Mumbai.";
+
+const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
 
 export const SERVICE_LOCATIONS = [
   "Bangalore",
@@ -102,7 +109,7 @@ export const localBusinessSchema = () => ({
   description: DEFAULT_DESCRIPTION,
   url: absoluteUrl("/"),
   logo: absoluteUrl(logoImage),
-  image: absoluteUrl(logoImage),
+  image: [logoImage, ...PRODUCT_IMAGES].map((image) => absoluteUrl(image)),
   telephone: "+918217257354",
   email: "sjgranitepavingstones@gmail.com",
   foundingDate: "2013",
@@ -126,11 +133,11 @@ export const localBusinessSchema = () => ({
     },
   ],
   makesOffer: [
-    "Granite paving stone installation in Bangalore",
-    "Cobblestone paving in Bangalore",
-    "Floor stone and outdoor stone flooring",
-    "Parking stone pavers",
-    "Stone chairs, stone benches and garden stone furniture",
+    "Granite paving stone supply and installation in Bangalore",
+    "Cobblestone pavers for gardens, pathways and landscape projects",
+    "Outdoor floor stone for patios, terraces, temples and walkways",
+    "Parking stone pavers for villas, resorts and commercial sites",
+    "Stone benches, stone chairs and granite garden furniture",
   ].map((name) => ({
     "@type": "Offer",
     itemOffered: {
@@ -173,6 +180,37 @@ export const serviceSchema = (name: string, description: string, path: string) =
     url: absoluteUrl("/"),
   },
   url: absoluteUrl(path),
+});
+
+export const homePageSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "SJ Granite Paving Stone Products & Services",
+  url: absoluteUrl("/"),
+  description: DEFAULT_DESCRIPTION,
+  primaryImageOfPage: {
+    "@type": "ImageObject",
+    url: absoluteUrl(logoImage),
+  },
+  about: [
+    "Granite paving stone",
+    "Cobblestone pavers",
+    "Floor stone",
+    "Parking stone pavers",
+    "Stone benches and stone chairs",
+    "Outdoor stone furniture",
+  ],
+  hasPart: [
+    { name: "Granite Paving Stone", image: pavingImage },
+    { name: "Cobblestone Pavers", image: cobblestoneImage },
+    { name: "Outdoor Floor Stone", image: flooringImage },
+    { name: "Stone Benches", image: benchImage },
+    { name: "Stone Chairs", image: chairImage },
+  ].map((item) => ({
+    "@type": "CreativeWork",
+    name: item.name,
+    image: absoluteUrl(item.image),
+  })),
 });
 
 export const useSeo = ({
