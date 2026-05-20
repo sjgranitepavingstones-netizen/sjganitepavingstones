@@ -6,6 +6,7 @@ import { ProductServiceShowcase } from "@/components/ProductServiceShowcase";
 import { Categories } from "@/components/Categories";
 import { AtelierInfo } from "@/components/AtelierInfo";
 import { About } from "@/components/About";
+import { CraftWorkflow } from "@/components/CraftWorkflow";
 import { Reviews } from "@/components/Reviews";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
@@ -54,6 +55,7 @@ const Index = () => {
       <ProductServiceShowcase />
       <Categories />
       <Services />
+      <CraftWorkflow />
       <AtelierInfo />
       <About />
       <Reviews />
