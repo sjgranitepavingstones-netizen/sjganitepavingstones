@@ -154,7 +154,7 @@ const Login = () => {
             </button>
             {resetRequested && (
               <p className="text-center text-xs text-secondary-foreground/60 leading-relaxed">
-                If this account exists, we created a reset link and also sent it by email. You can open it directly below.
+                If this account exists, a secure reset link has been sent by email. Please check the inbox and spam folder.
               </p>
             )}
             {resetUrl && (

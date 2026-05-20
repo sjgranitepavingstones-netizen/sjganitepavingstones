@@ -44,6 +44,7 @@ if (process.env.VERCEL_URL) CLIENT_URLS.push(`https://${process.env.VERCEL_URL}`
 const PRIMARY_CLIENT_URL = CLIENT_URLS[0] || "http://localhost:8080";
 const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "sjgranitepavingstones@gmail.com";
 const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
+const ALLOW_PASSWORD_RESET_LINK_RESPONSE = process.env.ALLOW_PASSWORD_RESET_LINK_RESPONSE === "true";
 const DEFAULT_ADMIN_EMAILS = ["sjgranitepavingstones@gmail.com"];
 const ADMIN_EMAILS = [...DEFAULT_ADMIN_EMAILS, ...(process.env.ADMIN_EMAILS || "")
   .split(",")
@@ -533,7 +534,7 @@ app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
   res.json({
     message: "If this email exists, a password reset link has been sent.",
     emailSent,
-    resetUrl,
+    resetUrl: ALLOW_PASSWORD_RESET_LINK_RESPONSE || process.env.NODE_ENV !== "production" ? resetUrl : null,
   });
 }));
 

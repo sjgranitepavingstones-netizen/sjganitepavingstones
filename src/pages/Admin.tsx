@@ -32,7 +32,7 @@ const Admin = () => {
             <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Control Center</span>
             <h1 className="font-serif text-4xl md:text-5xl mt-2">Admin Panel</h1>
           </div>
-          <Link to="/" className="text-xs uppercase tracking-[0.25em] text-foreground/60 hover:text-primary">← Back to site</Link>
+          <Link to="/" className="text-xs uppercase tracking-[0.25em] text-foreground/60 hover:text-primary">Back to site</Link>
         </div>
 
         <div className="flex flex-wrap gap-1 border-b border-foreground/10 mb-8">

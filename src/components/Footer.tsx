@@ -79,7 +79,7 @@ export const Footer = () => {
       </div>
       <div className="border-t border-primary/10">
         <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-secondary-foreground/50">
-          <div>© {new Date().getFullYear()} SJ Granite Paving Stone. All rights reserved.</div>
+          <div>&copy; {new Date().getFullYear()} SJ Granite Paving Stone. All rights reserved.</div>
           <Link to="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
         </div>
       </div>
