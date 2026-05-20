@@ -59,7 +59,6 @@ export const Footer = () => {
               { l: "Products", to: "/products" },
               { l: "Categories", to: "/categories" },
               { l: "Bangalore Services", to: "/granite-paving-stone-bangalore" },
-              { l: "Workflow", to: "/workflow" },
               { l: "About", to: "/about" },
               { l: "Contact", to: "/contact" },
               { l: "Terms & Conditions", to: "/terms-and-conditions" },

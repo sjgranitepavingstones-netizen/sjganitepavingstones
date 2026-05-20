@@ -10,7 +10,6 @@ const links = [
   { to: "/products", label: "Products" },
   { to: "/categories", label: "Categories" },
   { to: "/granite-paving-stone-bangalore", label: "Bangalore" },
-  { to: "/workflow", label: "Workflow" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];

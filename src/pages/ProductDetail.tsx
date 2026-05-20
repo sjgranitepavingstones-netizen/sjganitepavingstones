@@ -241,9 +241,6 @@ const ProductDetail = () => {
               <Link to="/contact" className="inline-flex items-center justify-center px-8 py-3.5 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">
                 Request Quote
               </Link>
-              <Link to="/workflow" className="inline-flex items-center justify-center px-8 py-3.5 border border-foreground/20 text-xs uppercase tracking-[0.25em] hover:border-primary hover:text-primary transition-colors">
-                How It's Made
-              </Link>
             </div>
           </div>
         </div>

@@ -6,14 +6,13 @@ import { adminApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Upload, Image as ImgIcon } from "lucide-react";
 
-type Tab = "products" | "variants" | "categories" | "hero" | "workflow" | "reviews" | "inquiries" | "settings";
+type Tab = "products" | "variants" | "categories" | "hero" | "reviews" | "inquiries" | "settings";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "products", label: "Products" },
   { id: "variants", label: "Variants" },
   { id: "categories", label: "Categories" },
   { id: "hero", label: "Hero Images" },
-  { id: "workflow", label: "Workflow" },
   { id: "reviews", label: "Reviews" },
   { id: "inquiries", label: "Inquiries" },
   { id: "settings", label: "Settings" },
@@ -49,7 +48,6 @@ const Admin = () => {
         {tab === "variants" && <VariantsAdmin />}
         {tab === "categories" && <CategoriesAdmin />}
         {tab === "hero" && <HeroImagesAdmin />}
-        {tab === "workflow" && <WorkflowAdmin />}
         {tab === "reviews" && <ReviewsAdmin />}
         {tab === "inquiries" && <InquiriesAdmin />}
         {tab === "settings" && <SettingsAdmin />}
@@ -291,25 +289,13 @@ const VariantsAdmin = () => {
   );
 };
 
-// ============ Generic CRUD list (for categories, workflow, reviews) ============
+// ============ Generic CRUD list (for categories and reviews) ============
 const CategoriesAdmin = () => <SimpleCrud
   table="categories" orderBy="sort_order"
   columns={[{ k: "name", label: "Name" }, { k: "slug", label: "Slug" }, { k: "sort_order", label: "Order", type: "number" }]}
   textareas={[{ k: "description", label: "Description" }]}
   imageField="image_url"
   display={(r) => <><img src={imageSrc(r.image_url)} onError={imageFallback} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">{r.name}</div><div className="text-xs text-foreground/50">{r.slug}</div></div></>}
-/>;
-
-const WorkflowAdmin = () => <SimpleCrud
-  table="workflow_steps" orderBy="step_number"
-  columns={[
-    { k: "step_number", label: "Step #", type: "number" },
-    { k: "title", label: "Title" },
-    { k: "duration_label", label: "Duration label" },
-  ]}
-  textareas={[{ k: "description", label: "Description" }]}
-  imageField="image_url"
-  display={(r) => <><img src={imageSrc(r.image_url)} onError={imageFallback} className="h-12 w-12 object-cover bg-muted" /><div className="flex-1"><div className="font-medium">0{r.step_number} · {r.title}</div><div className="text-xs text-foreground/50 truncate">{r.description}</div></div></>}
 />;
 
 const ReviewsAdmin = () => <SimpleCrud

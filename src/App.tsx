@@ -12,7 +12,6 @@ import NotFound from "./pages/NotFound.tsx";
 import ProductsPage from "./pages/Products.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import CategoriesPage from "./pages/CategoriesPage.tsx";
-import Workflow from "./pages/Workflow.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import ContactPage from "./pages/ContactPage.tsx";
 import Login from "./pages/Login.tsx";
@@ -44,7 +43,6 @@ const App = () => (
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:slug" element={<ProductDetail />} />
           <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/workflow" element={<Workflow />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
