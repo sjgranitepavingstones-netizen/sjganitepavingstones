@@ -191,7 +191,7 @@ export const useSeo = ({
   useEffect(() => {
     const canonical = absoluteUrl(path || `${window.location.pathname}${window.location.search}`);
     const imageUrl = absoluteUrl(image);
-    const fullTitle = title.includes(BRAND_NAME) ? title : `${title} | ${BRAND_NAME}`;
+    const fullTitle = title.includes(BRAND_NAME) ? title : `${BRAND_NAME} | ${title}`;
 
     document.title = fullTitle;
     upsertMeta('meta[name="description"]', { content: description });
