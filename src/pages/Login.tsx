@@ -66,7 +66,7 @@ const Login = () => {
 
   const requestReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = z.string().trim().email("Invalid email").safeParse(forgotEmail);
+    const parsed = z.string().trim().email("Invalid email").safeParse(forgotEmail || email);
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
     setForgotLoading(true);
     setResetUrl(null);
@@ -130,7 +130,10 @@ const Login = () => {
             </div>
           </div>
           <div className="text-right">
-            <button type="button" onClick={() => setShowForgot((value) => !value)} className="text-[10px] uppercase tracking-[0.22em] text-primary link-gold">
+            <button type="button" onClick={() => {
+              if (!showForgot && email && !forgotEmail) setForgotEmail(email);
+              setShowForgot((value) => !value);
+            }} className="text-[10px] uppercase tracking-[0.22em] text-primary link-gold">
               Forgot password?
             </button>
           </div>
@@ -143,21 +146,21 @@ const Login = () => {
           <form onSubmit={requestReset} className="mt-6 border border-primary/20 p-5 space-y-4">
             <div>
               <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">Account Email</label>
-              <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required maxLength={255}
+              <input type="email" value={forgotEmail || email} onChange={(e) => setForgotEmail(e.target.value)} required maxLength={255}
                 className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
             </div>
             <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.22em] hover:bg-primary/5 transition-colors disabled:opacity-50">
-              {forgotLoading ? "Sending..." : "Send reset email"}
+              {forgotLoading ? "Creating link..." : "Create reset link"}
             </button>
             {resetRequested && (
               <p className="text-center text-xs text-secondary-foreground/60 leading-relaxed">
-                If an account exists for this email, a reset link has been sent. Please check inbox and spam folder.
+                If this account exists, we created a reset link and also sent it by email. You can open it directly below.
               </p>
             )}
             {resetUrl && (
-              <Link to={resetUrl.replace(window.location.origin, "")} className="block text-center text-xs text-primary link-gold break-all">
-                Open password reset link
-              </Link>
+              <a href={resetUrl} className="block border border-primary/30 bg-primary/10 px-4 py-3 text-center text-xs uppercase tracking-[0.18em] text-primary hover:bg-primary/15 transition-colors">
+                Open reset page
+              </a>
             )}
           </form>
         )}

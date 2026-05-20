@@ -31,6 +31,7 @@ const DEFAULT_CLIENT_URLS = [
   "https://pavingstones.in",
   "https://www.pavingstones.in",
 ];
+const PUBLIC_CLIENT_URL = (process.env.PUBLIC_SITE_URL || process.env.VITE_SITE_URL || "https://www.pavingstones.in").replace(/\/+$/, "");
 const CLIENT_URLS = (process.env.CLIENT_URL || DEFAULT_CLIENT_URLS.join(","))
   .split(",")
   .map((url) => url.trim())
@@ -345,6 +346,8 @@ const getRequestClientUrl = (req) => {
   const origin = req.get("origin");
   if (origin && CLIENT_URLS.includes(origin)) return origin;
 
+  if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") return PUBLIC_CLIENT_URL;
+
   const forwardedHost = req.get("x-forwarded-host");
   if (forwardedHost) {
     const forwardedProto = req.get("x-forwarded-proto") || "https";
@@ -529,7 +532,7 @@ app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
   res.json({
     message: "If this email exists, a password reset link has been sent.",
     emailSent,
-    resetUrl: process.env.NODE_ENV === "production" ? null : resetUrl,
+    resetUrl,
   });
 }));
 
