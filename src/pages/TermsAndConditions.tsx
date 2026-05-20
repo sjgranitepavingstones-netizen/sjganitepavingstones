@@ -9,7 +9,7 @@ const terms = [
   },
   {
     title: "Quotations And Measurements",
-    body: "Prices shown or discussed are estimates unless confirmed in writing. Final pricing may depend on stone type, size, thickness, finish, transport distance, site condition, labor requirement and any custom work. Customers are responsible for sharing accurate measurements and project details.",
+    body: "Every quotation is confirmed directly after reviewing stone type, size, thickness, finish, transport distance, site condition, labor requirement and any custom work. Customers are responsible for sharing accurate measurements and project details.",
   },
   {
     title: "Orders And Payment",

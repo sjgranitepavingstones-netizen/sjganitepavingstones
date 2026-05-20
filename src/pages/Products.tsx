@@ -13,12 +13,11 @@ type Product = {
   slug: string;
   name: string;
   tagline: string | null;
-  price_label: string | null;
   main_image_url: string | null;
   category_id: string | null;
 };
 type Category = { id: string; name: string; slug: string };
-type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string; price?: number | null; sort_order?: number };
+type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string; sort_order?: number };
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -137,7 +136,7 @@ const ProductsPage = () => {
                         <h3 className="font-serif text-lg text-white">{p.name}</h3>
                         {p.tagline && <p className="text-[10px] uppercase tracking-[0.22em] text-primary mt-1">{p.tagline}</p>}
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="text-xs text-white/75">{selected?.name || p.price_label}</span>
+                          <span className="text-xs text-white/75">{selected?.name || "View details"}</span>
                           <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gold-gradient text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </span>

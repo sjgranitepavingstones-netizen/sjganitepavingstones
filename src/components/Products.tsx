@@ -5,7 +5,7 @@ import { publicApi } from "@/lib/api";
 import { colorToCss, variantColorLabel } from "@/lib/colors";
 import { createProductWhatsAppUrl } from "@/lib/whatsapp";
 
-type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string; price?: number | null };
+type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string };
 
 export const Products = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -70,7 +70,7 @@ export const Products = () => {
                       {p.tagline && <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">{p.tagline}</div>}
                       <h3 className="font-serif text-xl text-white leading-tight">{p.name}</h3>
                       <div className="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                        <span className="text-sm text-white/80">{selected?.name || p.price_label}</span>
+                        <span className="text-sm text-white/80">{selected?.name || "View details"}</span>
                         <span className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gold-gradient text-primary-foreground">
                           <ArrowUpRight className="h-4 w-4" />
                         </span>

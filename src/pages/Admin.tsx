@@ -135,7 +135,6 @@ const ProductsAdmin = () => {
     e.preventDefault();
     const payload = { ...editing };
     delete payload.categories;
-    if (payload.base_price === "") payload.base_price = null;
     try {
       if (payload.id) await adminApi.update("products", payload.id, payload);
       else await adminApi.create("products", payload);
@@ -170,7 +169,7 @@ const ProductsAdmin = () => {
             <img src={imageSrc(p.main_image_url)} onError={imageFallback} className="h-14 w-14 object-cover bg-muted" />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{p.name}</div>
-              <div className="text-xs text-foreground/50">{p.categories?.name} · {p.price_label || "—"} {p.featured && "· ★"}</div>
+              <div className="text-xs text-foreground/50">{[p.categories?.name, p.featured ? "Featured" : null].filter(Boolean).join(" | ")}</div>
             </div>
             <button onClick={() => setEditing(p)} className="p-2 hover:text-primary"><Pencil className="h-4 w-4" /></button>
             <button onClick={() => del(p.id)} className="p-2 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
@@ -186,10 +185,6 @@ const ProductsAdmin = () => {
             <Field label="Slug (url)"><input required className={inputCls} value={editing.slug || ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} /></Field>
             <Field label="Tagline"><input className={inputCls} value={editing.tagline || ""} onChange={(e) => setEditing({ ...editing, tagline: e.target.value })} /></Field>
             <Field label="Description"><textarea rows={4} className={inputCls} value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Base Price (₹)"><input type="number" step="0.01" className={inputCls} value={editing.base_price ?? ""} onChange={(e) => setEditing({ ...editing, base_price: e.target.value })} /></Field>
-              <Field label="Price Label"><input className={inputCls} value={editing.price_label || ""} onChange={(e) => setEditing({ ...editing, price_label: e.target.value })} placeholder="e.g. ₹2,500 / sq ft" /></Field>
-            </div>
             <Field label="Category">
               <select className={inputCls} value={editing.category_id || ""} onChange={(e) => setEditing({ ...editing, category_id: e.target.value || null })}>
                 <option value="">— None —</option>
@@ -232,7 +227,6 @@ const VariantsAdmin = () => {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = { ...editing, product_id: productId };
-    if (payload.price === "") payload.price = null;
     try {
       if (payload.id) await adminApi.update("product_variants", payload.id, payload);
       else await adminApi.create("product_variants", payload);
@@ -287,10 +281,7 @@ const VariantsAdmin = () => {
               <Field label="Color"><input className={inputCls} value={editing.color || ""} onChange={(e) => setEditing({ ...editing, color: e.target.value })} /></Field>
               <Field label="Material"><input className={inputCls} value={editing.material || ""} onChange={(e) => setEditing({ ...editing, material: e.target.value })} /></Field>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Price (₹)"><input type="number" step="0.01" className={inputCls} value={editing.price ?? ""} onChange={(e) => setEditing({ ...editing, price: e.target.value })} /></Field>
-              <Field label="Sort"><input type="number" className={inputCls} value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) })} /></Field>
-            </div>
+            <Field label="Sort"><input type="number" className={inputCls} value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) })} /></Field>
             <ImageUploader label="Variant image" value={editing.image_url} onChange={(url) => setEditing({ ...editing, image_url: url })} />
             <button className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em]">Save</button>
           </form>

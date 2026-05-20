@@ -25,6 +25,7 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-before-live";
+const MAX_OPTIMIZED_IMAGE_BYTES = Number(process.env.MAX_OPTIMIZED_IMAGE_BYTES || 220 * 1024);
 const DEFAULT_CLIENT_URLS = [
   "http://localhost:8080",
   "https://pavingstones.in",
@@ -117,8 +118,6 @@ const Product = mongoose.model("Product", new mongoose.Schema({
   name: { type: String, required: true },
   tagline: String,
   description: String,
-  base_price: Number,
-  price_label: String,
   main_image_url: String,
   featured: { type: Boolean, default: false },
 }, commonOptions));
@@ -129,7 +128,6 @@ const ProductVariant = mongoose.model("ProductVariant", new mongoose.Schema({
   color: String,
   material: String,
   image_url: String,
-  price: Number,
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
@@ -649,16 +647,29 @@ const optimizeImage = async (file) => {
   const ext = ".webp";
   const base = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-z0-9_-]/gi, "_");
   const filename = `${Date.now()}-${base}${ext}`;
-  const buffer = await sharp(file.buffer)
-    .rotate()
-    .resize({
-      width: 1600,
-      height: 1600,
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .webp({ quality: 78 })
-    .toBuffer();
+  let width = 1600;
+  let quality = 78;
+  let buffer;
+
+  do {
+    buffer = await sharp(file.buffer)
+      .rotate()
+      .resize({
+        width,
+        height: width,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality })
+      .toBuffer();
+
+    if (buffer.length <= MAX_OPTIMIZED_IMAGE_BYTES) break;
+    if (quality > 56) quality -= 6;
+    else if (width > 1000) {
+      width -= 200;
+      quality = 72;
+    } else break;
+  } while (true);
 
   return { buffer, filename, contentType: "image/webp" };
 };

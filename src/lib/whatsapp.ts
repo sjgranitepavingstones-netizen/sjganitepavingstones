@@ -6,7 +6,6 @@ type WhatsAppProduct = {
   name: string;
   slug?: string;
   tagline?: string | null;
-  price_label?: string | null;
   main_image_url?: string | null;
 };
 
@@ -15,7 +14,6 @@ type WhatsAppVariant = {
   color?: string | null;
   material?: string | null;
   image_url?: string | null;
-  price?: number | null;
 };
 
 export const createProductWhatsAppUrl = (
@@ -34,7 +32,6 @@ export const createProductWhatsAppUrl = (
     selectedLabel ? `Selected variant: ${selectedLabel}` : variant?.name ? `Selected variant: ${variant.name}` : null,
     variant?.color ? `Color: ${variant.color}` : null,
     variant?.material ? `Material: ${variant.material}` : null,
-    variant?.price ? `Price: Rs. ${variant.price}` : product.price_label ? `Price: ${product.price_label}` : null,
     productUrl ? `Product link: ${productUrl}` : null,
     imageUrl ? `Image: ${absoluteUrl(imageUrl)}` : null,
     "",

@@ -14,7 +14,6 @@ type Variant = {
   color: string | null;
   material: string | null;
   image_url: string;
-  price: number | null;
 };
 
 type Product = {
@@ -23,7 +22,6 @@ type Product = {
   name: string;
   tagline: string | null;
   description: string | null;
-  price_label: string | null;
   main_image_url: string | null;
 };
 
@@ -74,7 +72,6 @@ const ProductDetail = () => {
             areaServed: SERVICE_LOCATIONS,
             offers: {
               "@type": "Offer",
-              priceCurrency: "INR",
               availability: "https://schema.org/InStock",
               url: absoluteUrl(`/products/${product.slug}`),
             },
@@ -141,9 +138,6 @@ const ProductDetail = () => {
           <div>
             {product.tagline && <span className="text-[10px] uppercase tracking-[0.3em] text-primary">{product.tagline}</span>}
             <h1 className="font-serif text-4xl md:text-5xl mt-3 leading-[1.05]">{product.name}</h1>
-            <p className="text-2xl text-gold-gradient font-serif mt-4">
-              {active?.price ? `Rs. ${active.price}` : product.price_label}
-            </p>
             <p className="text-foreground/70 mt-6 leading-relaxed">{product.description}</p>
 
             <div className="mt-10">
@@ -181,9 +175,6 @@ const ProductDetail = () => {
                     {product.tagline && (
                       <span className="mt-1 block text-xs text-foreground/55">{product.tagline}</span>
                     )}
-                    <span className="mt-2 block text-xs text-foreground/70">
-                      {product.price_label || "Contact for price"}
-                    </span>
                   </span>
                 </button>
 
@@ -224,9 +215,6 @@ const ProductDetail = () => {
                           {variant.material && (
                             <span className="mt-1 block text-xs text-foreground/55">{variant.material}</span>
                           )}
-                          <span className="mt-2 block text-xs text-foreground/70">
-                            {variant.price ? `Rs. ${variant.price}` : product.price_label || "Contact for price"}
-                          </span>
                         </span>
                       </button>
                     );
