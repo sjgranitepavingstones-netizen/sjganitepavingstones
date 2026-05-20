@@ -200,6 +200,7 @@ export const useSeo = ({
     upsertMeta('meta[name="robots"]', { content: "index, follow, max-image-preview:large" });
     if (keywordsMeta) upsertMeta('meta[name="keywords"]', { content: keywordsMeta });
     upsertMeta('meta[property="og:type"]', { content: "website" });
+    upsertMeta('meta[property="og:site_name"]', { content: BRAND_NAME });
     upsertMeta('meta[property="og:title"]', { content: fullTitle });
     upsertMeta('meta[property="og:description"]', { content: description });
     upsertMeta('meta[property="og:url"]', { content: canonical });
