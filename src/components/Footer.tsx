@@ -74,7 +74,7 @@ export const Footer = () => {
           <ul className="space-y-3 text-sm text-secondary-foreground/80">
             <li>India</li>
             <li>+91 82172 57354 (WhatsApp)</li>
-            <li>granitepavingstone@gmail.com</li>
+            <li>sjgranitepavingstones@gmail.com</li>
           </ul>
         </div>
       </div>

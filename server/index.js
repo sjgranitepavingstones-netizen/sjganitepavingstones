@@ -40,7 +40,7 @@ DEFAULT_CLIENT_URLS.forEach((url) => {
 });
 if (process.env.VERCEL_URL) CLIENT_URLS.push(`https://${process.env.VERCEL_URL}`);
 const PRIMARY_CLIENT_URL = CLIENT_URLS[0] || "http://localhost:8080";
-const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "granitepavingstone@gmail.com";
+const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "sjgranitepavingstones@gmail.com";
 const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
 const DEFAULT_ADMIN_EMAILS = ["sjgranitepavingstones@gmail.com"];
 const ADMIN_EMAILS = [...DEFAULT_ADMIN_EMAILS, ...(process.env.ADMIN_EMAILS || "")

@@ -104,7 +104,7 @@ export const localBusinessSchema = () => ({
   logo: absoluteUrl(logoImage),
   image: absoluteUrl(logoImage),
   telephone: "+918217257354",
-  email: "granitepavingstone@gmail.com",
+  email: "sjgranitepavingstones@gmail.com",
   foundingDate: "2013",
   founder: {
     "@type": "Person",

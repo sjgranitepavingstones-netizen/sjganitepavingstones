@@ -83,7 +83,7 @@ const TermsAndConditions = () => {
           <div className="mt-10 border border-primary/20 bg-secondary text-secondary-foreground p-6 md:p-8">
             <h2 className="font-serif text-2xl text-gold-gradient">Contact For Questions</h2>
             <p className="text-secondary-foreground/75 mt-3 leading-relaxed">
-              For questions about orders, quotations or service terms, contact SJ Granite Paving Stone at granitepavingstone@gmail.com or WhatsApp +91 82172 57354.
+              For questions about orders, quotations or service terms, contact SJ Granite Paving Stone at sjgranitepavingstones@gmail.com or WhatsApp +91 82172 57354.
             </p>
           </div>
         </div>

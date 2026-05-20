@@ -30,7 +30,7 @@ export const AtelierInfo = () => {
               {[
                 { icon: MapPin, label: "Atelier", value: "India" },
                 { icon: MessageCircle, label: "WhatsApp", value: "+91 82172 57354" },
-                { icon: Mail, label: "Email", value: "granitepavingstone@gmail.com" },
+                { icon: Mail, label: "Email", value: "sjgranitepavingstones@gmail.com" },
                 { icon: Clock, label: "Hours", value: "Mon-Sat - 9am - 7pm" },
               ].map((info) => (
                 <div key={info.label} className="flex items-start gap-4 group">
