@@ -5,7 +5,7 @@ import chairImg from "@/assets/product-chair.jpg";
 import cobblestoneImg from "@/assets/product-cobblestone.jpg";
 import flooringImg from "@/assets/product-flooring.jpg";
 import parkingImg from "@/assets/product-parking.jpg";
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { publicApi } from "@/lib/api";
 
@@ -36,9 +36,6 @@ export const Hero = () => {
     return () => clearInterval(t);
   }, [items.length]);
 
-  const prev = () => setIdx((i) => (i - 1 + items.length) % items.length);
-  const next = () => setIdx((i) => (i + 1) % items.length);
-
   return (
     <section id="home" className="relative min-h-screen w-full overflow-hidden bg-secondary">
       <div className="absolute inset-0">
@@ -57,20 +54,6 @@ export const Hero = () => {
 
       {items.length > 1 && (
         <>
-          <button
-            onClick={prev}
-            aria-label="Previous slide"
-            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-11 w-11 grid place-items-center border border-primary/40 text-white/80 hover:text-primary hover:border-primary bg-background/20 backdrop-blur-sm transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={next}
-            aria-label="Next slide"
-            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-11 w-11 grid place-items-center border border-primary/40 text-white/80 hover:text-primary hover:border-primary bg-background/20 backdrop-blur-sm transition-colors"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
           <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
             {items.map((_, i) => (
               <button
