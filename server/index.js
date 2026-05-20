@@ -25,7 +25,8 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-before-live";
-const MAX_OPTIMIZED_IMAGE_BYTES = Number(process.env.MAX_OPTIMIZED_IMAGE_BYTES || 220 * 1024);
+const MAX_OPTIMIZED_IMAGE_BYTES = Number(process.env.MAX_OPTIMIZED_IMAGE_BYTES || 200 * 1024);
+const HARD_OPTIMIZED_IMAGE_BYTES = Number(process.env.HARD_OPTIMIZED_IMAGE_BYTES || 240 * 1024);
 const DEFAULT_CLIENT_URLS = [
   "http://localhost:8080",
   "https://pavingstones.in",
@@ -640,7 +641,7 @@ app.post("/api/reviews", auth, asyncHandler(async (req, res) => {
 const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) return cb(new Error("Only image files can be uploaded."));
     cb(null, true);
@@ -651,29 +652,49 @@ const optimizeImage = async (file) => {
   const ext = ".webp";
   const base = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-z0-9_-]/gi, "_");
   const filename = `${Date.now()}-${base}${ext}`;
-  let width = 1600;
-  let quality = 78;
+  const widths = [1600, 1400, 1200, 1000, 900, 800, 700, 640, 560];
+  const qualities = [78, 72, 66, 60, 54, 48, 42, 36];
   let buffer;
 
-  do {
+  for (const width of widths) {
+    for (const quality of qualities) {
+      buffer = await sharp(file.buffer)
+        .rotate()
+        .resize({
+          width,
+          height: width,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality,
+          effort: 6,
+          smartSubsample: true,
+        })
+        .toBuffer();
+
+      if (buffer.length <= MAX_OPTIMIZED_IMAGE_BYTES) {
+        return { buffer, filename, contentType: "image/webp" };
+      }
+    }
+  }
+
+  if (!buffer || buffer.length > HARD_OPTIMIZED_IMAGE_BYTES) {
     buffer = await sharp(file.buffer)
       .rotate()
       .resize({
-        width,
-        height: width,
+        width: 480,
+        height: 480,
         fit: "inside",
         withoutEnlargement: true,
       })
-      .webp({ quality })
+      .webp({
+        quality: 32,
+        effort: 6,
+        smartSubsample: true,
+      })
       .toBuffer();
-
-    if (buffer.length <= MAX_OPTIMIZED_IMAGE_BYTES) break;
-    if (quality > 56) quality -= 6;
-    else if (width > 1000) {
-      width -= 200;
-      quality = 72;
-    } else break;
-  } while (true);
+  }
 
   return { buffer, filename, contentType: "image/webp" };
 };
@@ -759,7 +780,7 @@ app.delete("/api/admin/:table/:id", auth, adminOnly, asyncHandler(async (req, re
 app.use((err, _req, res, _next) => {
   console.error(err);
   if (err?.code === 11000) return res.status(409).json({ error: "This slug or email already exists." });
-  if (err?.code === "LIMIT_FILE_SIZE") return res.status(413).json({ error: "Image is too large. Please upload an image under 25MB." });
+  if (err?.code === "LIMIT_FILE_SIZE") return res.status(413).json({ error: "Image is too large. Please upload an image under 50MB." });
   res.status(500).json({ error: err?.message || "Something went wrong." });
 });
 
