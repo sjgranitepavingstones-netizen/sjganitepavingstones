@@ -54,7 +54,17 @@ const App = () => (
           <Route path="/paving-stone-bangalore" element={<BangaloreStoneServices />} />
           <Route path="/cobblestone-bangalore" element={<BangaloreStoneServices />} />
           <Route path="/floor-stone-bangalore" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-india" element={<BangaloreStoneServices />} />
+          <Route path="/paving-stone-india" element={<BangaloreStoneServices />} />
+          <Route path="/cobblestone-india" element={<BangaloreStoneServices />} />
+          <Route path="/floor-stone-india" element={<BangaloreStoneServices />} />
           <Route path="/granite-paving-stone-mumbai" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-delhi" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-hyderabad" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-chennai" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-pune" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-jaipur" element={<BangaloreStoneServices />} />
+          <Route path="/granite-paving-stone-ahmedabad" element={<BangaloreStoneServices />} />
           <Route path="/natural-stone-india" element={<BangaloreStoneServices />} />
           <Route path="/parking-stone-india" element={<BangaloreStoneServices />} />
           <Route path="/stone-furniture-india" element={<BangaloreStoneServices />} />

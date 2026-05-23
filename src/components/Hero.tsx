@@ -79,19 +79,19 @@ export const Hero = () => {
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light leading-[0.95] text-white animate-fade-in">
             SJ Granite
             <span className="block italic text-gold-gradient mt-2">Paving Stone</span>
-            <span className="block">Bangalore</span>
+            <span className="block">India</span>
           </h1>
 
           <p className="mt-8 max-w-2xl text-base md:text-lg text-white/80 font-light leading-relaxed animate-fade-in [animation-delay:200ms]">
-            Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore and Karnataka projects.
+            Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore, Karnataka, Mumbai and all India projects.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-in [animation-delay:400ms]">
             <Link
-              to="/granite-paving-stone-bangalore"
+              to="/granite-paving-stone-india"
               className="group inline-flex items-center gap-3 px-8 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.3em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500"
             >
-              Bangalore Stone Services
+              India Stone Services
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link

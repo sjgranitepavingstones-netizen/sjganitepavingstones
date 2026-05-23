@@ -33,6 +33,13 @@ const serviceCards = [
 ];
 
 const searchTerms = [
+  "granite paving stone India",
+  "paving stone India",
+  "cobblestone pavers India",
+  "floor stone India",
+  "parking stone India",
+  "natural stone supplier India",
+  "outdoor stone furniture India",
   "granite paving stone Bangalore",
   "paving stone Bangalore",
   "cobblestone Bangalore",
@@ -54,6 +61,11 @@ const searchTerms = [
   "parking stone India",
   "stone furniture India",
   "garden stone India",
+  "granite paving stone Delhi",
+  "paving stone Hyderabad",
+  "cobblestone Chennai",
+  "floor stone Pune",
+  "parking stone Jaipur",
 ];
 
 const bengaluruAreas = [
@@ -72,8 +84,19 @@ const bengaluruAreas = [
 ];
 
 const regionalAreas = [
+  "All India",
   "Mumbai",
-  "India",
+  "Delhi",
+  "Hyderabad",
+  "Chennai",
+  "Pune",
+  "Ahmedabad",
+  "Surat",
+  "Jaipur",
+  "Kolkata",
+  "Goa",
+  "Kochi",
+  "Coimbatore",
   "Mysuru",
   "Mangalore",
   "Hubli",
@@ -89,28 +112,33 @@ const regionalAreas = [
 
 const BangaloreStoneServices = () => {
   const { pathname } = useLocation();
-  const pageTitle = pathname.includes("mumbai")
-    ? "Granite Paving Stone Mumbai | Natural Stone, Parking Stone & Stone Furniture"
-    : pathname.includes("india")
-      ? "Natural Stone India | Parking Stone, Garden Stone & Stone Furniture"
-      : "Granite Paving Stone Bangalore | Cobblestone, Floor Stone & Stone Chairs";
+  const isIndiaPage = pathname.includes("india");
+  const cityMatch = pathname.match(/(?:granite-paving-stone|paving-stone|cobblestone|floor-stone)-([a-z-]+)$/);
+  const cityName = cityMatch?.[1]
+    ?.split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  const displayLocation = isIndiaPage ? "All India" : cityName || "Bangalore";
+  const pageTitle = isIndiaPage
+    ? "Granite Paving Stone India | Cobblestone, Floor Stone & Stone Furniture"
+    : `Granite Paving Stone ${displayLocation} | Cobblestone, Floor Stone & Stone Furniture`;
 
   useSeo({
     title: pageTitle,
     description:
-      "SJ Granite Paving Stone supplies granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and outdoor stone furniture across Bangalore, Karnataka and Mumbai.",
+      `SJ Granite Paving Stone supplies granite paving stone, cobblestone pavers, floor stone, parking stone, stone chairs, stone benches and outdoor stone furniture for ${displayLocation}, Karnataka, Mumbai and all India projects.`,
     path: pathname,
     keywords: searchTerms,
     schema: [
       localBusinessSchema(),
       breadcrumbSchema([
         { name: "Home", path: "/" },
-        { name: "Granite Paving Stone Bangalore", path: "/granite-paving-stone-bangalore" },
+        { name: pageTitle, path: pathname },
       ]),
       serviceSchema(
-        "Granite paving stone, cobblestone and floor stone in Bangalore, Karnataka and Mumbai",
-        "Granite paving stone, cobblestone, parking pavers, floor stone and stone furniture service for Bangalore, Karnataka, Mumbai and nearby customers.",
-        "/granite-paving-stone-bangalore"
+        `Granite paving stone, cobblestone and floor stone in ${displayLocation}`,
+        `Granite paving stone, cobblestone pavers, parking stone, floor stone and stone furniture service for ${displayLocation}, Karnataka, Mumbai and all India customers.`,
+        pathname
       ),
     ],
   });
@@ -119,22 +147,22 @@ const BangaloreStoneServices = () => {
     <main className="min-h-screen bg-background">
       <Navbar />
       <section className="relative bg-secondary text-secondary-foreground pt-36 pb-20 overflow-hidden">
-        <img src={pavingImage} alt="Granite paving stone work in Bangalore" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <img src={pavingImage} alt={`Granite paving stone work in ${displayLocation}`} className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
         <div className="container relative max-w-5xl">
           <div className="flex items-center gap-3 mb-5">
             <span className="h-px w-10 bg-gold-gradient" />
-            <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">Bangalore, Karnataka</span>
+            <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">{displayLocation} Stone Services</span>
           </div>
           <h1 className="font-serif text-5xl md:text-7xl text-white leading-[1.03] max-w-4xl">
-            Granite Paving Stone, Cobblestone & Floor Stone In Bangalore
+            Granite Paving Stone, Cobblestone & Floor Stone In {displayLocation}
           </h1>
           <p className="mt-6 text-base md:text-lg text-white/78 max-w-3xl leading-relaxed">
-            SJ Granite Paving Stone works with customers across Bangalore, major Karnataka cities and Mumbai for granite paving stone, cobblestone pavers, parking stone, floor stone, outdoor flooring, stone chairs, stone benches and custom garden stone products.
+            SJ Granite Paving Stone works with customers across Bangalore, Karnataka, Mumbai and all India project locations for granite paving stone, cobblestone pavers, parking stone, floor stone, outdoor flooring, stone chairs, stone benches and custom garden stone products.
           </p>
           <div className="mt-9 flex flex-col sm:flex-row gap-3">
             <Link to="/contact" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">
-              Get Bangalore Quote <ArrowRight className="h-4 w-4" />
+              Get Stone Quote <ArrowRight className="h-4 w-4" />
             </Link>
             <a href="tel:+918217257354" className="inline-flex items-center justify-center gap-3 px-8 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.25em] hover:bg-primary/10 transition-colors">
               <PhoneCall className="h-4 w-4" /> Call Now
@@ -149,14 +177,14 @@ const BangaloreStoneServices = () => {
             <div>
               <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Local Stone Specialist</span>
               <h2 className="font-serif text-4xl md:text-5xl mt-4 leading-tight">
-                Built For Bangalore Homes, Villas, Parking Areas & Landscapes
+                Built For Homes, Villas, Parking Areas & Landscapes Across India
               </h2>
               <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  Bangalore customers often search for strong outdoor stone that can handle vehicle movement, rain, sun and daily foot traffic. Our granite paving stones and cobblestone pavers are selected for strength, finish and long-term outdoor performance.
+                  Customers across India often search for strong outdoor stone that can handle vehicle movement, rain, sun and daily foot traffic. Our granite paving stones and cobblestone pavers are selected for strength, finish and long-term outdoor performance.
                 </p>
                 <p>
-                  We support projects for residential houses, villas, commercial buildings, farmhouses, garden landscapes, parking floors, pathways, patios and outdoor seating areas throughout Bengaluru, Karnataka and Mumbai.
+                  We support projects for residential houses, villas, commercial buildings, farmhouses, garden landscapes, parking floors, pathways, patios and outdoor seating areas throughout Bengaluru, Karnataka, Mumbai and major India locations.
                 </p>
               </div>
             </div>
@@ -165,7 +193,7 @@ const BangaloreStoneServices = () => {
                 <img
                   key={image}
                   src={image}
-                  alt={`Bangalore granite stone service ${index + 1}`}
+                  alt={`${displayLocation} granite stone service ${index + 1}`}
                   className="aspect-square w-full object-cover shadow-luxury"
                   loading="lazy"
                 />
@@ -179,7 +207,7 @@ const BangaloreStoneServices = () => {
         <div className="container">
           <div className="max-w-3xl">
             <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Stone Products</span>
-            <h2 className="font-serif text-4xl md:text-5xl text-white mt-4">What We Provide In Bangalore</h2>
+            <h2 className="font-serif text-4xl md:text-5xl text-white mt-4">What We Provide Across India</h2>
             <p className="text-secondary-foreground/70 mt-5 leading-relaxed">
               From stone selection to measurement and finishing, our work is planned around the site, usage and design style required by the customer.
             </p>
@@ -214,7 +242,7 @@ const BangaloreStoneServices = () => {
           </div>
           <div>
             <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Service Locations</span>
-            <h2 className="font-serif text-4xl md:text-5xl mt-4">Bengaluru, Karnataka & Mumbai</h2>
+            <h2 className="font-serif text-4xl md:text-5xl mt-4">Bengaluru, Karnataka, Mumbai & All India</h2>
             <div className="mt-8 grid sm:grid-cols-2 gap-3">
               {bengaluruAreas.map((area) => (
                 <div key={area} className="flex items-center gap-3 border border-foreground/10 bg-card px-4 py-3">

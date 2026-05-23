@@ -2,10 +2,10 @@ import { SectionHeading } from "./SectionHeading";
 import { Hammer, Compass, Truck, Shield, Sparkles, Ruler } from "lucide-react";
 
 const services = [
-  { icon: Compass, title: "Stone Design Guidance", desc: "Granite paving stone, cobblestone and floor stone planning for Bangalore homes, villas and commercial spaces." },
+  { icon: Compass, title: "Stone Design Guidance", desc: "Granite paving stone, cobblestone and floor stone planning for homes, villas and commercial spaces across India." },
   { icon: Hammer, title: "Granite Craftsmanship", desc: "Neat cutting, finishing and placement for paving stone, parking pavers, stone chairs, benches and outdoor stonework." },
   { icon: Ruler, title: "On-Site Measurement", desc: "Professional site measurement for parking areas, pathways, gardens, patios, terraces and floor stone projects." },
-  { icon: Truck, title: "Bangalore Delivery", desc: "Material coordination and delivery support for Bengaluru and nearby Karnataka locations." },
+  { icon: Truck, title: "India Supply Support", desc: "Material coordination and delivery support for Bangalore, Karnataka, Mumbai and major India project locations." },
   { icon: Sparkles, title: "Polish & Finishing", desc: "Surface finishing, edge detailing and practical guidance for maintaining outdoor granite and floor stone." },
   { icon: Shield, title: "Reliable Service", desc: "Clear communication, careful handling and durable workmanship from inquiry to installation support." },
 ];
@@ -15,7 +15,7 @@ export const Services = () => {
     <section id="services" className="py-24 md:py-32 bg-background relative">
       <div className="container">
         <SectionHeading
-          eyebrow="Bangalore Stone Services"
+          eyebrow="India Stone Services"
           title="Crafted Stone, Curated Service"
           subtitle="From granite paving stone and cobblestone to floor stone and stone furniture, every project is planned for the site, usage and finish the customer needs."
         />

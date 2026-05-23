@@ -9,16 +9,40 @@ import chairImage from "@/assets/product-chair.jpg";
 const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
-  "SJ Granite Paving Stone supplies granite paving stone, cobblestone, floor stone, parking pavers, stone benches, stone chairs and outdoor stone furniture across Bangalore, Karnataka and Mumbai.";
+  "SJ Granite Paving Stone supplies granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture across Bangalore, Karnataka, Mumbai and all India project locations.";
 
 const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
 
 export const SERVICE_LOCATIONS = [
+  "India",
   "Bangalore",
   "Bengaluru",
   "Mumbai",
-  "India",
+  "Delhi",
+  "New Delhi",
+  "Hyderabad",
+  "Chennai",
+  "Pune",
+  "Ahmedabad",
+  "Surat",
+  "Jaipur",
+  "Kolkata",
+  "Goa",
+  "Kochi",
+  "Coimbatore",
   "Karnataka",
+  "Maharashtra",
+  "Tamil Nadu",
+  "Telangana",
+  "Kerala",
+  "Andhra Pradesh",
+  "Gujarat",
+  "Rajasthan",
+  "Uttar Pradesh",
+  "Madhya Pradesh",
+  "West Bengal",
+  "Punjab",
+  "Haryana",
   "Mysuru",
   "Mangalore",
   "Hubli",
@@ -52,6 +76,7 @@ type SeoOptions = {
   path?: string;
   keywords?: string[];
   image?: string;
+  robots?: string;
   schema?: Record<string, any> | Record<string, any>[];
 };
 
@@ -105,7 +130,12 @@ export const localBusinessSchema = () => ({
   "@context": "https://schema.org",
   "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
   name: BRAND_NAME,
-  alternateName: ["SJ Granite Paving Stone Bangalore", "SJ Granite Paving Stone Bengaluru"],
+  alternateName: [
+    "SJ Granite Paving Stone India",
+    "SJ Granite Paving Stone Bangalore",
+    "SJ Granite Paving Stone Bengaluru",
+    "SJ Granite Paving Stone Mumbai",
+  ],
   description: DEFAULT_DESCRIPTION,
   url: absoluteUrl("/"),
   logo: absoluteUrl(logoImage),
@@ -133,11 +163,11 @@ export const localBusinessSchema = () => ({
     },
   ],
   makesOffer: [
-    "Granite paving stone supply and installation in Bangalore",
-    "Cobblestone pavers for gardens, pathways and landscape projects",
+    "Granite paving stone supply and installation in India",
+    "Cobblestone pavers for gardens, pathways and landscape projects across India",
     "Outdoor floor stone for patios, terraces, temples and walkways",
-    "Parking stone pavers for villas, resorts and commercial sites",
-    "Stone benches, stone chairs and granite garden furniture",
+    "Parking stone pavers for villas, resorts, hotels and commercial sites",
+    "Stone benches, stone chairs and granite garden furniture supply",
   ].map((name) => ({
     "@type": "Offer",
     itemOffered: {
@@ -199,6 +229,8 @@ export const homePageSchema = () => ({
     "Parking stone pavers",
     "Stone benches and stone chairs",
     "Outdoor stone furniture",
+    "Natural stone supplier India",
+    "Garden stone products India",
   ],
   hasPart: [
     { name: "Granite Paving Stone", image: pavingImage },
@@ -219,6 +251,7 @@ export const useSeo = ({
   path,
   keywords = [],
   image = logoImage,
+  robots = "index, follow, max-image-preview:large",
   schema,
 }: SeoOptions) => {
   const keywordsMeta = keywords.join(", ");
@@ -235,7 +268,7 @@ export const useSeo = ({
 
     document.title = fullTitle;
     upsertMeta('meta[name="description"]', { content: description });
-    upsertMeta('meta[name="robots"]', { content: "index, follow, max-image-preview:large" });
+    upsertMeta('meta[name="robots"]', { content: robots });
     if (keywordsMeta) upsertMeta('meta[name="keywords"]', { content: keywordsMeta });
     upsertMeta('meta[property="og:type"]', { content: "website" });
     upsertMeta('meta[property="og:site_name"]', { content: BRAND_NAME });
@@ -259,5 +292,5 @@ export const useSeo = ({
       }
       script.textContent = schemaJson;
     }
-  }, [title, description, path, image, keywordsMeta, schemaJson]);
+  }, [title, description, path, image, robots, keywordsMeta, schemaJson]);
 };

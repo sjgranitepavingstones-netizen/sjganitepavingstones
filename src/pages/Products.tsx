@@ -28,12 +28,16 @@ const ProductsPage = () => {
   const [q, setQ] = useState("");
 
   useSeo({
-    title: "Granite Paving Stone Products Bangalore | Cobblestone & Floor Stone",
+    title: "Granite Paving Stone Products India | Cobblestone & Floor Stone",
     description:
-      "Browse granite paving stone, cobblestone pavers, floor stone, parking pavers, stone chairs and outdoor stone furniture from SJ Granite Paving Stone for Bangalore, Karnataka and Mumbai.",
+      "Browse granite paving stone, cobblestone pavers, floor stone, parking pavers, stone chairs and outdoor stone furniture from SJ Granite Paving Stone for Bangalore, Karnataka, Mumbai and all India projects.",
     path: "/products",
     keywords: [
       "granite products Bangalore",
+      "granite products India",
+      "paving stone products India",
+      "cobblestone pavers India",
+      "floor stone India",
       "paving stone products Bangalore",
       "cobblestone pavers Bangalore",
       "floor stone Bangalore",
@@ -85,12 +89,12 @@ const ProductsPage = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16 md:pb-20">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Bangalore Collection</span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">India Stone Collection</span>
           <h1 className="font-serif text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
-            Bangalore <span className="italic text-gold-gradient">Stone Catalogue</span>
+            India <span className="italic text-gold-gradient">Stone Catalogue</span>
           </h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
-            Granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture for Bangalore, Karnataka and Mumbai projects.
+            Granite paving stone, cobblestone pavers, floor stone, parking stone and stone furniture for Bangalore, Karnataka, Mumbai and all India projects.
           </p>
         </div>
       </section>

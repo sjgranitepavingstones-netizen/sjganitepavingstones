@@ -5,11 +5,11 @@ import { useSeo, localBusinessSchema, breadcrumbSchema } from "@/lib/seo";
 
 const ContactPage = () => {
   useSeo({
-    title: "Contact Granite Paving Stone Supplier In Bangalore",
+    title: "Contact Granite Paving Stone Supplier In India",
     description:
-      "Contact SJ Granite Paving Stone for granite paving stone, cobblestone, floor stone, parking stone and stone chair inquiries in Bangalore, Karnataka.",
+      "Contact SJ Granite Paving Stone for granite paving stone, cobblestone, floor stone, parking stone and stone chair inquiries in Bangalore, Karnataka, Mumbai and all India.",
     path: "/contact",
-    keywords: ["contact granite paving stone Bangalore", "stone supplier Bangalore", "paving stone quote Bangalore"],
+    keywords: ["contact granite paving stone India", "stone supplier India", "paving stone quote India", "granite paving stone Bangalore"],
     schema: [
       localBusinessSchema(),
       breadcrumbSchema([

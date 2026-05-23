@@ -34,14 +34,16 @@ const ProductDetail = () => {
   const whatsappUrl = product ? createProductWhatsAppUrl(product, active, activeLabel) : "#";
 
   useSeo({
-    title: product ? `${product.name} Bangalore Granite Stone Product` : "Granite Stone Product Bangalore",
+    title: product ? `${product.name} India Granite Stone Product` : "Granite Stone Product India",
     description:
       product?.description ||
-      "Granite paving stone, cobblestone, floor stone, parking stone and outdoor stone furniture product details from SJ Granite Paving Stone in Bangalore.",
+      "Granite paving stone, cobblestone, floor stone, parking stone and outdoor stone furniture product details from SJ Granite Paving Stone for Bangalore, Karnataka, Mumbai and all India projects.",
     path: slug ? `/products/${slug}` : "/products",
     image: active?.image_url || product?.main_image_url || undefined,
     keywords: [
       product?.name || "granite paving stone Bangalore",
+      "granite paving stone India",
+      "stone product India",
       "stone product Bangalore",
       "granite paving stone",
       "cobblestone Bangalore",
@@ -62,7 +64,7 @@ const ProductDetail = () => {
             "@context": "https://schema.org",
             "@type": "Product",
             name: product.name,
-            description: product.description || `${product.name} from SJ Granite Paving Stone in Bangalore.`,
+            description: product.description || `${product.name} from SJ Granite Paving Stone in India.`,
             image: absoluteUrl(active?.image_url || product.main_image_url || "/placeholder.svg"),
             brand: {
               "@type": "Brand",
@@ -114,7 +116,7 @@ const ProductDetail = () => {
             <div className="group relative aspect-square overflow-hidden bg-secondary img-zoom shadow-luxury">
               <img
                 src={active?.image_url || product.main_image_url || "/placeholder.svg"}
-                alt={`${active?.name || product.name} Bangalore granite stone`}
+                alt={`${active?.name || product.name} India granite stone`}
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-24">

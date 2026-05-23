@@ -36,7 +36,7 @@ export const Products = () => {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <span className="h-px w-10 bg-gold-gradient" />
-              <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">Bangalore Stone Collection</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">India Stone Collection</span>
             </div>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light leading-[1.05] text-white max-w-2xl">
               Granite Paving Stone, <span className="italic text-gold-gradient">Cobblestone & Stone Furniture</span>
