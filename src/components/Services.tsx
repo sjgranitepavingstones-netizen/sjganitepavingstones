@@ -12,7 +12,7 @@ const services = [
 
 export const Services = () => {
   return (
-    <section id="services" className="py-24 md:py-32 bg-background relative">
+    <section id="services" className="py-16 md:py-32 bg-background relative">
       <div className="container">
         <SectionHeading
           eyebrow="India Stone Services"
@@ -24,7 +24,7 @@ export const Services = () => {
           {services.map((s, i) => (
             <div
               key={s.title}
-              className="group relative bg-background p-10 transition-all duration-700 hover:bg-secondary cursor-default"
+              className="group relative bg-background p-6 transition-all duration-700 hover:bg-secondary cursor-default sm:p-8 lg:p-10"
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <div className="absolute top-0 left-0 h-px w-0 bg-gold-gradient transition-all duration-700 group-hover:w-full" />
@@ -38,7 +38,7 @@ export const Services = () => {
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground group-hover:text-secondary-foreground/80 transition-colors duration-500">
                   {s.desc}
                 </p>
-                <div className="mt-6 text-[10px] uppercase tracking-[0.3em] text-primary/70">
+                <div className="mt-6 text-[10px] uppercase tracking-[0.18em] text-primary/70 sm:tracking-[0.3em]">
                   0{i + 1}
                 </div>
               </div>

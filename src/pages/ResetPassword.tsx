@@ -41,14 +41,14 @@ const ResetPassword = () => {
       <Navbar />
       <section className="container max-w-md pt-40 pb-24">
         <div className="text-center mb-10">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Security</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Security</span>
           <h1 className="font-serif text-4xl md:text-5xl text-white mt-3">Reset Password</h1>
           <p className="text-secondary-foreground/60 mt-3 text-sm">Create a new password for your account</p>
         </div>
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">New Password</label>
+            <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">New Password</label>
             <div className="relative">
               <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required maxLength={72}
                 className="w-full bg-transparent border border-primary/20 px-4 py-3 pr-12 text-sm focus:border-primary outline-none transition-colors" />
@@ -62,7 +62,7 @@ const ResetPassword = () => {
               </button>
             </div>
           </div>
-          <button disabled={loading || !token} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer disabled:opacity-50">
+          <button disabled={loading || !token} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer disabled:opacity-50 sm:tracking-[0.25em]">
             {loading ? "Updating..." : "Update password"}
           </button>
         </form>

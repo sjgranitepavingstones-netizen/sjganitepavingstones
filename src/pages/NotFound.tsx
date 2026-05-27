@@ -41,11 +41,11 @@ const NotFound = () => {
 
         <div className="container relative">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-3 border border-primary/30 bg-background/15 px-4 py-2 text-xs uppercase tracking-[0.25em] text-primary">
+            <div className="inline-flex items-center gap-3 border border-primary/30 bg-background/15 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-primary sm:px-4 sm:text-xs sm:tracking-[0.25em]">
               <Search className="h-4 w-4" />
               Page Not Available
             </div>
-            <h1 className="font-serif text-5xl md:text-7xl text-white mt-7 leading-tight">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white mt-7 leading-tight">
               Let Us Take You Back To The Stone Catalogue
             </h1>
             <p className="mt-6 text-base md:text-lg text-white/75 leading-relaxed max-w-2xl">
@@ -56,14 +56,14 @@ const NotFound = () => {
             <div className="mt-9 flex flex-col sm:flex-row gap-3">
               <Link
                 to="/"
-                className="inline-flex items-center justify-center gap-3 px-7 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer"
+                className="inline-flex items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer sm:px-7 sm:tracking-[0.25em]"
               >
                 <Home className="h-4 w-4" />
                 Go Home
               </Link>
               <a
                 href="tel:+918217257354"
-                className="inline-flex items-center justify-center gap-3 px-7 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.25em] hover:bg-primary/10 transition-colors"
+                className="inline-flex items-center justify-center gap-3 px-5 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.16em] hover:bg-primary/10 transition-colors sm:px-7 sm:tracking-[0.25em]"
               >
                 <PhoneCall className="h-4 w-4" />
                 Call Support
@@ -78,7 +78,7 @@ const NotFound = () => {
                 to={link.to}
                 className="group border border-primary/15 bg-background/10 p-5 text-white hover:border-primary/60 hover:bg-background/20 transition-colors"
               >
-                <span className="text-sm uppercase tracking-[0.2em]">{link.label}</span>
+                <span className="text-xs uppercase tracking-[0.16em] sm:text-sm sm:tracking-[0.2em]">{link.label}</span>
                 <ArrowRight className="h-4 w-4 mt-5 text-primary transition-transform group-hover:translate-x-1" />
               </Link>
             ))}

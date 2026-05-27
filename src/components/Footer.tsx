@@ -30,9 +30,9 @@ export const Footer = () => {
     <footer className="bg-secondary text-secondary-foreground border-t border-primary/20">
       <div className="container py-16 grid md:grid-cols-4 gap-10">
         <div className="md:col-span-2">
-          <img src={sjLogo} alt="SJ Granite Paving Stone logo" className="h-28 w-auto max-w-full object-contain border border-primary/20" />
+          <img src={sjLogo} alt="SJ Granite Paving Stone logo" className="h-20 w-auto max-w-full object-contain border border-primary/20 sm:h-28" />
           <div className="font-serif text-2xl text-gold-gradient mt-4">SJ Granite Paving Stone</div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-secondary-foreground/60 mt-1">Established 2013</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-secondary-foreground/60 mt-1 sm:tracking-[0.3em]">Established 2013</div>
           <p className="mt-6 text-sm text-secondary-foreground/70 max-w-md leading-relaxed">
             Professional granite paving, outdoor stonework, flooring, parking designs and custom stone products built with care.
           </p>
@@ -53,7 +53,7 @@ export const Footer = () => {
         </div>
 
         <div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-5">Explore</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-5 sm:tracking-[0.3em]">Explore</div>
           <ul className="space-y-3 text-sm text-secondary-foreground/80">
             {[
               { l: "Products", to: "/products" },
@@ -69,7 +69,7 @@ export const Footer = () => {
         </div>
 
         <div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-5">Contact</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-5 sm:tracking-[0.3em]">Contact</div>
           <ul className="space-y-3 text-sm text-secondary-foreground/80">
             <li>India</li>
             <li>+91 82172 57354 (WhatsApp)</li>

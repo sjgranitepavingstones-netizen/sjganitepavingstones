@@ -58,8 +58,8 @@ const TermsAndConditions = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Policy</span>
-          <h1 className="font-serif text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Policy</span>
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
             Terms & <span className="italic text-gold-gradient">Conditions</span>
           </h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
@@ -73,7 +73,7 @@ const TermsAndConditions = () => {
           <div className="space-y-5">
             {terms.map((item, index) => (
               <article key={item.title} className="border border-foreground/10 bg-card/40 p-6 md:p-8">
-                <div className="text-[10px] uppercase tracking-[0.3em] text-primary">0{index + 1}</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">0{index + 1}</div>
                 <h2 className="font-serif text-2xl md:text-3xl mt-3">{item.title}</h2>
                 <p className="text-muted-foreground leading-relaxed mt-4">{item.body}</p>
               </article>

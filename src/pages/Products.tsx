@@ -89,8 +89,8 @@ const ProductsPage = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16 md:pb-20">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">India Stone Collection</span>
-          <h1 className="font-serif text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">India Stone Collection</span>
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white mt-4 leading-[1.05]">
             India <span className="italic text-gold-gradient">Stone Catalogue</span>
           </h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
@@ -104,17 +104,17 @@ const ProductsPage = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setFilter("all")}
-                className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter === "all" ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
+                  className={`px-3 py-2 text-[10px] uppercase tracking-[0.16em] border transition-colors sm:px-4 sm:tracking-[0.25em] ${filter === "all" ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
                 All
               </button>
               {cats.map((c) => (
                 <button key={c.id} onClick={() => setFilter(c.id)}
-                  className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] border transition-colors ${filter === c.id ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
+                  className={`px-3 py-2 text-[10px] uppercase tracking-[0.16em] border transition-colors sm:px-4 sm:tracking-[0.25em] ${filter === c.id ? "bg-foreground text-background border-foreground" : "border-foreground/15 hover:border-primary"}`}>
                   {c.name}
                 </button>
               ))}
             </div>
-            <div className="relative md:w-72">
+            <div className="relative w-full md:w-72">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search paving stone, cobblestone..."
                 className="w-full pl-10 pr-3 py-2.5 bg-transparent border border-foreground/15 text-sm focus:border-primary outline-none" />
@@ -179,7 +179,7 @@ const ProductsPage = () => {
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366]/60 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-[#128C4A] transition-colors hover:bg-[#25D366] hover:text-white"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366]/60 px-3 py-2.5 text-[10px] uppercase tracking-[0.16em] text-[#128C4A] transition-colors hover:bg-[#25D366] hover:text-white sm:px-4 sm:tracking-[0.2em]"
                   >
                     <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
                     WhatsApp

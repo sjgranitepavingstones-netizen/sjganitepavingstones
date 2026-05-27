@@ -88,7 +88,7 @@ const Login = () => {
       <Navbar />
       <section className="container max-w-md pt-40 pb-24">
         <div className="text-center mb-10">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Members</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Members</span>
           <h1 className="font-serif text-4xl md:text-5xl text-white mt-3">Welcome Back</h1>
           <p className="text-secondary-foreground/60 mt-3 text-sm">Sign in to manage quotes & orders</p>
         </div>
@@ -101,7 +101,7 @@ const Login = () => {
             </p>
             <Link
               to="/signup"
-              className="mt-4 inline-flex px-5 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.22em]"
+              className="mt-4 inline-flex px-5 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.22em]"
             >
               Register now
             </Link>
@@ -110,12 +110,12 @@ const Login = () => {
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">Email</label>
+            <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255}
               className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
           </div>
           <div>
-            <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">Password</label>
+            <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">Password</label>
             <div className="relative">
               <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required maxLength={72}
                 className="w-full bg-transparent border border-primary/20 px-4 py-3 pr-12 text-sm focus:border-primary outline-none transition-colors" />
@@ -133,11 +133,11 @@ const Login = () => {
             <button type="button" onClick={() => {
               if (!showForgot && email && !forgotEmail) setForgotEmail(email);
               setShowForgot((value) => !value);
-            }} className="text-[10px] uppercase tracking-[0.22em] text-primary link-gold">
+            }} className="text-[10px] uppercase tracking-[0.16em] text-primary link-gold sm:tracking-[0.22em]">
               Forgot password?
             </button>
           </div>
-          <button disabled={loading} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer disabled:opacity-50">
+          <button disabled={loading} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer disabled:opacity-50 sm:tracking-[0.25em]">
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
@@ -145,11 +145,11 @@ const Login = () => {
         {showForgot && (
           <form onSubmit={requestReset} className="mt-6 border border-primary/20 p-5 space-y-4">
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">Account Email</label>
+              <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">Account Email</label>
               <input type="email" value={forgotEmail || email} onChange={(e) => setForgotEmail(e.target.value)} required maxLength={255}
                 className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
             </div>
-            <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.22em] hover:bg-primary/5 transition-colors disabled:opacity-50">
+            <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.16em] hover:bg-primary/5 transition-colors disabled:opacity-50 sm:tracking-[0.22em]">
               {forgotLoading ? "Creating link..." : "Create reset link"}
             </button>
             {resetRequested && (

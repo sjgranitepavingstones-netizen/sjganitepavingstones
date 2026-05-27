@@ -52,7 +52,7 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 md:py-32 bg-background">
+    <section id="contact" className="py-16 md:py-32 bg-background">
       <div className="container">
         <SectionHeading
           eyebrow="Begin Your Commission"
@@ -61,7 +61,7 @@ export const Contact = () => {
         />
 
         <div className="mt-16">
-          <form onSubmit={onSubmit} className="max-w-3xl mx-auto bg-card border border-border p-10 space-y-6">
+          <form onSubmit={onSubmit} className="max-w-3xl mx-auto bg-card border border-border p-5 space-y-6 sm:p-8 md:p-10">
             <div className="grid sm:grid-cols-2 gap-6">
               <Field label="Full Name" name="name" required />
               <Field label="Phone" name="phone" type="tel" required />
@@ -69,7 +69,7 @@ export const Contact = () => {
             <Field label="Email" name="email" type="email" required />
             <Field label="Interested Product" name="product" placeholder="e.g. Garden bench, parking design..." />
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">
+              <label className="block text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-2 sm:tracking-[0.3em]">
                 Project Details
               </label>
               <textarea
@@ -83,7 +83,7 @@ export const Contact = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group inline-flex items-center gap-3 px-10 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.3em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 disabled:opacity-60"
+              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.18em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 disabled:opacity-60 sm:w-auto sm:px-10 sm:tracking-[0.3em]"
             >
               {loading ? "Sending..." : "Submit Inquiry"}
               <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -100,7 +100,7 @@ export const Contact = () => {
 
 const Field = ({ label, name, type = "text", required, placeholder }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string }) => (
   <div>
-    <label className="block text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{label}</label>
+    <label className="block text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-2 sm:tracking-[0.3em]">{label}</label>
     <input
       type={type}
       name={name}

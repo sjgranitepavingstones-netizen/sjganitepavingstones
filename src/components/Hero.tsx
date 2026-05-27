@@ -69,14 +69,14 @@ export const Hero = () => {
 
       <div className="relative z-10 container min-h-screen flex flex-col justify-center pt-32 pb-20">
         <div className="max-w-4xl">
-          <div className="flex items-center gap-3 mb-6 animate-fade-in-down">
-            <span className="h-px w-12 bg-gold-gradient" />
-            <span className="text-xs uppercase tracking-[0.4em] text-primary font-medium">
+          <div className="flex items-center gap-2 sm:gap-3 mb-6 animate-fade-in-down">
+            <span className="h-px w-8 bg-gold-gradient sm:w-12" />
+            <span className="text-[10px] uppercase tracking-[0.22em] text-primary font-medium sm:text-xs sm:tracking-[0.4em]">
               Professional Granite Paving Since 2013
             </span>
           </div>
 
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light leading-[0.95] text-white animate-fade-in">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95] text-white animate-fade-in">
             SJ Granite
             <span className="block italic text-gold-gradient mt-2">Paving Stone</span>
             <span className="block">India</span>
@@ -86,24 +86,24 @@ export const Hero = () => {
             Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore, Karnataka, Mumbai and all India projects.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4 animate-fade-in [animation-delay:400ms]">
+          <div className="mt-10 flex flex-col gap-3 animate-fade-in sm:flex-row sm:flex-wrap sm:gap-4 [animation-delay:400ms]">
             <Link
               to="/granite-paving-stone-india"
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.3em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500"
+              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.18em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
             >
               India Stone Services
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               to="/contact"
-              className="group inline-flex items-center gap-3 px-8 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.3em] font-medium hover:bg-primary/10 hover:border-primary transition-all duration-500"
+              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.18em] font-medium hover:bg-primary/10 hover:border-primary transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
             >
               Get a Quote
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl animate-fade-in [animation-delay:600ms]">
+          <div className="mt-10 grid grid-cols-2 gap-5 max-w-3xl animate-fade-in sm:mt-16 sm:gap-8 md:grid-cols-4 [animation-delay:600ms]">
             {[
               { v: "BLR + KA", l: "Service Area" },
               { v: "2013", l: "Established" },
@@ -112,7 +112,7 @@ export const Hero = () => {
             ].map((s) => (
               <div key={s.l} className="border-l border-primary/40 pl-4">
                 <div className="font-serif text-2xl md:text-3xl text-gold-gradient">{s.v}</div>
-                <div className="text-[10px] uppercase tracking-[0.3em] text-white/60 mt-1">{s.l}</div>
+                <div className="text-[10px] uppercase tracking-[0.16em] text-white/60 mt-1 sm:tracking-[0.3em]">{s.l}</div>
               </div>
             ))}
           </div>
@@ -123,7 +123,7 @@ export const Hero = () => {
         href="#products"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/60 hover:text-primary transition-colors animate-gold-pulse"
       >
-        <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
+        <span className="text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em]">Scroll</span>
         <ChevronDown className="h-4 w-4" />
       </a>
     </section>

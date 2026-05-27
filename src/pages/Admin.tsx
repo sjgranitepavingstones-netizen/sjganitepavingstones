@@ -29,16 +29,16 @@ const Admin = () => {
       <section className="container pt-32 pb-20">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Control Center</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Control Center</span>
             <h1 className="font-serif text-4xl md:text-5xl mt-2">Admin Panel</h1>
           </div>
-          <Link to="/" className="text-xs uppercase tracking-[0.25em] text-foreground/60 hover:text-primary">Back to site</Link>
+          <Link to="/" className="text-xs uppercase tracking-[0.16em] text-foreground/60 hover:text-primary sm:tracking-[0.25em]">Back to site</Link>
         </div>
 
         <div className="flex flex-wrap gap-1 border-b border-foreground/10 mb-8">
           {TABS.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`px-4 py-3 text-[11px] uppercase tracking-[0.22em] border-b-2 -mb-px transition-colors ${tab===t.id?"border-primary text-primary":"border-transparent text-foreground/60 hover:text-foreground"}`}>
+              className={`px-3 py-3 text-[10px] uppercase tracking-[0.14em] border-b-2 -mb-px transition-colors sm:px-4 sm:text-[11px] sm:tracking-[0.22em] ${tab===t.id?"border-primary text-primary":"border-transparent text-foreground/60 hover:text-foreground"}`}>
               {t.label}
             </button>
           ))}
@@ -79,7 +79,7 @@ const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | n
   };
   return (
     <div>
-      <label className="block text-[10px] uppercase tracking-[0.25em] text-foreground/60 mb-2">{label}</label>
+      <label className="block text-[10px] uppercase tracking-[0.16em] text-foreground/60 mb-2 sm:tracking-[0.25em]">{label}</label>
       <div className="flex items-center gap-3">
         <div className="h-16 w-16 bg-muted overflow-hidden border border-foreground/10 grid place-items-center">
           {value ? <img src={imageSrc(value)} onError={imageFallback} className="h-full w-full object-cover" /> : <ImgIcon className="h-5 w-5 text-foreground/30" />}
@@ -656,7 +656,7 @@ const SettingsAdmin = () => {
           value={form.owner_image_url || null}
           onChange={saveOwnerImage}
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Latitude">
             <input className={inputCls} placeholder="12.9716" value={form.map_latitude}
               onChange={(e) => setForm({ ...form, map_latitude: e.target.value })} />
@@ -670,7 +670,7 @@ const SettingsAdmin = () => {
           <input type="number" min={1} max={20} className={inputCls} value={form.map_zoom}
             onChange={(e) => setForm({ ...form, map_zoom: e.target.value })} />
         </Field>
-        <button className="px-8 py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em]">
+        <button className="w-full px-5 py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] sm:w-auto sm:px-8 sm:tracking-[0.25em]">
           Save Settings
         </button>
       </form>

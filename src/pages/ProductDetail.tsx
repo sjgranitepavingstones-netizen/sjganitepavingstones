@@ -107,7 +107,7 @@ const ProductDetail = () => {
     <main className="min-h-screen bg-background">
       <Navbar />
       <section className="container pt-32 md:pt-36 pb-16 md:pb-24">
-        <Link to="/products" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-foreground/60 hover:text-primary mb-8">
+        <Link to="/products" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-foreground/60 hover:text-primary mb-8 sm:tracking-[0.25em]">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to catalogue
         </Link>
 
@@ -128,7 +128,7 @@ const ProductDetail = () => {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-3 bg-[#25D366] px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-white transition-all hover:brightness-105 sm:w-auto"
+                  className="inline-flex w-full items-center justify-center gap-3 bg-[#25D366] px-5 py-3 text-xs font-medium uppercase tracking-[0.16em] text-white transition-all hover:brightness-105 sm:w-auto sm:tracking-[0.2em]"
                 >
                   <MessageCircle className="h-4 w-4" fill="currentColor" />
                   WhatsApp This Image
@@ -138,14 +138,14 @@ const ProductDetail = () => {
           </div>
 
           <div>
-            {product.tagline && <span className="text-[10px] uppercase tracking-[0.3em] text-primary">{product.tagline}</span>}
-            <h1 className="font-serif text-4xl md:text-5xl mt-3 leading-[1.05]">{product.name}</h1>
+            {product.tagline && <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">{product.tagline}</span>}
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl mt-3 leading-[1.05]">{product.name}</h1>
             <p className="text-foreground/70 mt-6 leading-relaxed">{product.description}</p>
 
             <div className="mt-10">
               <div className="flex items-center gap-3 mb-5">
                 <span className="h-px w-8 bg-gold-gradient" />
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">
                   Product & Variant Options
                 </span>
               </div>
@@ -154,7 +154,7 @@ const ProductDetail = () => {
                 <button
                   type="button"
                   onClick={() => setActive(null)}
-                  className={`group grid grid-cols-[88px_1fr] items-center gap-4 border p-3 text-left transition-all ${!active ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
+                  className={`group grid grid-cols-[72px_1fr] items-center gap-3 border p-3 text-left transition-all sm:grid-cols-[88px_1fr] sm:gap-4 ${!active ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
                   aria-pressed={!active}
                   aria-label={`Select ${product.name}`}
                 >
@@ -189,7 +189,7 @@ const ProductDetail = () => {
                         key={variant.id}
                         type="button"
                         onClick={() => setActive(variant)}
-                        className={`group grid grid-cols-[88px_1fr] items-center gap-4 border p-3 text-left transition-all ${selected ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
+                        className={`group grid grid-cols-[72px_1fr] items-center gap-3 border p-3 text-left transition-all sm:grid-cols-[88px_1fr] sm:gap-4 ${selected ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
                         aria-pressed={selected}
                         aria-label={`Select ${label}`}
                       >
@@ -235,12 +235,12 @@ const ProductDetail = () => {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-[#25D366] text-white text-xs uppercase tracking-[0.22em] hover:brightness-105 transition-all"
+                className="inline-flex w-full items-center justify-center gap-3 px-5 py-3.5 bg-[#25D366] text-white text-xs uppercase tracking-[0.16em] hover:brightness-105 transition-all sm:w-auto sm:px-8 sm:tracking-[0.22em]"
               >
                 <MessageCircle className="h-4 w-4" fill="currentColor" />
                 WhatsApp This Item
               </a>
-              <Link to="/contact" className="inline-flex items-center justify-center px-8 py-3.5 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">
+              <Link to="/contact" className="inline-flex w-full items-center justify-center px-5 py-3.5 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer sm:w-auto sm:px-8 sm:tracking-[0.25em]">
                 Request Quote
               </Link>
             </div>

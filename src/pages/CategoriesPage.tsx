@@ -36,8 +36,8 @@ const CategoriesPage = () => {
       <Navbar />
       <section className="bg-secondary text-secondary-foreground pt-36 pb-16">
         <div className="container text-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">India Collections</span>
-          <h1 className="font-serif text-5xl md:text-7xl text-white mt-4">Stone <span className="italic text-gold-gradient">Categories</span></h1>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">India Collections</span>
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white mt-4">Stone <span className="italic text-gold-gradient">Categories</span></h1>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto mt-6 text-sm md:text-base">
             Granite paving stone, cobblestone, floor stone, parking pavers and outdoor stone furniture categories.
           </p>
@@ -50,13 +50,13 @@ const CategoriesPage = () => {
             <Link key={c.id} to={`/products?cat=${c.slug}`} className="group relative aspect-[16/10] overflow-hidden img-zoom bg-secondary block">
               <img src={c.image_url || "/placeholder.svg"} alt={c.name} className="h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 inset-x-0 p-8">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary">
+              <div className="absolute bottom-0 inset-x-0 p-5 sm:p-8">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">
                   {c.products?.[0]?.count ?? 0} Products
                 </span>
-                <h3 className="font-serif text-3xl md:text-4xl text-white mt-2">{c.name}</h3>
+                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white mt-2">{c.name}</h3>
                 <p className="text-white/70 text-sm mt-2 max-w-md">{c.description}</p>
-                <span className="inline-flex items-center gap-2 text-primary text-[10px] uppercase tracking-[0.3em] mt-4">
+                <span className="inline-flex items-center gap-2 text-primary text-[10px] uppercase tracking-[0.18em] mt-4 sm:tracking-[0.3em]">
                   Explore <ArrowUpRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>

@@ -45,7 +45,7 @@ const Signup = () => {
       <Navbar />
       <section className="container max-w-md pt-40 pb-24">
         <div className="text-center mb-10">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Join</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Join</span>
           <h1 className="font-serif text-4xl md:text-5xl text-white mt-3">Create Account</h1>
           <p className="text-secondary-foreground/60 mt-3 text-sm">Save quotes, track orders, exclusive previews</p>
         </div>
@@ -53,7 +53,7 @@ const Signup = () => {
         <form onSubmit={submit} className="space-y-4">
           {(["full_name","email","password"] as const).map((k) => (
             <div key={k}>
-              <label className="block text-[10px] uppercase tracking-[0.25em] text-secondary-foreground/60 mb-2">
+              <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">
                 {k === "full_name" ? "Full name" : k}
               </label>
               {k === "password" ? (
@@ -87,7 +87,7 @@ const Signup = () => {
               )}
             </div>
           ))}
-          <button disabled={loading} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer disabled:opacity-50">
+          <button disabled={loading} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer disabled:opacity-50 sm:tracking-[0.25em]">
             {loading ? "Creating..." : "Create account"}
           </button>
         </form>

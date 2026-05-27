@@ -20,9 +20,9 @@ export const AtelierInfo = () => {
     <section className="py-20 md:py-24 bg-background">
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-10 items-stretch">
-          <div className="lg:col-span-2 bg-secondary text-secondary-foreground p-10 relative overflow-hidden">
+          <div className="lg:col-span-2 bg-secondary text-secondary-foreground p-6 relative overflow-hidden sm:p-8 lg:p-10">
             <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Our Atelier</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Our Atelier</span>
             <h2 className="font-serif text-3xl md:text-4xl text-white mt-3 mb-2">SJ Granite Paving Stone</h2>
             <p className="text-secondary-foreground/70 text-sm">Visit by appointment only.</p>
 
@@ -38,7 +38,7 @@ export const AtelierInfo = () => {
                     <info.icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-1">{info.label}</div>
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-1 sm:tracking-[0.3em]">{info.label}</div>
                     <div className="text-secondary-foreground/90">{info.value}</div>
                   </div>
                 </div>
@@ -46,7 +46,7 @@ export const AtelierInfo = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-3 min-h-[360px] border border-primary/20 bg-secondary">
+          <div className="lg:col-span-3 min-h-[260px] border border-primary/20 bg-secondary sm:min-h-[360px]">
             <iframe
               title="Atelier location"
               src={
@@ -54,7 +54,7 @@ export const AtelierInfo = () => {
                   ? `https://www.google.com/maps?q=${mapPos.lat},${mapPos.lng}&z=${mapPos.zoom}&output=embed`
                   : "https://www.google.com/maps?q=12.9716,77.5946&z=14&output=embed"
               }
-              className="w-full h-full min-h-[360px]"
+              className="w-full h-full min-h-[260px] sm:min-h-[360px]"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />

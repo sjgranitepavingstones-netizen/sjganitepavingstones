@@ -150,21 +150,21 @@ const BangaloreStoneServices = () => {
         <img src={pavingImage} alt={`Granite paving stone work in ${displayLocation}`} className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
         <div className="container relative max-w-5xl">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="h-px w-10 bg-gold-gradient" />
-            <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">{displayLocation} Stone Services</span>
+          <div className="flex items-center gap-2 mb-5 sm:gap-3">
+            <span className="h-px w-8 bg-gold-gradient sm:w-10" />
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary font-medium sm:text-xs sm:tracking-[0.3em]">{displayLocation} Stone Services</span>
           </div>
-          <h1 className="font-serif text-5xl md:text-7xl text-white leading-[1.03] max-w-4xl">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white leading-[1.03] max-w-4xl">
             Granite Paving Stone, Cobblestone & Floor Stone In {displayLocation}
           </h1>
           <p className="mt-6 text-base md:text-lg text-white/78 max-w-3xl leading-relaxed">
             SJ Granite Paving Stone works with customers across Bangalore, Karnataka, Mumbai and all India project locations for granite paving stone, cobblestone pavers, parking stone, floor stone, outdoor flooring, stone chairs, stone benches and custom garden stone products.
           </p>
           <div className="mt-9 flex flex-col sm:flex-row gap-3">
-            <Link to="/contact" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em] shimmer">
+            <Link to="/contact" className="inline-flex items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer sm:px-8 sm:tracking-[0.25em]">
               Get Stone Quote <ArrowRight className="h-4 w-4" />
             </Link>
-            <a href="tel:+918217257354" className="inline-flex items-center justify-center gap-3 px-8 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.25em] hover:bg-primary/10 transition-colors">
+            <a href="tel:+918217257354" className="inline-flex items-center justify-center gap-3 px-5 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.16em] hover:bg-primary/10 transition-colors sm:px-8 sm:tracking-[0.25em]">
               <PhoneCall className="h-4 w-4" /> Call Now
             </a>
           </div>
@@ -175,8 +175,8 @@ const BangaloreStoneServices = () => {
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Local Stone Specialist</span>
-              <h2 className="font-serif text-4xl md:text-5xl mt-4 leading-tight">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Local Stone Specialist</span>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mt-4 leading-tight">
                 Built For Homes, Villas, Parking Areas & Landscapes Across India
               </h2>
               <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
@@ -206,8 +206,8 @@ const BangaloreStoneServices = () => {
       <section className="py-16 md:py-24 bg-secondary text-secondary-foreground">
         <div className="container">
           <div className="max-w-3xl">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Stone Products</span>
-            <h2 className="font-serif text-4xl md:text-5xl text-white mt-4">What We Provide Across India</h2>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Stone Products</span>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mt-4">What We Provide Across India</h2>
             <p className="text-secondary-foreground/70 mt-5 leading-relaxed">
               From stone selection to measurement and finishing, our work is planned around the site, usage and design style required by the customer.
             </p>
@@ -230,8 +230,8 @@ const BangaloreStoneServices = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container grid lg:grid-cols-2 gap-12">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Popular Searches</span>
-            <h2 className="font-serif text-4xl md:text-5xl mt-4">Stone Keywords We Serve</h2>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Popular Searches</span>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mt-4">Stone Keywords We Serve</h2>
             <div className="mt-8 flex flex-wrap gap-3">
               {searchTerms.map((term) => (
                 <span key={term} className="px-4 py-2 border border-foreground/10 bg-card text-sm text-foreground/75">
@@ -241,8 +241,8 @@ const BangaloreStoneServices = () => {
             </div>
           </div>
           <div>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Service Locations</span>
-            <h2 className="font-serif text-4xl md:text-5xl mt-4">Bengaluru, Karnataka, Mumbai & All India</h2>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Service Locations</span>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mt-4">Bengaluru, Karnataka, Mumbai & All India</h2>
             <div className="mt-8 grid sm:grid-cols-2 gap-3">
               {bengaluruAreas.map((area) => (
                 <div key={area} className="flex items-center gap-3 border border-foreground/10 bg-card px-4 py-3">
@@ -252,7 +252,7 @@ const BangaloreStoneServices = () => {
               ))}
             </div>
             <div className="mt-6">
-              <div className="text-[10px] uppercase tracking-[0.25em] text-foreground/50">Major city supply</div>
+              <div className="text-[10px] uppercase tracking-[0.16em] text-foreground/50 sm:tracking-[0.25em]">Major city supply</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {regionalAreas.map((area) => (
                   <span key={area} className="border border-foreground/10 bg-card px-3 py-2 text-sm text-foreground/70">

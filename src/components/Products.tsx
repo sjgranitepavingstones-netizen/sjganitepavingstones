@@ -27,7 +27,7 @@ export const Products = () => {
   }, []);
 
   return (
-    <section id="products" className="py-24 md:py-32 bg-secondary text-secondary-foreground relative overflow-hidden">
+    <section id="products" className="py-16 md:py-32 bg-secondary text-secondary-foreground relative overflow-hidden">
       <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
 
@@ -36,13 +36,13 @@ export const Products = () => {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <span className="h-px w-10 bg-gold-gradient" />
-              <span className="text-xs uppercase tracking-[0.3em] text-primary font-medium">India Stone Collection</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-primary font-medium sm:text-xs sm:tracking-[0.3em]">India Stone Collection</span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light leading-[1.05] text-white max-w-2xl">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.05] text-white max-w-2xl">
               Granite Paving Stone, <span className="italic text-gold-gradient">Cobblestone & Stone Furniture</span>
             </h2>
           </div>
-          <Link to="/products" className="link-gold text-xs uppercase tracking-[0.3em] text-primary inline-flex items-center gap-2 self-start md:self-end">
+          <Link to="/products" className="link-gold text-xs uppercase tracking-[0.18em] text-primary inline-flex items-center gap-2 self-start sm:tracking-[0.3em] md:self-end">
             View Full Catalogue <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
@@ -62,12 +62,12 @@ export const Products = () => {
                     <img src={image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                     {p.tagline && (
-                      <span className="absolute top-4 left-4 px-3 py-1 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] font-medium">
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.16em] font-medium sm:tracking-[0.25em]">
                         Signature
                       </span>
                     )}
                     <div className="absolute bottom-0 inset-x-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      {p.tagline && <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">{p.tagline}</div>}
+                      {p.tagline && <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-2 sm:tracking-[0.3em]">{p.tagline}</div>}
                       <h3 className="font-serif text-xl text-white leading-tight">{p.name}</h3>
                       <div className="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                         <span className="text-sm text-white/80">{selected?.name || "View details"}</span>
@@ -109,7 +109,7 @@ export const Products = () => {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366]/60 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-[#25D366] transition-colors hover:bg-[#25D366] hover:text-white"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366]/60 px-3 py-2.5 text-[10px] uppercase tracking-[0.16em] text-[#25D366] transition-colors hover:bg-[#25D366] hover:text-white sm:px-4 sm:tracking-[0.2em]"
                 >
                   <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
                   WhatsApp

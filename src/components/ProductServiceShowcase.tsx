@@ -36,15 +36,15 @@ const showcase = [
 
 export const ProductServiceShowcase = () => {
   return (
-    <section className="bg-secondary py-24 text-secondary-foreground md:py-32">
+    <section className="bg-secondary py-16 text-secondary-foreground md:py-32">
       <div className="container">
         <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <div className="mb-4 flex items-center gap-3">
               <span className="h-px w-10 bg-gold-gradient" />
-              <span className="text-xs uppercase tracking-[0.3em] text-primary">Products & Services</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:text-xs sm:tracking-[0.3em]">Products & Services</span>
             </div>
-            <h2 className="font-serif text-4xl leading-[1.05] text-white md:text-5xl">
+            <h2 className="font-serif text-3xl leading-[1.05] text-white sm:text-4xl md:text-5xl">
               More Stone Options For Outdoor Projects
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-secondary-foreground/70 md:text-base">
@@ -53,7 +53,7 @@ export const ProductServiceShowcase = () => {
           </div>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 self-start text-xs uppercase tracking-[0.3em] text-primary link-gold md:self-end"
+            className="inline-flex items-center gap-2 self-start text-xs uppercase tracking-[0.18em] text-primary link-gold sm:tracking-[0.3em] md:self-end"
           >
             View Catalogue <ArrowUpRight className="h-4 w-4" />
           </Link>
@@ -64,7 +64,7 @@ export const ProductServiceShowcase = () => {
             <Link
               key={item.title}
               to="/products"
-              className="group relative min-h-[360px] overflow-hidden bg-black"
+              className="group relative min-h-[280px] overflow-hidden bg-black sm:min-h-[340px] lg:min-h-[360px]"
             >
               <img
                 src={item.image}
@@ -74,7 +74,7 @@ export const ProductServiceShowcase = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10" />
               <div className="absolute inset-x-0 bottom-0 p-6">
-                <div className="mb-3 text-[10px] uppercase tracking-[0.3em] text-primary">
+                <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">
                   {String(index + 1).padStart(2, "0")}
                 </div>
                 <h3 className="font-serif text-2xl leading-tight text-white">{item.title}</h3>

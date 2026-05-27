@@ -31,7 +31,7 @@ export const About = () => {
     : "SJ Granite Paving Stone";
 
   return (
-    <section id="about" className="relative overflow-hidden bg-background py-24 md:py-32">
+    <section id="about" className="relative overflow-hidden bg-background py-16 md:py-32">
       <div className="container">
         <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
           <div className="relative bg-secondary px-7 py-9 text-secondary-foreground md:px-10 md:py-12">
@@ -41,7 +41,7 @@ export const About = () => {
                 <img src={imageSrc} alt={imageAlt} className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div>
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Founder & Proprietor</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">Founder & Proprietor</span>
                 <h2 className="mt-2 font-serif text-3xl text-white md:text-4xl">Mohammad Javeed</h2>
                 <p className="mt-2 text-sm text-secondary-foreground/65">SJ Granite Paving Stone</p>
               </div>
@@ -68,9 +68,9 @@ export const About = () => {
           <div className="lg:pt-4">
             <div className="flex items-center gap-3">
               <span className="h-px w-10 bg-gold-gradient" />
-              <span className="text-xs font-medium uppercase tracking-[0.3em] text-primary">About The Company</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary sm:text-xs sm:tracking-[0.3em]">About The Company</span>
             </div>
-            <h1 className="mt-5 font-serif text-4xl leading-[1.05] md:text-6xl">
+            <h1 className="mt-5 font-serif text-3xl leading-[1.05] sm:text-4xl md:text-6xl">
               Granite, cobblestone and paving stone supply with trusted experience.
             </h1>
 

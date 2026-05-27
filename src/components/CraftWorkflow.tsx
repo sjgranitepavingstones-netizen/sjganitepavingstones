@@ -30,12 +30,12 @@ const steps = [
 ];
 
 export const CraftWorkflow = () => (
-  <section className="bg-secondary text-secondary-foreground py-24 md:py-32 overflow-hidden">
+  <section className="bg-secondary text-secondary-foreground py-16 md:py-32 overflow-hidden">
     <div className="container">
       <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-end mb-14">
         <div>
-          <span className="text-xs uppercase tracking-[0.3em] text-primary">Our Stone Journey</span>
-          <h2 className="font-serif text-4xl md:text-6xl text-white mt-4 leading-tight">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:text-xs sm:tracking-[0.3em]">Our Stone Journey</span>
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-6xl text-white mt-4 leading-tight">
             From The Quarry To Your Outdoor Space
           </h2>
         </div>
@@ -57,11 +57,11 @@ export const CraftWorkflow = () => (
                 src={step.image}
                 alt={step.alt}
                 loading="lazy"
-                className="h-full min-h-[280px] max-h-[520px] w-full object-cover"
+                className="h-full min-h-[220px] max-h-[520px] w-full object-cover sm:min-h-[280px]"
               />
             </div>
             <div className="p-7 md:p-10 lg:p-12 flex flex-col justify-center">
-              <div className="text-sm uppercase tracking-[0.35em] text-primary">{step.number}</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-primary sm:text-sm sm:tracking-[0.35em]">{step.number}</div>
               <h3 className="font-serif text-3xl md:text-5xl text-white mt-5">{step.title}</h3>
               <p className="text-secondary-foreground/70 leading-relaxed mt-6">{step.copy}</p>
             </div>
