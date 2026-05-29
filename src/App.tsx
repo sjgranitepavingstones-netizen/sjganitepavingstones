@@ -1,8 +1,16 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+
 import { useEffect } from "react";
+
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
 import { AuthProvider } from "@/context/AuthContext";
 import { RequireAdmin } from "@/components/RequireAdmin";
 import { FloatingContact } from "@/components/FloatingContact";
@@ -19,13 +27,18 @@ import Signup from "./pages/Signup.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import TermsAndConditions from "./pages/TermsAndConditions.tsx";
+
 import BangaloreStoneServices from "./pages/BangaloreStoneServices.tsx";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
   }, [pathname]);
 
   return null;
@@ -35,43 +48,126 @@ const App = () => (
   <TooltipProvider>
     <Toaster />
     <Sonner />
+
     <BrowserRouter>
       <AuthProvider>
         <ScrollToTop />
+
         <Routes>
+          {/* Main Pages */}
           <Route path="/" element={<Index />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/:slug" element={<ProductDetail />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/terms" element={<TermsAndConditions />} />
-          <Route path="/granite-paving-stone-bangalore" element={<BangaloreStoneServices />} />
-          <Route path="/paving-stone-bangalore" element={<BangaloreStoneServices />} />
-          <Route path="/cobblestone-bangalore" element={<BangaloreStoneServices />} />
-          <Route path="/floor-stone-bangalore" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/paving-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/cobblestone-india" element={<BangaloreStoneServices />} />
-          <Route path="/floor-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-mumbai" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-delhi" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-hyderabad" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-chennai" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-pune" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-jaipur" element={<BangaloreStoneServices />} />
-          <Route path="/granite-paving-stone-ahmedabad" element={<BangaloreStoneServices />} />
-          <Route path="/natural-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/parking-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/stone-furniture-india" element={<BangaloreStoneServices />} />
-          <Route path="/garden-stone-india" element={<BangaloreStoneServices />} />
-          <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
-          <Route path="*" element={<NotFound />} />
+
+          <Route
+            path="/products"
+            element={<ProductsPage />}
+          />
+
+          <Route
+            path="/products/:slug"
+            element={<ProductDetail />}
+          />
+
+          <Route
+            path="/categories"
+            element={<CategoriesPage />}
+          />
+
+          <Route
+            path="/about"
+            element={<AboutPage />}
+          />
+
+          <Route
+            path="/contact"
+            element={<ContactPage />}
+          />
+
+          {/* Auth */}
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/signup"
+            element={<Signup />}
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
+          />
+
+          {/* Terms */}
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditions />}
+          />
+
+          <Route
+            path="/terms"
+            element={<TermsAndConditions />}
+          />
+
+          {/* Dynamic Local SEO Routes */}
+
+          <Route
+            path="/granite-paving-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/paving-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/cobblestone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/floor-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/natural-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/parking-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/stone-furniture-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          <Route
+            path="/garden-stone-:city"
+            element={<BangaloreStoneServices />}
+          />
+
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <Admin />
+              </RequireAdmin>
+            }
+          />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
         </Routes>
+
         <FloatingContact />
       </AuthProvider>
     </BrowserRouter>
