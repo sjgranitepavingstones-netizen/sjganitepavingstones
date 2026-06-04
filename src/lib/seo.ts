@@ -9,7 +9,7 @@ import chairImage from "@/assets/product-chair.jpg";
 const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
-  "SJ Granite Paving Stone supplies granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture across Bangalore, Karnataka, Mumbai and all India project locations.";
+  "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for residential, commercial and landscape projects.";
 
 const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
 
@@ -127,6 +127,29 @@ export const locationKeywords = (location: string) => [
   `outdoor stone furniture India`,
 ];
 
+export const genericStoneKeywords = [
+  "SJ Granite Paving Stone",
+  "sj granite stone",
+  "sj granite paving stone",
+  "natural stone",
+  "netural stone",
+  "natural stone supplier",
+  "natural stone paving",
+  "granite paving stone",
+  "paving stone",
+  "paving stones",
+  "cobblestone",
+  "cobble stone",
+  "cobblestone pavers",
+  "floor stone",
+  "parking stone",
+  "stone furniture",
+  "garden stone",
+  "stone benches",
+  "stone chairs",
+  "outdoor stone furniture",
+];
+
 export const SERVICE_LOCATIONS = [
   "India",
   ...LOCATION_SEO_TARGETS,
@@ -203,10 +226,12 @@ export const localBusinessSchema = () => ({
   "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
   name: BRAND_NAME,
   alternateName: [
+    "SJ Granite Stone",
     "SJ Granite Paving Stone India",
     "SJ Granite Paving Stone Bangalore",
     "SJ Granite Paving Stone Bengaluru",
     "SJ Granite Paving Stone Mumbai",
+    "SJ Natural Stone Supplier",
   ],
   description: DEFAULT_DESCRIPTION,
   url: absoluteUrl("/"),
@@ -235,6 +260,7 @@ export const localBusinessSchema = () => ({
     },
   ],
   makesOffer: [
+    "Natural stone supply for paving, flooring and outdoor landscape projects",
     "Granite paving stone supply and installation in India",
     "Cobblestone pavers for gardens, pathways and landscape projects across India",
     "Outdoor floor stone for patios, terraces, temples and walkways",
@@ -287,7 +313,7 @@ export const serviceSchema = (name: string, description: string, path: string) =
 export const homePageSchema = () => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "SJ Granite Paving Stone Products & Services",
+  name: "SJ Granite Paving Stone Natural Stone Products & Services",
   url: absoluteUrl("/"),
   description: DEFAULT_DESCRIPTION,
   primaryImageOfPage: {
@@ -295,6 +321,8 @@ export const homePageSchema = () => ({
     url: absoluteUrl(logoImage),
   },
   about: [
+    "Natural stone",
+    "SJ Granite Stone",
     "Granite paving stone",
     "Cobblestone pavers",
     "Floor stone",

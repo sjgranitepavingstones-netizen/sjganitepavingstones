@@ -19,6 +19,7 @@ import {
   localBusinessSchema,
   serviceSchema,
   homePageSchema,
+  genericStoneKeywords,
   locationKeywords,
   locationNameFromSlug,
 } from "@/lib/seo";
@@ -30,11 +31,15 @@ const Index = () => {
 
   const cityName = locationNameFromSlug(city);
 
-  const pageTitle = city
-    ? `SJ Granite Paving Stone ${cityName} | Paving Stone, Cobblestone & Stone Furniture`
-    : "SJ Granite Paving Stone India | Paving Stone, Cobblestone & Stone Furniture";
+  const hasLocationIntent = Boolean(city);
 
-  const pageDescription = `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for ${cityName} and all India projects.`;
+  const pageTitle = hasLocationIntent
+    ? `SJ Granite Paving Stone ${cityName} | Paving Stone, Cobblestone & Stone Furniture`
+    : "SJ Granite Paving Stone | Natural Stone, Paving Stone & Cobblestone";
+
+  const pageDescription = hasLocationIntent
+    ? `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for ${cityName} and all India projects.`
+    : "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone and outdoor stone furniture for homes, villas, gardens, parking areas and commercial projects.";
 
   useSeo({
     title: pageTitle,
@@ -47,7 +52,7 @@ const Index = () => {
 
     image: logoImage,
 
-    keywords: locationKeywords(cityName),
+    keywords: hasLocationIntent ? locationKeywords(cityName) : genericStoneKeywords,
 
     schema: [
       localBusinessSchema(),
@@ -57,7 +62,9 @@ const Index = () => {
       serviceSchema(
         `Granite paving stone services in ${cityName}`,
 
-        `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches and outdoor stone furniture services in ${cityName}.`,
+        hasLocationIntent
+          ? `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches and outdoor stone furniture services in ${cityName}.`
+          : "Natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone and outdoor stone furniture services.",
 
         city
           ? `/granite-paving-stone-${city}`
