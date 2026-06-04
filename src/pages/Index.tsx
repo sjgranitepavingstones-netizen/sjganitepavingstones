@@ -19,6 +19,8 @@ import {
   localBusinessSchema,
   serviceSchema,
   homePageSchema,
+  locationKeywords,
+  locationNameFromSlug,
 } from "@/lib/seo";
 
 import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
@@ -26,14 +28,11 @@ import logoImage from "@/assets/sj-granite-paving-stone-logo.jpg";
 const Index = () => {
   const { city } = useParams();
 
-  const cityName = city
-    ? city
-        .split("-")
-        .join(" ")
-        .replace(/\b\w/g, (char) => char.toUpperCase())
-    : "India";
+  const cityName = locationNameFromSlug(city);
 
-  const pageTitle = `SJ Granite Paving Stone ${cityName} | Paving Stone, Cobblestone & Stone Furniture`;
+  const pageTitle = city
+    ? `SJ Granite Paving Stone ${cityName} | Paving Stone, Cobblestone & Stone Furniture`
+    : "SJ Granite Paving Stone India | Paving Stone, Cobblestone & Stone Furniture";
 
   const pageDescription = `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for ${cityName} and all India projects.`;
 
@@ -48,21 +47,7 @@ const Index = () => {
 
     image: logoImage,
 
-    keywords: [
-      `granite paving stone ${cityName}`,
-      `paving stone ${cityName}`,
-      `cobblestone ${cityName}`,
-      `floor stone ${cityName}`,
-      `parking stone ${cityName}`,
-      `stone furniture ${cityName}`,
-
-      `granite paving stone India`,
-      `cobblestone pavers India`,
-      `floor stone India`,
-      `parking stone India`,
-      `natural stone supplier India`,
-      `outdoor stone furniture India`,
-    ],
+    keywords: locationKeywords(cityName),
 
     schema: [
       localBusinessSchema(),

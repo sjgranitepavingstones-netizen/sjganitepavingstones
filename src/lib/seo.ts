@@ -13,8 +13,39 @@ const DEFAULT_DESCRIPTION =
 
 const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
 
-export const SERVICE_LOCATIONS = [
-  "India",
+export const INDIA_STATE_LOCATIONS = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+export const MAJOR_CITY_LOCATIONS = [
   "Bangalore",
   "Bengaluru",
   "Mumbai",
@@ -27,22 +58,20 @@ export const SERVICE_LOCATIONS = [
   "Surat",
   "Jaipur",
   "Kolkata",
+  "Lucknow",
+  "Indore",
+  "Bhopal",
+  "Nagpur",
+  "Patna",
+  "Raipur",
+  "Bhubaneswar",
+  "Ranchi",
+  "Guwahati",
+  "Chandigarh",
+  "Dehradun",
   "Goa",
   "Kochi",
   "Coimbatore",
-  "Karnataka",
-  "Maharashtra",
-  "Tamil Nadu",
-  "Telangana",
-  "Kerala",
-  "Andhra Pradesh",
-  "Gujarat",
-  "Rajasthan",
-  "Uttar Pradesh",
-  "Madhya Pradesh",
-  "West Bengal",
-  "Punjab",
-  "Haryana",
   "Mysuru",
   "Mangalore",
   "Hubli",
@@ -58,6 +87,49 @@ export const SERVICE_LOCATIONS = [
   "Ballari",
   "Vijayapura",
   "Gulbarga",
+];
+
+export const LOCATION_SEO_TARGETS = [
+  ...INDIA_STATE_LOCATIONS,
+  ...MAJOR_CITY_LOCATIONS,
+].filter((name, index, list) => list.indexOf(name) === index);
+
+export const locationSlug = (name: string) => name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+export const locationNameFromSlug = (slug?: string) => {
+  if (!slug) return "India";
+  const normalized = slug.toLowerCase();
+  const matched = LOCATION_SEO_TARGETS.find((location) => locationSlug(location) === normalized);
+  if (matched) return matched;
+  return normalized
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
+export const locationKeywords = (location: string) => [
+  `SJ Granite Paving Stone ${location}`,
+  `granite paving stone ${location}`,
+  `paving stone ${location}`,
+  `cobblestone ${location}`,
+  `cobblestone pavers ${location}`,
+  `floor stone ${location}`,
+  `parking stone ${location}`,
+  `natural stone supplier ${location}`,
+  `stone furniture ${location}`,
+  `garden stone ${location}`,
+  `granite paving stone India`,
+  `cobblestone pavers India`,
+  `floor stone India`,
+  `parking stone India`,
+  `natural stone supplier India`,
+  `outdoor stone furniture India`,
+];
+
+export const SERVICE_LOCATIONS = [
+  "India",
+  ...LOCATION_SEO_TARGETS,
   "Whitefield",
   "Electronic City",
   "HSR Layout",

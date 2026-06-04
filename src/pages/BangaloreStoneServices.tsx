@@ -3,8 +3,9 @@ import { ArrowRight, CheckCircle2, MapPin, PhoneCall } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AtelierInfo } from "@/components/AtelierInfo";
-import { useSeo, localBusinessSchema, breadcrumbSchema, serviceSchema, SERVICE_LOCATIONS } from "@/lib/seo";
+import { useSeo, localBusinessSchema, breadcrumbSchema, serviceSchema, SERVICE_LOCATIONS, locationKeywords, locationNameFromSlug } from "@/lib/seo";
 import pavingImage from "@/assets/product-parking.jpg";
+import cobbleStone from "@/assets/cobblestone.jpg";
 import flooringImage from "@/assets/product-flooring.jpg";
 import chairImage from "@/assets/product-chair.jpg";
 import benchImage from "@/assets/product-bench.jpg";
@@ -17,7 +18,7 @@ const serviceCards = [
   },
   {
     title: "Cobblestone Pavers",
-    image: pavingImage,
+    image: cobbleStone,
     text: "Classic cobblestone and granite setts for garden paths, courtyards, resort landscaping, edging and high-traffic outdoor spaces.",
   },
   {
@@ -113,11 +114,8 @@ const regionalAreas = [
 const BangaloreStoneServices = () => {
   const { pathname } = useLocation();
   const isIndiaPage = pathname.includes("india");
-  const cityMatch = pathname.match(/(?:granite-paving-stone|paving-stone|cobblestone|floor-stone)-([a-z-]+)$/);
-  const cityName = cityMatch?.[1]
-    ?.split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  const cityMatch = pathname.match(/(?:granite-paving-stone|paving-stone|cobblestone|floor-stone|natural-stone|parking-stone|stone-furniture|garden-stone)-([a-z-]+)$/);
+  const cityName = locationNameFromSlug(cityMatch?.[1]);
   const displayLocation = isIndiaPage ? "All India" : cityName || "Bangalore";
   const pageTitle = isIndiaPage
     ? "Granite Paving Stone India | Cobblestone, Floor Stone & Stone Furniture"
@@ -128,7 +126,7 @@ const BangaloreStoneServices = () => {
     description:
       `SJ Granite Paving Stone supplies granite paving stone, cobblestone pavers, floor stone, parking stone, stone chairs, stone benches and outdoor stone furniture for ${displayLocation}, Karnataka, Mumbai and all India projects.`,
     path: pathname,
-    keywords: searchTerms,
+    keywords: [...locationKeywords(displayLocation), ...searchTerms],
     schema: [
       localBusinessSchema(),
       breadcrumbSchema([

@@ -113,7 +113,7 @@ const App = () => (
 
           <Route
             path="/granite-paving-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
