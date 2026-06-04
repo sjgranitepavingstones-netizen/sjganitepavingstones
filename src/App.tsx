@@ -28,8 +28,6 @@ import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import TermsAndConditions from "./pages/TermsAndConditions.tsx";
 
-import BangaloreStoneServices from "./pages/BangaloreStoneServices.tsx";
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -118,37 +116,47 @@ const App = () => (
 
           <Route
             path="/paving-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
             path="/cobblestone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
             path="/floor-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
+          />
+
+          <Route
+            path="/wall-stone-:city"
+            element={<Index />}
+          />
+
+          <Route
+            path="/outside-stone-:city"
+            element={<Index />}
           />
 
           <Route
             path="/natural-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
             path="/parking-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
             path="/stone-furniture-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           <Route
             path="/garden-stone-:city"
-            element={<BangaloreStoneServices />}
+            element={<Index />}
           />
 
           {/* Admin */}

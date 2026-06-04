@@ -39,7 +39,7 @@ const Index = () => {
 
   const pageDescription = hasLocationIntent
     ? `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for ${cityName} and all India projects.`
-    : "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone and outdoor stone furniture for homes, villas, gardens, parking areas and commercial projects.";
+    : "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, wall stone, outside stone, garden stone, parking stone and outdoor stone furniture for homes, villas, gardens, parking areas and commercial projects.";
 
   useSeo({
     title: pageTitle,
@@ -64,7 +64,7 @@ const Index = () => {
 
         hasLocationIntent
           ? `Granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches and outdoor stone furniture services in ${cityName}.`
-          : "Natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone and outdoor stone furniture services.",
+          : "Natural stone, granite paving stone, cobblestone pavers, floor stone, wall stone, outside stone, garden stone, parking stone and outdoor stone furniture services.",
 
         city
           ? `/granite-paving-stone-${city}`

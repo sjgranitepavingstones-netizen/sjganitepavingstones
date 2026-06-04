@@ -9,7 +9,7 @@ import chairImage from "@/assets/product-chair.jpg";
 const DEFAULT_SITE_URL = "https://www.pavingstones.in";
 const BRAND_NAME = "SJ Granite Paving Stone";
 const DEFAULT_DESCRIPTION =
-  "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, parking stone, stone benches, stone chairs and outdoor stone furniture for residential, commercial and landscape projects.";
+  "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, wall stone, outside stone, garden stone, parking stone and outdoor stone furniture for residential, commercial and landscape projects.";
 
 const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
 
@@ -115,6 +115,8 @@ export const locationKeywords = (location: string) => [
   `cobblestone ${location}`,
   `cobblestone pavers ${location}`,
   `floor stone ${location}`,
+  `wall stone ${location}`,
+  `outside stone ${location}`,
   `parking stone ${location}`,
   `natural stone supplier ${location}`,
   `stone furniture ${location}`,
@@ -122,6 +124,8 @@ export const locationKeywords = (location: string) => [
   `granite paving stone India`,
   `cobblestone pavers India`,
   `floor stone India`,
+  `wall stone India`,
+  `outside stone India`,
   `parking stone India`,
   `natural stone supplier India`,
   `outdoor stone furniture India`,
@@ -142,9 +146,15 @@ export const genericStoneKeywords = [
   "cobble stone",
   "cobblestone pavers",
   "floor stone",
+  "wall stone",
+  "wall stones",
+  "outside stone",
+  "outside stones",
+  "outdoor stone",
   "parking stone",
   "stone furniture",
   "garden stone",
+  "garden stones",
   "stone benches",
   "stone chairs",
   "outdoor stone furniture",
@@ -232,6 +242,8 @@ export const localBusinessSchema = () => ({
     "SJ Granite Paving Stone Bengaluru",
     "SJ Granite Paving Stone Mumbai",
     "SJ Natural Stone Supplier",
+    "SJ Wall Stone Supplier",
+    "SJ Garden Stone Furniture",
   ],
   description: DEFAULT_DESCRIPTION,
   url: absoluteUrl("/"),
@@ -264,6 +276,7 @@ export const localBusinessSchema = () => ({
     "Granite paving stone supply and installation in India",
     "Cobblestone pavers for gardens, pathways and landscape projects across India",
     "Outdoor floor stone for patios, terraces, temples and walkways",
+    "Wall stone, outside stone and garden stone products for landscape projects",
     "Parking stone pavers for villas, resorts, hotels and commercial sites",
     "Stone benches, stone chairs and granite garden furniture supply",
   ].map((name) => ({
@@ -326,6 +339,8 @@ export const homePageSchema = () => ({
     "Granite paving stone",
     "Cobblestone pavers",
     "Floor stone",
+    "Wall stone",
+    "Outside stone",
     "Parking stone pavers",
     "Stone benches and stone chairs",
     "Outdoor stone furniture",
