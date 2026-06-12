@@ -99,6 +99,131 @@ const ImageUploader = ({ value, onChange, label = "Image" }: { value: string | n
   );
 };
 
+const MultiImageUploader = ({
+  values = [],
+  onChange,
+  onSetMain,
+  label = "Gallery images",
+}: {
+  values?: string[];
+  onChange: (urls: string[]) => void;
+  onSetMain?: (url: string) => void;
+  label?: string;
+}) => {
+  const ref = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const cleanValues = cleanImageUrls(values);
+  const [draftUrls, setDraftUrls] = useState<string[]>(cleanValues);
+  const emptySlots = Math.max(5 - cleanValues.length, 1);
+
+  useEffect(() => {
+    setDraftUrls(cleanImageUrls(values));
+  }, [values]);
+
+  const commitDraftUrls = (nextDraft = draftUrls) => {
+    onChange(cleanImageUrls(nextDraft));
+  };
+
+  const updateAt = (index: number, value: string) => {
+    const next = draftUrls.map((url, itemIndex) => itemIndex === index ? value : url);
+    setDraftUrls(next);
+  };
+
+  const removeAt = (index: number) => {
+    const next = draftUrls.filter((_, itemIndex) => itemIndex !== index);
+    setDraftUrls(next);
+    onChange(cleanImageUrls(next));
+  };
+
+  const upload = async (files: FileList | null) => {
+    const selected = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
+    if (selected.length === 0) return;
+    setBusy(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of selected) {
+        const { url } = await adminApi.upload(file);
+        uploaded.push(url);
+      }
+      onChange([...cleanValues, ...uploaded]);
+      toast.success(`${uploaded.length} image${uploaded.length === 1 ? "" : "s"} uploaded`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (ref.current) ref.current.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-[10px] uppercase tracking-[0.16em] text-foreground/60 mb-2 sm:tracking-[0.25em]">{label}</label>
+      <div className="mb-2 flex items-center justify-between gap-3 text-xs text-foreground/50">
+        <span>{cleanValues.length} additional image{cleanValues.length === 1 ? "" : "s"} saved in this color</span>
+        {cleanValues.length > 0 && (
+          <button type="button" onClick={() => onChange([])} className="text-destructive hover:underline">
+            Remove all
+          </button>
+        )}
+      </div>
+      <div className="space-y-3">
+        {cleanValues.map((url, index) => (
+          <div key={`${url}-${index}`} className="grid gap-3 border border-foreground/10 bg-muted/40 p-3 sm:grid-cols-[92px_1fr]">
+            <div className="overflow-hidden bg-muted">
+              <img src={imageSrc(url)} onError={imageFallback} className="aspect-square w-full object-cover" />
+            </div>
+            <div className="min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">Image {index + 1}</span>
+                {onSetMain && (
+                  <button
+                    type="button"
+                    onClick={() => onSetMain(url)}
+                    className="px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-primary hover:bg-primary/10"
+                  >
+                    Set main
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeAt(index)}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-destructive hover:bg-destructive/10"
+                  aria-label="Remove image"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete
+                </button>
+              </div>
+              <input
+                value={draftUrls[index] ?? url}
+                onChange={(event) => updateAt(index, event.target.value)}
+                onBlur={() => commitDraftUrls()}
+                className="w-full px-3 py-2 bg-background border border-foreground/10 text-xs"
+                aria-label={`Edit additional image ${index + 1} URL`}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {Array.from({ length: emptySlots }).map((_, index) => (
+          <button
+            key={`empty-${index}`}
+            type="button"
+            disabled={busy}
+            onClick={() => ref.current?.click()}
+            className="aspect-square border border-dashed border-primary/50 px-2 text-primary text-[10px] uppercase tracking-[0.12em] disabled:opacity-60"
+          >
+            {busy ? "Uploading" : `Add Image ${cleanValues.length + index + 1}`}
+          </button>
+        ))}
+      </div>
+      <input ref={ref} type="file" accept="image/*" multiple hidden onChange={(e) => void upload(e.target.files)} />
+      <p className="mt-2 text-xs text-foreground/50">Main variant image stays separate. These additional color images show below the selected color on the detail page. Remove or upload, then press Save.</p>
+    </div>
+  );
+};
+
 const Field = ({ label, children }: { label: string; children: ReactNodeLike }) => (
   <div>
     <label className="block text-[10px] uppercase tracking-[0.25em] text-foreground/60 mb-2">{label}</label>
@@ -112,6 +237,10 @@ const inputCls = "w-full px-3 py-2.5 bg-transparent border border-foreground/15 
 const imageSrc = (url?: string | null) => url || "/placeholder.svg";
 const imageFallback = (event: React.SyntheticEvent<HTMLImageElement>) => {
   event.currentTarget.src = "/placeholder.svg";
+};
+const cleanImageUrls = (urls: unknown): string[] => {
+  const list = Array.isArray(urls) ? urls : typeof urls === "string" ? urls.split(",") : [];
+  return Array.from(new Set(list.map((url) => String(url || "").trim()).filter(Boolean)));
 };
 
 // ============ PRODUCTS ============
@@ -218,19 +347,69 @@ const VariantsAdmin = () => {
   const load = useCallback(async () => {
     if (!productId) return;
     const data = await adminApi.list("product_variants", { product_id: productId, orderBy: "sort_order" });
-    setItems(data || []);
+    setItems((data || []).map((variant: any) => ({ ...variant, image_urls: cleanImageUrls(variant.image_urls) })));
   }, [productId]);
   useEffect(() => { load(); }, [load]);
 
+  const openVariant = async (variant: any) => {
+    setEditing({ ...variant, image_urls: cleanImageUrls(variant.image_urls) });
+    try {
+      const [fresh] = await adminApi.list("product_variants", { id: variant.id });
+      if (fresh) setEditing({ ...fresh, image_urls: cleanImageUrls((fresh as any).image_urls) });
+    } catch {
+      // Keep the already opened variant if a fresh read is unavailable.
+    }
+  };
+
+  const currentEditingImageUrls = () =>
+    cleanImageUrls(editing?.image_urls);
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { ...editing, product_id: productId };
+    const payload = {
+      product_id: productId,
+      name: editing.name || "",
+      color: editing.color || "",
+      material: editing.material || "",
+      image_url: editing.image_url || "",
+      image_urls: currentEditingImageUrls(),
+      sort_order: Number(editing.sort_order) || 0,
+    };
     try {
-      if (payload.id) await adminApi.update("product_variants", payload.id, payload);
+      if (editing.id) await adminApi.update("product_variants", editing.id, payload);
       else await adminApi.create("product_variants", payload);
       toast.success("Saved"); setEditing(null); load();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Save failed");
+    }
+  };
+
+  const updateVariantImages = async (next: any) => {
+    const nextUrls = cleanImageUrls(next.image_urls);
+    const normalized = { ...next, image_urls: nextUrls };
+    setEditing(normalized);
+    setItems((current) => current.map((item) => item.id === normalized.id ? normalized : item));
+    if (!normalized.id) return;
+    try {
+      const saved = await adminApi.update("product_variants", normalized.id, {
+        product_id: productId,
+        name: normalized.name || "",
+        color: normalized.color || "",
+        material: normalized.material || "",
+        image_url: normalized.image_url || "",
+        image_urls: nextUrls,
+        sort_order: Number(normalized.sort_order) || 0,
+      });
+      const savedVariant = { ...(saved as any), image_urls: cleanImageUrls((saved as any).image_urls) };
+      setEditing(savedVariant);
+      setItems((current) => current.map((item) => item.id === savedVariant.id ? savedVariant : item));
+      if (nextUrls.length > 0 && savedVariant.image_urls.length === 0) {
+        toast.error("Multiple images were not saved by the backend. Please redeploy the backend changes.");
+        return;
+      }
+      toast.success("Variant images saved");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Image update failed");
     }
   };
   const del = async (id: string) => {
@@ -249,7 +428,7 @@ const VariantsAdmin = () => {
         <select value={productId} onChange={(e) => setProductId(e.target.value)} className={inputCls + " md:w-80"}>
           {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-        <button onClick={() => setEditing({ name: "", image_url: "", sort_order: items.length + 1 })}
+        <button onClick={() => setEditing({ name: "", image_url: "", image_urls: [], sort_order: items.length + 1 })}
           className="inline-flex items-center gap-2 px-4 py-2 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.22em]">
           <Plus className="h-3.5 w-3.5" /> New Variant
         </button>
@@ -258,13 +437,15 @@ const VariantsAdmin = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {items.map((v) => (
           <div key={v.id} className="border border-foreground/10 group relative">
-            <img src={imageSrc(v.image_url)} onError={imageFallback} className="aspect-square w-full object-cover" />
+            <img src={imageSrc(v.image_url || v.image_urls?.[0])} onError={imageFallback} className="aspect-square w-full object-cover" />
             <div className="p-2 text-xs">
               <div className="truncate font-medium">{v.color || v.name}</div>
-              <div className="text-foreground/50 truncate text-[10px]">{v.material}</div>
+              <div className="text-foreground/50 truncate text-[10px]">
+                {[v.material, v.image_urls?.length ? `${v.image_urls.length} photos` : null].filter(Boolean).join(" | ")}
+              </div>
             </div>
             <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => setEditing(v)} className="p-1.5 bg-background/90 hover:text-primary"><Pencil className="h-3 w-3" /></button>
+              <button onClick={() => openVariant(v)} className="p-1.5 bg-background/90 hover:text-primary"><Pencil className="h-3 w-3" /></button>
               <button onClick={() => del(v.id)} className="p-1.5 bg-background/90 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
             </div>
           </div>
@@ -280,7 +461,21 @@ const VariantsAdmin = () => {
               <Field label="Material"><input className={inputCls} value={editing.material || ""} onChange={(e) => setEditing({ ...editing, material: e.target.value })} /></Field>
             </div>
             <Field label="Sort"><input type="number" className={inputCls} value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) })} /></Field>
-            <ImageUploader label="Variant image" value={editing.image_url} onChange={(url) => setEditing({ ...editing, image_url: url })} />
+            <ImageUploader
+              label="Main variant image"
+              value={editing.image_url}
+              onChange={(url) => setEditing({ ...editing, image_url: url })}
+            />
+            <MultiImageUploader
+              label="Additional images for this color"
+              values={currentEditingImageUrls()}
+              onChange={(urls) => void updateVariantImages({ ...editing, image_urls: cleanImageUrls(urls) })}
+              onSetMain={(url) => void updateVariantImages({
+                ...editing,
+                image_url: url,
+                image_urls: currentEditingImageUrls().filter((item) => item !== url),
+              })}
+            />
             <button className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.25em]">Save</button>
           </form>
         </Modal>

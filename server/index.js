@@ -132,6 +132,13 @@ const ProductVariant = mongoose.model("ProductVariant", new mongoose.Schema({
   color: String,
   material: String,
   image_url: String,
+  image_urls: { type: [String], default: [] },
+  sort_order: { type: Number, default: 0 },
+}, commonOptions));
+
+const VariantImage = mongoose.model("VariantImage", new mongoose.Schema({
+  variant_id: { type: mongoose.Schema.Types.ObjectId, ref: "ProductVariant", required: true },
+  image_url: { type: String, required: true },
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
@@ -192,6 +199,7 @@ const models = {
   categories: Category,
   products: Product,
   product_variants: ProductVariant,
+  variant_images: VariantImage,
   workflow_steps: WorkflowStep,
   reviews: Review,
   inquiries: Inquiry,
@@ -203,6 +211,7 @@ const tableConfig = {
   categories: { orderBy: "sort_order", public: true },
   products: { orderBy: "created_at", public: true },
   product_variants: { orderBy: "sort_order", public: true },
+  variant_images: { orderBy: "sort_order", public: true },
   workflow_steps: { orderBy: "step_number", public: true },
   reviews: { orderBy: "created_at", public: true },
   hero_images: { orderBy: "sort_order", public: true },
@@ -213,7 +222,8 @@ const tableConfig = {
 const imageFieldsByTable = {
   categories: ["image_url"],
   products: ["main_image_url"],
-  product_variants: ["image_url"],
+  product_variants: ["image_url", "image_urls"],
+  variant_images: ["image_url"],
   workflow_steps: ["image_url"],
   reviews: ["avatar_url"],
   hero_images: ["image_url"],
@@ -223,16 +233,29 @@ const imageFieldsByTable = {
 const asId = (id) => mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
 const clean = (value) => value === "" ? null : value;
 const clampRating = (value) => Math.min(5, Math.max(1, Number(value) || 5));
-const cleanPayload = (payload = {}) => Object.fromEntries(
-  Object.entries(payload)
+const normalizeUrlArray = (value) => {
+  if (Array.isArray(value)) return [...new Set(value.map((url) => String(url || "").trim()).filter(Boolean))];
+  if (typeof value === "string") return value.split(",").map((url) => url.trim()).filter(Boolean);
+  return [];
+};
+const cleanPayload = (payload = {}) => {
+  const cleaned = Object.fromEntries(Object.entries(payload)
     .filter(([key]) => !["id", "_id", "__v", "created_at", "updated_at", "categories", "products"].includes(key))
     .map(([key, value]) => [key, clean(value)])
-);
+  );
+  if (Object.prototype.hasOwnProperty.call(cleaned, "image_urls")) {
+    cleaned.image_urls = normalizeUrlArray(cleaned.image_urls);
+  }
+  return cleaned;
+};
 
 const imageUrlsFromDoc = (table, doc) => {
   if (!doc) return [];
   return (imageFieldsByTable[table] || [])
-    .map((field) => doc[field])
+    .flatMap((field) => {
+      const value = doc[field];
+      return Array.isArray(value) ? value : [value];
+    })
     .filter(Boolean);
 };
 
@@ -240,8 +263,13 @@ const changedImageUrls = (table, previousDoc, nextPayload) => {
   if (!previousDoc) return [];
   return (imageFieldsByTable[table] || [])
     .filter((field) => Object.prototype.hasOwnProperty.call(nextPayload, field))
-    .map((field) => previousDoc[field])
-    .filter((url) => url && !Object.values(nextPayload).includes(url));
+    .flatMap((field) => {
+      const previousValue = previousDoc[field];
+      const nextValue = nextPayload[field];
+      const previousUrls = Array.isArray(previousValue) ? previousValue : [previousValue];
+      const nextUrls = Array.isArray(nextValue) ? nextValue : [nextValue];
+      return previousUrls.filter((url) => url && !nextUrls.includes(url));
+    });
 };
 
 const isImageStillReferenced = async (url) => {
@@ -570,6 +598,7 @@ const getList = async (table, query) => {
   if (query.featured != null) filter.featured = query.featured === "true";
   if (query.slug) filter.slug = query.slug;
   if (query.product_id) filter.product_id = asId(query.product_id);
+  if (query.variant_id) filter.variant_id = asId(query.variant_id);
   if (query.id) filter._id = query.id === "main" ? "main" : asId(query.id);
 
   let mongoQuery = Model.find(filter);
@@ -770,7 +799,17 @@ app.delete("/api/admin/:table/:id", auth, adminOnly, asyncHandler(async (req, re
   if (table === "products") {
     const variants = await ProductVariant.find({ product_id: asId(id) });
     variants.forEach((variant) => imageUrls.push(...imageUrlsFromDoc("product_variants", variant)));
+    const variantIds = variants.map((variant) => variant._id);
+    const variantImages = await VariantImage.find({ variant_id: { $in: variantIds } });
+    variantImages.forEach((image) => imageUrls.push(...imageUrlsFromDoc("variant_images", image)));
+    await VariantImage.deleteMany({ variant_id: { $in: variantIds } });
     await ProductVariant.deleteMany({ product_id: asId(id) });
+  }
+
+  if (table === "product_variants") {
+    const variantImages = await VariantImage.find({ variant_id: asId(id) });
+    variantImages.forEach((image) => imageUrls.push(...imageUrlsFromDoc("variant_images", image)));
+    await VariantImage.deleteMany({ variant_id: asId(id) });
   }
 
   await Model.findByIdAndDelete(targetId);

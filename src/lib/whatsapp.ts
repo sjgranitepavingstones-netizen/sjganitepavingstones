@@ -21,7 +21,6 @@ export const createProductWhatsAppUrl = (
   variant?: WhatsAppVariant | null,
   selectedLabel?: string
 ) => {
-  const productUrl = product.slug ? absoluteUrl(`/products/${product.slug}`) : "";
   const imageUrl = variant?.image_url || product.main_image_url || "";
   const message = [
     "Hello SJ Granite Paving Stone,",
@@ -32,7 +31,6 @@ export const createProductWhatsAppUrl = (
     selectedLabel ? `Selected variant: ${selectedLabel}` : variant?.name ? `Selected variant: ${variant.name}` : null,
     variant?.color ? `Color: ${variant.color}` : null,
     variant?.material ? `Material: ${variant.material}` : null,
-    productUrl ? `Product link: ${productUrl}` : null,
     imageUrl ? `Image: ${absoluteUrl(imageUrl)}` : null,
     "",
     "Please share more details.",

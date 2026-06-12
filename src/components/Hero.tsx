@@ -37,7 +37,7 @@ export const Hero = () => {
   }, [items.length]);
 
   return (
-    <section id="home" className="relative min-h-screen w-full overflow-hidden bg-secondary">
+    <section id="home" className="relative min-h-[720px] w-full overflow-hidden bg-secondary sm:min-h-screen">
       <div className="absolute inset-0">
         {items.map((s, i) => (
           <img
@@ -54,7 +54,7 @@ export const Hero = () => {
 
       {items.length > 1 && (
         <>
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-2 sm:bottom-24">
             {items.map((_, i) => (
               <button
                 key={i}
@@ -67,9 +67,9 @@ export const Hero = () => {
         </>
       )}
 
-      <div className="relative z-10 container min-h-screen flex flex-col justify-center pt-32 pb-20">
+      <div className="relative z-10 container flex min-h-[720px] flex-col justify-center pt-24 pb-24 sm:min-h-screen sm:pt-32 sm:pb-20">
         <div className="max-w-4xl">
-          <div className="flex items-center gap-2 sm:gap-3 mb-6 animate-fade-in-down">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 animate-fade-in-down">
             <span className="h-px w-8 bg-gold-gradient sm:w-12" />
             <span className="text-[10px] uppercase tracking-[0.22em] text-primary font-medium sm:text-xs sm:tracking-[0.4em]">
               Professional Granite Paving Since 2013
@@ -82,28 +82,21 @@ export const Hero = () => {
             <span className="block">India</span>
           </h1>
 
-          <p className="mt-8 max-w-2xl text-base md:text-lg text-white/80 font-light leading-relaxed animate-fade-in [animation-delay:200ms]">
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/80 font-light animate-fade-in sm:mt-8 sm:text-base md:text-lg [animation-delay:200ms]">
             Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore, Karnataka, Mumbai and all India projects.
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 animate-fade-in sm:flex-row sm:flex-wrap sm:gap-4 [animation-delay:400ms]">
-            <Link
-              to="/granite-paving-stone-india"
-              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.18em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
-            >
-              India Stone Services
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+          <div className="mt-7 flex flex-col gap-3 animate-fade-in sm:mt-10 sm:flex-row sm:flex-wrap sm:gap-4 [animation-delay:400ms]">
             <Link
               to="/contact"
-              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 border border-primary/60 text-white text-xs uppercase tracking-[0.18em] font-medium hover:bg-primary/10 hover:border-primary transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
+              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.18em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
             >
               Get a Quote
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-5 max-w-3xl animate-fade-in sm:mt-16 sm:gap-8 md:grid-cols-4 [animation-delay:600ms]">
+          <div className="mt-8 grid grid-cols-2 gap-4 max-w-3xl animate-fade-in sm:mt-16 sm:gap-8 md:grid-cols-4 [animation-delay:600ms]">
             {[
               { v: "BLR + KA", l: "Service Area" },
               { v: "2013", l: "Established" },
@@ -121,7 +114,7 @@ export const Hero = () => {
 
       <a
         href="#products"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/60 hover:text-primary transition-colors animate-gold-pulse"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 hidden flex-col items-center gap-2 text-white/60 hover:text-primary transition-colors animate-gold-pulse sm:flex sm:bottom-8"
       >
         <span className="text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em]">Scroll</span>
         <ChevronDown className="h-4 w-4" />

@@ -49,8 +49,8 @@ const CategoriesPage = () => {
           {cats.map((c) => (
             <Link key={c.id} to={`/products?cat=${c.slug}`} className="group relative aspect-[16/10] overflow-hidden img-zoom bg-secondary block">
               <img src={c.image_url || "/placeholder.svg"} alt={c.name} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 inset-x-0 p-5 sm:p-8">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100" />
+              <div className="absolute bottom-0 inset-x-0 p-5 opacity-0 translate-y-6 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 sm:p-8">
                 <span className="text-[10px] uppercase tracking-[0.18em] text-primary sm:tracking-[0.3em]">
                   {c.products?.[0]?.count ?? 0} Products
                 </span>

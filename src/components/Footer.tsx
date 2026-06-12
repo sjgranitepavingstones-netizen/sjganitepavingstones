@@ -58,7 +58,6 @@ export const Footer = () => {
             {[
               { l: "Products", to: "/products" },
               { l: "Categories", to: "/categories" },
-              { l: "All India Services", to: "/granite-paving-stone-india" },
               { l: "About", to: "/about" },
               { l: "Contact", to: "/contact" },
               { l: "Terms & Conditions", to: "/terms-and-conditions" },

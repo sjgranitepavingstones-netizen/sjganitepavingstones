@@ -8,7 +8,6 @@ import pavingImage from "@/assets/product-parking.jpg";
 const helpfulLinks = [
   { label: "View Products", to: "/products" },
   { label: "Stone Categories", to: "/categories" },
-  { label: "All India Services", to: "/granite-paving-stone-india" },
   { label: "Contact Us", to: "/contact" },
 ];
 

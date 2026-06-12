@@ -32,8 +32,8 @@ export const Categories = () => {
               className="group relative block aspect-[16/10] overflow-hidden img-zoom bg-secondary"
             >
               <img src={c.img} alt={`${c.name} in Bangalore`} loading="lazy" className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20" />
-              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 md:p-10">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100" />
+              <div className="absolute inset-x-0 bottom-0 p-5 opacity-0 translate-y-6 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 sm:p-8 md:p-10">
                 <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] sm:tracking-[0.3em]">
                   {String(i + 1).padStart(2, "0")} - {c.count} options
                 </div>
@@ -41,7 +41,7 @@ export const Categories = () => {
                   {c.name}
                 </h3>
                 <p className="mt-3 max-w-md text-sm text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">{c.desc}</p>
-                <div className="mt-4 inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-primary drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-500 sm:text-xs sm:tracking-[0.3em]">
+                <div className="mt-4 inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-primary drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] sm:text-xs sm:tracking-[0.3em]">
                   Discover <span className="h-px w-8 bg-gold-gradient" />
                 </div>
               </div>
