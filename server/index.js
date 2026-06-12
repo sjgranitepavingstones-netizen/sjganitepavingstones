@@ -316,6 +316,7 @@ const signToken = (user) => jwt.sign(
 );
 
 const hashResetToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+const createPasswordResetOtp = () => String(crypto.randomInt(100000, 1000000));
 const escapeHtml = (value = "") => String(value)
   .replace(/&/g, "&amp;")
   .replace(/</g, "&lt;")
@@ -387,11 +388,39 @@ const getRequestClientUrl = (req) => {
   return PRIMARY_CLIENT_URL;
 };
 
-const sendPasswordResetEmail = async ({ email, resetUrl }) => {
+const sendPasswordResetEmail = async ({ email, resetUrl, otp }) => {
   const mailer = createMailer();
   if (!mailer) {
     console.warn("Password reset email was not sent because SMTP settings are missing.");
     return false;
+  }
+
+  if (otp) {
+    await mailer.sendMail({
+      from: SMTP_FROM,
+      to: email,
+      subject: "Your SJ Granite Paving Stone password reset OTP",
+      text: [
+        "We received a request to reset your SJ Granite Paving Stone account password.",
+        "",
+        `Your password reset OTP is: ${otp}`,
+        "",
+        "This OTP will expire in 10 minutes. If you did not request this, you can ignore this email.",
+      ].join("\n"),
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#222;max-width:560px">
+          <h2 style="margin:0 0 12px;color:#111">Reset your password</h2>
+          <p>We received a request to reset your SJ Granite Paving Stone account password.</p>
+          <p style="font-size:13px;color:#555;margin-bottom:8px">Use this OTP to create a new password:</p>
+          <div style="font-size:32px;letter-spacing:10px;font-weight:700;color:#111;background:#f4ead7;border:1px solid #d4a84e;padding:16px 18px;text-align:center">
+            ${escapeHtml(otp)}
+          </div>
+          <p style="font-size:13px;color:#555">This OTP will expire in 10 minutes. If you did not request this, you can ignore this email.</p>
+        </div>
+      `,
+    });
+
+    return true;
   }
 
   await mailer.sendMail({
@@ -546,37 +575,48 @@ app.post("/api/auth/login", asyncHandler(async (req, res) => {
 app.post("/api/auth/forgot-password", asyncHandler(async (req, res) => {
   const email = String(req.body.email || "").toLowerCase().trim();
   const user = await User.findOne({ email });
-  let resetUrl = null;
+  let otp = null;
   let emailSent = false;
 
   if (user) {
-    const token = crypto.randomBytes(32).toString("hex");
-    user.reset_token_hash = hashResetToken(token);
-    user.reset_token_expires_at = new Date(Date.now() + 60 * 60 * 1000);
+    otp = createPasswordResetOtp();
+    user.reset_token_hash = hashResetToken(otp);
+    user.reset_token_expires_at = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    resetUrl = `${getRequestClientUrl(req)}/reset-password?token=${token}`;
-    emailSent = await sendPasswordResetEmail({ email: user.email, resetUrl });
+    emailSent = await sendPasswordResetEmail({ email: user.email, otp });
   }
 
   res.json({
-    message: "If this email exists, a password reset link has been sent.",
+    message: "If this email exists, a password reset OTP has been sent.",
     emailSent,
-    resetUrl: ALLOW_PASSWORD_RESET_LINK_RESPONSE || process.env.NODE_ENV !== "production" ? resetUrl : null,
+    expiresInMinutes: 10,
+    otp: ALLOW_PASSWORD_RESET_LINK_RESPONSE || process.env.NODE_ENV !== "production" ? otp : null,
   });
 }));
 
 app.post("/api/auth/reset-password", asyncHandler(async (req, res) => {
-  const { token, password } = req.body;
-  if (!token || !password || password.length < 8) {
-    return res.status(400).json({ error: "Valid reset token and 8 character password are required." });
+  const email = String(req.body.email || "").toLowerCase().trim();
+  const token = String(req.body.token || "").trim();
+  const otp = String(req.body.otp || "").replace(/\D/g, "").trim();
+  const password = String(req.body.password || "");
+
+  if (!password || password.length < 8) {
+    return res.status(400).json({ error: "An 8 character password is required." });
   }
 
-  const user = await User.findOne({
-    reset_token_hash: hashResetToken(token),
+  if (!token && (!email || otp.length !== 6)) {
+    return res.status(400).json({ error: "Valid email, 6 digit OTP, and password are required." });
+  }
+
+  const filter = {
+    reset_token_hash: hashResetToken(token || otp),
     reset_token_expires_at: { $gt: new Date() },
-  });
-  if (!user) return res.status(400).json({ error: "Reset link is invalid or expired." });
+  };
+  if (!token) filter.email = email;
+
+  const user = await User.findOne(filter);
+  if (!user) return res.status(400).json({ error: token ? "Reset link is invalid or expired." : "OTP is invalid or expired." });
 
   user.password_hash = await bcrypt.hash(password, 12);
   user.reset_token_hash = undefined;

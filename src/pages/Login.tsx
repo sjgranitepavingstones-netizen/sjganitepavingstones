@@ -12,6 +12,11 @@ const schema = z.object({
   email: z.string().trim().email("Invalid email").max(255),
   password: z.string().min(6, "Min 6 characters").max(72),
 });
+const resetSchema = z.object({
+  email: z.string().trim().email("Invalid email").max(255),
+  otp: z.string().trim().regex(/^\d{6}$/, "Enter the 6 digit OTP"),
+  password: z.string().min(8, "New password must be at least 8 characters").max(72),
+});
 
 const Login = () => {
   const nav = useNavigate();
@@ -21,13 +26,17 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
-  const [resetUrl, setResetUrl] = useState<string | null>(null);
   const [resetRequested, setResetRequested] = useState(false);
+  const [resetOtp, setResetOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [hasRegisteredUsers, setHasRegisteredUsers] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
     authApi
@@ -69,17 +78,39 @@ const Login = () => {
     const parsed = z.string().trim().email("Invalid email").safeParse(forgotEmail || email);
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
     setForgotLoading(true);
-    setResetUrl(null);
+    setDevOtp(null);
     setResetRequested(false);
     try {
       const result = await authApi.forgotPassword({ email: parsed.data });
-      setResetUrl(result.resetUrl);
+      setForgotEmail(parsed.data);
+      setDevOtp(result.otp || null);
       setResetRequested(true);
-      toast.success(result.emailSent ? "Password reset email sent" : "Password reset request received");
+      toast.success(result.emailSent ? "OTP sent to your email" : "Password reset request received");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Reset request failed");
+      toast.error(error instanceof Error ? error.message : "OTP request failed");
     } finally {
       setForgotLoading(false);
+    }
+  };
+
+  const submitOtpReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = resetSchema.safeParse({ email: forgotEmail || email, otp: resetOtp, password: newPassword });
+    if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
+    setResetLoading(true);
+    try {
+      await authApi.resetPassword(parsed.data);
+      toast.success("Password updated. Please sign in.");
+      setPassword("");
+      setShowForgot(false);
+      setResetRequested(false);
+      setResetOtp("");
+      setNewPassword("");
+      setEmail(parsed.data.email);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Password reset failed");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -143,26 +174,68 @@ const Login = () => {
         </form>
 
         {showForgot && (
-          <form onSubmit={requestReset} className="mt-6 border border-primary/20 p-5 space-y-4">
-            <div>
-              <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">Account Email</label>
-              <input type="email" value={forgotEmail || email} onChange={(e) => setForgotEmail(e.target.value)} required maxLength={255}
-                className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
-            </div>
-            <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.16em] hover:bg-primary/5 transition-colors disabled:opacity-50 sm:tracking-[0.22em]">
-              {forgotLoading ? "Creating link..." : "Create reset link"}
-            </button>
+          <div className="mt-6 border border-primary/20 p-5 space-y-4">
+            <form onSubmit={requestReset} className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">Account Email</label>
+                <input type="email" value={forgotEmail || email} onChange={(e) => setForgotEmail(e.target.value)} required maxLength={255}
+                  className="w-full bg-transparent border border-primary/20 px-4 py-3 text-sm focus:border-primary outline-none transition-colors" />
+              </div>
+              <button disabled={forgotLoading} className="w-full py-3 border border-primary/40 text-primary text-xs uppercase tracking-[0.16em] hover:bg-primary/5 transition-colors disabled:opacity-50 sm:tracking-[0.22em]">
+                {forgotLoading ? "Sending OTP..." : resetRequested ? "Resend OTP" : "Send OTP"}
+              </button>
+            </form>
             {resetRequested && (
               <p className="text-center text-xs text-secondary-foreground/60 leading-relaxed">
-                If this account exists, a secure reset link has been sent by email. Please check the inbox and spam folder.
+                If this account exists, a 6 digit OTP has been sent by email. Please check the inbox and spam folder.
               </p>
             )}
-            {resetUrl && (
-              <a href={resetUrl} className="block border border-primary/30 bg-primary/10 px-4 py-3 text-center text-xs uppercase tracking-[0.18em] text-primary hover:bg-primary/15 transition-colors">
-                Open reset page
-              </a>
+            {devOtp && (
+              <div className="border border-primary/30 bg-primary/10 px-4 py-3 text-center text-xs text-primary">
+                Development OTP: {devOtp}
+              </div>
             )}
-          </form>
+            {resetRequested && (
+              <form onSubmit={submitOtpReset} className="space-y-4 border-t border-primary/10 pt-4">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">6 Digit OTP</label>
+                  <input
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={resetOtp}
+                    onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    required
+                    maxLength={6}
+                    className="w-full bg-transparent border border-primary/20 px-4 py-3 text-center text-xl tracking-[0.35em] focus:border-primary outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.16em] text-secondary-foreground/60 mb-2 sm:tracking-[0.25em]">New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      maxLength={72}
+                      className="w-full bg-transparent border border-primary/20 px-4 py-3 pr-12 text-sm focus:border-primary outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword((value) => !value)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-foreground/50 hover:text-primary transition-colors"
+                      aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <button disabled={resetLoading} className="w-full py-3 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.16em] shimmer disabled:opacity-50 sm:tracking-[0.25em]">
+                  {resetLoading ? "Updating..." : "Update Password"}
+                </button>
+              </form>
+            )}
+          </div>
         )}
         <p className="text-center text-xs text-secondary-foreground/60 mt-6">
           New here? <Link to="/signup" className="text-primary link-gold">Create an account</Link>
