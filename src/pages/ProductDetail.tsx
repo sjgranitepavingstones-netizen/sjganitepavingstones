@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
@@ -7,6 +7,7 @@ import { publicApi } from "@/lib/api";
 import { colorToCss, variantColorLabel } from "@/lib/colors";
 import { useSeo, absoluteUrl, breadcrumbSchema, SERVICE_LOCATIONS } from "@/lib/seo";
 import { createProductWhatsAppUrl } from "@/lib/whatsapp";
+import { ProductImageCarousel, type ProductCarouselFrame } from "@/components/ProductImageCarousel";
 
 type Variant = {
   id: string;
@@ -31,6 +32,18 @@ const normalizeImageUrls = (value: unknown): string[] => {
   return Array.from(new Set(list.map((image) => String(image || "").trim()).filter(Boolean)));
 };
 
+const variantCarouselFrames = (variant: Variant, productName: string): ProductCarouselFrame[] => {
+  const label = variantColorLabel(variant.color, variant.name);
+  return [variant.image_url, ...normalizeImageUrls(variant.image_urls)]
+    .filter(Boolean)
+    .map((image) => ({
+      image,
+      title: productName,
+      subtitle: label,
+    }))
+    .filter((frame, index, list) => list.findIndex((item) => item.image === frame.image) === index);
+};
+
 const ProductDetail = () => {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
@@ -39,14 +52,34 @@ const ProductDetail = () => {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [active, setActive] = useState<Variant | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const mainImageRef = useRef<HTMLDivElement>(null);
   const activeLabel = active ? variantColorLabel(active.color, active.name) : "";
-  const whatsappUrl = product ? createProductWhatsAppUrl(product, active, activeLabel) : "#";
   const variantMainImage = active?.image_url || product?.main_image_url || "";
   const variantExtraImages = active
     ? normalizeImageUrls(active.image_urls).filter((image) => image !== variantMainImage)
     : [];
   const heroImage = selectedImage || variantMainImage || product?.main_image_url || "/placeholder.svg";
+  const whatsappVariant = active && selectedImage ? { ...active, image_url: selectedImage } : active;
+  const whatsappUrl = product ? createProductWhatsAppUrl(product, whatsappVariant, activeLabel) : "#";
+  const heroFrames: ProductCarouselFrame[] = active
+    ? variantCarouselFrames(active, product?.name || active.name)
+    : [
+        {
+          image: product?.main_image_url || "/placeholder.svg",
+          title: product?.name || "Product",
+          subtitle: product?.tagline || "Product",
+        },
+        ...variants.flatMap((variant) => variantCarouselFrames(variant, product?.name || variant.name)),
+      ].filter((frame, index, list) => list.findIndex((item) => item.image === frame.image) === index);
+  const handleHeroFrameChange = useCallback((frame: ProductCarouselFrame) => {
+    setSelectedImage((current) => current === frame.image ? current : frame.image);
+  }, []);
+  const scrollToMainImage = useCallback(() => {
+    window.setTimeout(() => {
+      mainImageRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 40);
+  }, []);
 
   useSeo({
     title: product ? `${product.name} India Granite Stone Product` : "Granite Stone Product India",
@@ -99,9 +132,13 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!slug) return;
+    setLoadingProduct(true);
     (async () => {
       const [p] = await publicApi.list<Product>("products", { slug });
-      if (!p) return;
+      if (!p) {
+        setLoadingProduct(false);
+        return;
+      }
       setProduct(p);
       const v = await publicApi.list<Variant>("product_variants", { product_id: p.id, orderBy: "sort_order" });
       const normalizedVariants = v.map((variant) => ({ ...variant, image_urls: normalizeImageUrls(variant.image_urls) }));
@@ -109,7 +146,8 @@ const ProductDetail = () => {
       const matchedVariant = requestedVariantId ? normalizedVariants.find((variant) => variant.id === requestedVariantId) || null : null;
       setActive(matchedVariant);
       setSelectedImage(matchedVariant?.image_url || matchedVariant?.image_urls?.[0] || p.main_image_url || "");
-    })();
+      setLoadingProduct(false);
+    })().catch(() => setLoadingProduct(false));
   }, [slug, requestedVariantId]);
 
   useEffect(() => {
@@ -120,11 +158,45 @@ const ProductDetail = () => {
     setSelectedImage(product?.main_image_url || "");
   }, [active, product]);
 
+  if (loadingProduct) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container pt-40 pb-24">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+            <div className="aspect-square animate-pulse bg-secondary/20" />
+            <div className="space-y-5 pt-4">
+              <div className="h-3 w-36 animate-pulse bg-primary/30" />
+              <div className="h-12 w-4/5 animate-pulse bg-foreground/10" />
+              <div className="h-4 w-full animate-pulse bg-foreground/10" />
+              <div className="h-4 w-5/6 animate-pulse bg-foreground/10" />
+              <div className="grid grid-cols-2 gap-4 pt-6">
+                <div className="h-28 animate-pulse bg-foreground/10" />
+                <div className="h-28 animate-pulse bg-foreground/10" />
+              </div>
+              <div className="flex items-center gap-3 pt-4 text-sm text-foreground/60">
+                <span className="h-3 w-3 animate-ping rounded-full bg-primary" />
+                Loading product details...
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (!product) {
     return (
       <main className="min-h-screen bg-background">
         <Navbar />
-        <div className="container pt-40 pb-20 text-center text-foreground/60">Loading...</div>
+        <div className="container pt-40 pb-24 text-center">
+          <h1 className="font-serif text-4xl">Product not found</h1>
+          <p className="mt-3 text-foreground/60">This product may have been removed or updated.</p>
+          <Link to="/products" className="mt-6 inline-flex bg-gold-gradient px-6 py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground">
+            View Products
+          </Link>
+        </div>
+        <Footer />
       </main>
     );
   }
@@ -140,13 +212,19 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div>
             <div ref={mainImageRef} className="group relative aspect-square overflow-hidden bg-secondary shadow-luxury">
-              <img
-                src={heroImage}
+              <ProductImageCarousel
+                frames={heroFrames}
                 alt={`${active?.name || product.name} India granite stone`}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                selectedImage={heroImage}
+                onFrameChange={handleHeroFrameChange}
+                onFrameSelect={(frame) => {
+                  setSelectedImage(frame.image);
+                  scrollToMainImage();
+                }}
+                className="h-full w-full"
+                overlayClassName="hidden"
               />
-              <div className="absolute inset-0 border border-transparent transition-colors duration-500 group-hover:border-primary/70" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-24 transition-all duration-500 group-hover:from-black/95">
+              <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-24 transition-all duration-500 group-hover:from-black/95">
                 <div className="mb-3 text-xs text-white/85">
                   <span className="font-serif text-xl text-white">{active ? activeLabel : product.name}</span>
                   {active?.material && <span className="mt-1 block text-white/65">{active.material}</span>}
@@ -180,7 +258,11 @@ const ProductDetail = () => {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => setActive(null)}
+                  onClick={() => {
+                    setActive(null);
+                    setSelectedImage(product.main_image_url || "");
+                    scrollToMainImage();
+                  }}
                   className={`group grid grid-cols-[72px_1fr] items-center gap-3 border p-3 text-left transition-all sm:grid-cols-[88px_1fr] sm:gap-4 ${!active ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
                   aria-pressed={!active}
                   aria-label={`Select ${product.name}`}
@@ -218,16 +300,19 @@ const ProductDetail = () => {
                         onClick={() => {
                           setActive(variant);
                           setSelectedImage(variant.image_url || variant.image_urls?.[0] || product.main_image_url || "");
+                          scrollToMainImage();
                         }}
                         className={`group grid grid-cols-[72px_1fr] items-center gap-3 border p-3 text-left transition-all sm:grid-cols-[88px_1fr] sm:gap-4 ${selected ? "border-primary bg-primary/5 shadow-gold-glow" : "border-foreground/10 hover:border-primary/60 hover:bg-primary/5"}`}
                         aria-pressed={selected}
                         aria-label={`Select ${label}`}
-                      >
-                        <span className="relative block aspect-square overflow-hidden bg-secondary">
-                          <img
-                            src={variant.image_url || variant.image_urls?.[0] || product.main_image_url || "/placeholder.svg"}
+                    >
+                      <span className="relative block aspect-square overflow-hidden bg-secondary">
+                          <ProductImageCarousel
+                            frames={variantCarouselFrames(variant, product.name)}
                             alt={`${label} ${product.name}`}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="h-full w-full"
+                            overlayClassName="hidden"
+                            showControls={false}
                           />
                           <span
                             className={`absolute left-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 shadow-sm ${selected ? "border-primary" : "border-white/70"}`}

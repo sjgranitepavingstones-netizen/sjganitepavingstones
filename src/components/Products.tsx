@@ -4,6 +4,31 @@ import { ArrowUpRight, MessageCircle } from "lucide-react";
 import { publicApi } from "@/lib/api";
 import { variantColorLabel } from "@/lib/colors";
 import { createProductWhatsAppUrl } from "@/lib/whatsapp";
+import { ProductImageCarousel, type ProductCarouselFrame } from "@/components/ProductImageCarousel";
+
+const normalizeImageUrls = (value: unknown): string[] => {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  return Array.from(new Set(list.map((image) => String(image || "").trim()).filter(Boolean)));
+};
+
+const productCarouselFrames = (product: any, variants: any[], selected?: any): ProductCarouselFrame[] => {
+  const sourceVariants = selected ? [selected] : variants;
+  const frames = sourceVariants.flatMap((variant) => {
+    const label = variantColorLabel(variant.color, variant.name);
+    return [variant.image_url, ...normalizeImageUrls(variant.image_urls)]
+      .filter(Boolean)
+      .map((image) => ({
+        image,
+        title: product.name,
+        subtitle: label,
+      }));
+  });
+
+  return [
+    ...(product.main_image_url ? [{ image: product.main_image_url, title: product.name, subtitle: product.tagline || "Featured product" }] : []),
+    ...frames,
+  ].filter((frame, index, list) => list.findIndex((item) => item.image === frame.image) === index);
+};
 
 export const Products = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -11,9 +36,11 @@ export const Products = () => {
   const [variantsByProduct, setVariantsByProduct] = useState<Record<string, any[]>>({});
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [colorFilter, setColorFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const [products, cats] = await Promise.all([
         publicApi.list<any>("products", { featured: true, orderBy: "created_at", limit: 8 }),
         publicApi.list<any>("categories", { orderBy: "sort_order" }),
@@ -28,7 +55,8 @@ export const Products = () => {
         ] as const)
       );
       setVariantsByProduct(Object.fromEntries(variantEntries));
-    })().catch(() => undefined);
+      setLoading(false);
+    })().catch(() => setLoading(false));
   }, []);
 
   const categoryItems = items.filter((product) => categoryFilter === "all" || product.category_id === categoryFilter);
@@ -105,6 +133,16 @@ export const Products = () => {
           </label>
         </div>
 
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="space-y-4">
+                <div className="aspect-[3/4] animate-pulse bg-white/10" />
+                <div className="h-10 animate-pulse border border-[#25D366]/20 bg-white/5" />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredItems.slice(0, 4).map((p) => {
             const variants = variantsByProduct[p.id] || [];
@@ -112,14 +150,19 @@ export const Products = () => {
               ? undefined
               : variants.find((variant) => variantColorLabel(variant.color, variant.name) === colorFilter);
             const selectedLabel = selected ? variantColorLabel(selected.color, selected.name) : "";
-            const image = selected?.image_url || selected?.image_urls?.[0] || p.main_image_url || "/placeholder.svg";
             const whatsappUrl = createProductWhatsAppUrl(p, selected || null, selectedLabel);
+            const frames = productCarouselFrames(p, variants, selected);
 
             return (
               <div key={p.id} className="group">
                 <Link to={`/products/${p.slug}${selected ? `?variant=${selected.id}` : ""}`} className="relative cursor-pointer block">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-black img-zoom">
-                    <img src={image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
+                  <div className="relative aspect-[3/4] overflow-hidden bg-black">
+                    <ProductImageCarousel
+                      frames={frames}
+                      alt={p.name}
+                      className="h-full w-full"
+                      overlayClassName="p-6"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100" />
                     {p.tagline && (
                       <span className="absolute top-4 left-4 px-3 py-1 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.16em] font-medium opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100 sm:tracking-[0.25em]">
@@ -151,8 +194,9 @@ export const Products = () => {
               </div>
             );
           })}
-                </div>
-        {filteredItems.length === 0 && (
+        </div>
+        )}
+        {!loading && filteredItems.length === 0 && (
           <p className="mt-8 text-center text-sm text-secondary-foreground/60">No featured products found for this category and color.</p>
         )}
       </div>

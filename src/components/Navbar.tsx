@@ -53,6 +53,7 @@ export const Navbar = () => {
               <RouterLink
                 to={l.to}
                 end={l.to === "/"}
+                onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   cn(
                     "link-gold text-[10px] uppercase tracking-[0.18em] font-medium transition-colors whitespace-nowrap",
@@ -137,20 +138,20 @@ export const Navbar = () => {
             {user ? (
               <>
                 {!loading && isAdmin && (
-                  <Link to="/admin" className="text-xs uppercase tracking-[0.22em] text-primary inline-flex items-center gap-1.5">
+                  <Link to="/admin" onClick={() => setOpen(false)} className="text-xs uppercase tracking-[0.22em] text-primary inline-flex items-center gap-1.5">
                     <Shield className="h-3 w-3" /> Admin Panel
                   </Link>
                 )}
-                <button onClick={() => { signOut(); navigate("/"); }} className="text-left text-xs uppercase tracking-[0.22em] text-secondary-foreground/85 inline-flex items-center gap-1.5">
+                <button onClick={() => { setOpen(false); signOut(); navigate("/"); }} className="text-left text-xs uppercase tracking-[0.22em] text-secondary-foreground/85 inline-flex items-center gap-1.5">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </>
             ) : (
-              <Link to="/login" className="text-xs uppercase tracking-[0.22em] text-secondary-foreground/85 inline-flex items-center gap-1.5">
+              <Link to="/login" onClick={() => setOpen(false)} className="text-xs uppercase tracking-[0.22em] text-secondary-foreground/85 inline-flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5" /> Login / Sign up
               </Link>
             )}
-            <Link to="/contact" className="inline-flex items-center px-5 py-2.5 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] w-fit">
+            <Link to="/contact" onClick={() => setOpen(false)} className="inline-flex items-center px-5 py-2.5 bg-gold-gradient text-primary-foreground text-[10px] uppercase tracking-[0.25em] w-fit">
               Get Quote
             </Link>
           </li>

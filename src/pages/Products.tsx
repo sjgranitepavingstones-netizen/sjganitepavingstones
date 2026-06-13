@@ -7,6 +7,7 @@ import { publicApi } from "@/lib/api";
 import { variantColorLabel } from "@/lib/colors";
 import { useSeo, breadcrumbSchema, serviceSchema } from "@/lib/seo";
 import { createProductWhatsAppUrl } from "@/lib/whatsapp";
+import { ProductImageCarousel, type ProductCarouselFrame } from "@/components/ProductImageCarousel";
 
 type Product = {
   id: string;
@@ -19,6 +20,30 @@ type Product = {
 type Category = { id: string; name: string; slug: string };
 type Variant = { id: string; product_id: string; name: string; color: string | null; material?: string | null; image_url: string; image_urls?: string[]; sort_order?: number };
 
+const normalizeImageUrls = (value: unknown): string[] => {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  return Array.from(new Set(list.map((image) => String(image || "").trim()).filter(Boolean)));
+};
+
+const productCarouselFrames = (product: Product, variants: Variant[], selected?: Variant): ProductCarouselFrame[] => {
+  const sourceVariants = selected ? [selected] : variants;
+  const variantFrames = sourceVariants.flatMap((variant) => {
+    const label = variantColorLabel(variant.color, variant.name);
+    return [variant.image_url, ...normalizeImageUrls(variant.image_urls)]
+      .filter(Boolean)
+      .map((image) => ({
+        image,
+        title: product.name,
+        subtitle: label,
+      }));
+  });
+
+  return [
+    ...(product.main_image_url ? [{ image: product.main_image_url, title: product.name, subtitle: "Product" }] : []),
+    ...variantFrames,
+  ].filter((frame, index, list) => list.findIndex((item) => item.image === frame.image) === index);
+};
+
 const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
@@ -27,6 +52,7 @@ const ProductsPage = () => {
   const [filter, setFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useSeo({
     title: "Granite Paving Stone Products India | Cobblestone & Floor Stone",
@@ -66,6 +92,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const [p, c] = await Promise.all([
         publicApi.list<Product>("products", { orderBy: "created_at" }),
         publicApi.list<Category>("categories", { orderBy: "sort_order" }),
@@ -79,7 +106,8 @@ const ProductsPage = () => {
         ] as const)
       );
       setVariantsByProduct(Object.fromEntries(variantEntries));
-    })();
+      setLoading(false);
+    })().catch(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -168,21 +196,34 @@ const ProductsPage = () => {
             </div>
           </div>
 
+          {loading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="space-y-4">
+                  <div className="aspect-[3/4] animate-pulse bg-secondary/15" />
+                  <div className="h-10 animate-pulse border border-[#25D366]/20 bg-secondary/10" />
+                </div>
+              ))}
+            </div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filtered.map((p) => {
               const variants = variantsByProduct[p.id] || [];
               const colorMatched = colorFilter === "all" ? undefined : variants.find((variant) => variantColorLabel(variant.color, variant.name) === colorFilter);
               const selected = colorMatched;
-              const image = selected?.image_url || selected?.image_urls?.[0] || p.main_image_url || "/placeholder.svg";
               const selectedLabel = selected ? variantColorLabel(selected.color, selected.name) : "";
               const whatsappUrl = createProductWhatsAppUrl(p, selected, selectedLabel);
+              const frames = productCarouselFrames(p, variants, selected);
 
               return (
                 <div key={p.id} className="group">
                   <Link to={`/products/${p.slug}${selected ? `?variant=${selected.id}` : ""}`} className="block">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-secondary img-zoom">
-                      <img src={image} alt={`${p.name} Bangalore granite stone product`} loading="lazy"
-                        className="h-full w-full object-cover" />
+                    <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
+                      <ProductImageCarousel
+                        frames={frames}
+                        alt={`${p.name} Bangalore granite stone product`}
+                        className="h-full w-full"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100" />
                       <div className="absolute bottom-0 inset-x-0 p-5 opacity-0 translate-y-6 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
                         <h3 className="font-serif text-lg text-white">{p.name}</h3>
@@ -210,7 +251,8 @@ const ProductsPage = () => {
               );
             })}
           </div>
-          {filtered.length === 0 && <p className="text-center text-foreground/50 py-16">No products found.</p>}
+          )}
+          {!loading && filtered.length === 0 && <p className="text-center text-foreground/50 py-16">No products found.</p>}
         </div>
       </section>
       <Footer />
