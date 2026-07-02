@@ -28,7 +28,7 @@ export const ProductImageCarousel = ({
   imageClassName = "",
   overlayClassName = "",
   selectedImage,
-  intervalMs = 1800,
+  intervalMs = 2500,
   detailsMs = 500,
   showControls = true,
   onFrameChange,
@@ -91,14 +91,21 @@ export const ProductImageCarousel = ({
     selectFrame(nextIndex);
   };
 
+  const displayFrames = cleanFrames.length ? cleanFrames : [activeFrame];
+
   return (
     <div className={`group/carousel relative overflow-hidden bg-secondary ${className}`}>
-      <img
-        src={activeFrame.image}
-        alt={alt}
-        loading="lazy"
-        className={`h-full w-full object-cover transition-transform duration-700 group-hover/carousel:scale-105 ${imageClassName}`}
-      />
+      {displayFrames.map((frame, index) => (
+        <img
+          key={`${frame.image}-${index}`}
+          src={frame.image}
+          alt={alt}
+          loading="lazy"
+          className={`absolute inset-0 h-full w-full object-cover transition-[opacity,transform] [transition-duration:2500ms] ease-in-out group-hover/carousel:scale-105 ${
+            index === activeIndex ? "opacity-100" : "opacity-0"
+          } ${imageClassName}`}
+        />
+      ))}
       <div className="absolute inset-0 border border-transparent transition-colors duration-500 group-hover/carousel:border-primary/70" />
       <div
         className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-5 pt-20 transition-all duration-300 group-hover/carousel:translate-y-0 group-hover/carousel:opacity-100 ${

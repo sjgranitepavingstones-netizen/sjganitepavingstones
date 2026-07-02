@@ -171,6 +171,39 @@ const Inquiry = mongoose.model("Inquiry", new mongoose.Schema({
   status: { type: String, default: "new" },
 }, commonOptions));
 
+const LeadAgentProfile = mongoose.model("LeadAgentProfile", new mongoose.Schema({
+  name: String,
+  companyName: String,
+  business_name: { type: String, required: true },
+  contact_name: String,
+  phone: String,
+  whatsapp: String,
+  email: String,
+  website: String,
+  location: String,
+  product_interest: String,
+  productInterest: String,
+  client_type: String,
+  customerType: String,
+  projectType: String,
+  sourceUrl: String,
+  city: String,
+  state: String,
+  source: String,
+  score: { type: Number, default: 0 },
+  scoreReasons: { type: [String], default: [] },
+  quotationAmount: Number,
+  qualificationSummary: String,
+  urgency: String,
+  budgetRange: String,
+  priority: { type: String, default: "medium" },
+  status: { type: String, default: "new" },
+  notes: String,
+  next_follow_up: String,
+  nextFollowUpAt: String,
+  rawPayload: mongoose.Schema.Types.Mixed,
+}, commonOptions));
+
 const HeroImage = mongoose.model("HeroImage", new mongoose.Schema({
   image_url: { type: String, required: true },
   caption: String,
@@ -183,6 +216,7 @@ const SiteSetting = mongoose.model("SiteSetting", new mongoose.Schema({
   map_longitude: Number,
   map_zoom: { type: Number, default: 15 },
   owner_image_url: String,
+  lead_agent_schedule: mongoose.Schema.Types.Mixed,
 }, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   toJSON: {
@@ -203,6 +237,7 @@ const models = {
   workflow_steps: WorkflowStep,
   reviews: Review,
   inquiries: Inquiry,
+  lead_agent_profiles: LeadAgentProfile,
   hero_images: HeroImage,
   site_settings: SiteSetting,
 };
@@ -217,6 +252,7 @@ const tableConfig = {
   hero_images: { orderBy: "sort_order", public: true },
   site_settings: { orderBy: "updated_at", public: true },
   inquiries: { orderBy: "created_at", public: false },
+  lead_agent_profiles: { orderBy: "created_at", public: false },
 };
 
 const imageFieldsByTable = {
@@ -373,6 +409,202 @@ const sendInquiryEmail = async (inquiry) => {
   });
 };
 
+const formatLeadNotification = (type, lead) => {
+  const rows = [
+    [`New ${type}`],
+    ["Name", lead.full_name || lead.name],
+    ["Phone", lead.phone],
+    ["WhatsApp", lead.whatsapp],
+    ["Email", lead.email],
+    ["Product", lead.product_interest || lead.subject],
+    ["Client Type", lead.client_type],
+    ["City", lead.city],
+    ["State", lead.state],
+    ["Project Size", lead.project_size],
+    ["Budget", lead.budget],
+    ["Source", lead.source],
+    ["Priority", lead.priority],
+    ["Status", lead.status],
+    ["Message", lead.message || lead.notes],
+  ];
+
+  return rows
+    .filter((row) => row.length === 1 || row[1])
+    .map((row) => row.length === 1 ? `*${row[0]}*` : `*${row[0]}:* ${row[1]}`)
+    .join("\n");
+};
+
+const notifyAdminOnWhatsApp = async (type, lead) => {
+  const message = formatLeadNotification(type, lead);
+  const webhookUrl = process.env.WHATSAPP_LEAD_WEBHOOK_URL;
+  const cloudToken = process.env.WHATSAPP_CLOUD_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const notifyTo = process.env.WHATSAPP_NOTIFY_TO || process.env.ADMIN_WHATSAPP_NUMBER || "918217257354";
+
+  if (webhookUrl) {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, message, lead }),
+    });
+    if (!response.ok) throw new Error(`WhatsApp webhook failed: ${response.status}`);
+    return true;
+  }
+
+  if (cloudToken && phoneNumberId && notifyTo) {
+    const response = await fetch(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cloudToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: notifyTo.replace(/\D/g, ""),
+        type: "text",
+        text: { preview_url: false, body: message.replace(/\*/g, "") },
+      }),
+    });
+    if (!response.ok) throw new Error(`WhatsApp Cloud API failed: ${response.status}`);
+    return true;
+  }
+
+  console.warn("WhatsApp lead notification skipped because WHATSAPP_LEAD_WEBHOOK_URL or WhatsApp Cloud API env vars are missing.");
+  return false;
+};
+
+const leadProductLabels = {
+  PAVING_STONE: "Paving stones",
+  COBBLESTONE: "Cobblestones",
+  FLOOR_STONE: "Floor stones",
+  GARDEN_STONE: "Garden stones",
+  OUTDOOR_TILE: "Outdoor tiles/stones",
+  COMMERCIAL_PROJECT: "Commercial projects",
+};
+
+const leadCustomerTypeLabels = {
+  BUILDER: "Builder",
+  CONTRACTOR: "Contractor",
+  ARCHITECT: "Architect",
+  REAL_ESTATE_DEVELOPER: "Real estate developer",
+  HOME_OWNER: "Home owner",
+  LANDSCAPE_DESIGNER: "Landscape designer",
+  CONSTRUCTION_COMPANY: "Construction company",
+  RESORT_HOTEL: "Resort / hotel",
+  FARMHOUSE: "Farmhouse",
+  GARDEN_DESIGNER: "Garden designer",
+  TILE_STONE_DEALER: "Tile / stone dealer",
+  OTHER: "Other",
+};
+
+const normalizeLeadEnum = (value, fallback, allowed) => {
+  const cleanValue = String(value || fallback).trim().toUpperCase();
+  return allowed.includes(cleanValue) ? cleanValue : fallback;
+};
+
+const buildLeadAgentQuery = (input) => {
+  const product = (leadProductLabels[input.productInterest] || "paving stones").toLowerCase();
+  const customer = (leadCustomerTypeLabels[input.customerType] || "contractor").toLowerCase();
+  const goal = clean(input.goal);
+  if (goal) return `${goal} ${product} ${customer}`;
+  return `${customer} construction building architecture landscape ${product}`;
+};
+
+const scoreLeadProfile = (lead) => {
+  const notes = `${lead.notes || ""} ${lead.qualificationSummary || ""}`;
+  const base = [
+    lead.phone ? 14 : 0,
+    lead.email ? 10 : 0,
+    lead.website ? 8 : 0,
+    lead.location ? 10 : 0,
+    lead.customerType && lead.customerType !== "OTHER" ? 18 : 8,
+    /urgent|site|quotation|villa|project|builder|contractor|architect|hotel|resort/i.test(notes) ? 20 : 8,
+    lead.productInterest ? 12 : 0,
+    lead.source === "GOOGLE_MAPS" || lead.source === "WEBSITE" || lead.source === "WHATSAPP" ? 8 : 5,
+  ].reduce((sum, value) => sum + value, 0);
+
+  const score = Math.max(1, Math.min(100, base));
+  return {
+    score,
+    reasons: [
+      lead.phone || lead.email ? "Contact details are available." : "Contact details need manual enrichment.",
+      lead.customerType && lead.customerType !== "OTHER" ? "Customer type matches a stone project buyer." : "Customer type needs review.",
+      lead.website ? "Business website is available for review." : "Website is not available.",
+    ],
+    summary: "Rule-based qualification used for this imported public listing.",
+  };
+};
+
+const findGoogleMapsLeads = async ({ query, city, limit }) => {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) {
+    throw new Error("GOOGLE_MAPS_API_KEY is not configured. Add it in Vercel Environment Variables, then redeploy.");
+  }
+
+  const searchResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": key,
+      "X-Goog-FieldMask": [
+        "places.id",
+        "places.displayName",
+        "places.formattedAddress",
+        "places.nationalPhoneNumber",
+        "places.internationalPhoneNumber",
+        "places.websiteUri",
+        "places.googleMapsUri",
+      ].join(","),
+    },
+    body: JSON.stringify({
+      textQuery: `${query} in ${city}`,
+      pageSize: Math.max(1, Math.min(Number(limit) || 5, 20)),
+      regionCode: "IN",
+    }),
+  });
+
+  if (!searchResponse.ok) {
+    const errorText = await searchResponse.text();
+    let message = "Google Maps search failed.";
+    try {
+      const parsedError = JSON.parse(errorText);
+      message = parsedError.error?.message || message;
+    } catch {
+      if (errorText) message = errorText;
+    }
+    throw new Error(message);
+  }
+
+  const searchData = await searchResponse.json();
+  const places = Array.isArray(searchData.places) ? searchData.places.slice(0, Number(limit) || 5) : [];
+  return places.map((place) => ({
+    name: place.displayName?.text || "Unknown place",
+    location: place.formattedAddress || city,
+    city,
+    phone: place.internationalPhoneNumber || place.nationalPhoneNumber,
+    website: place.websiteUri,
+    sourceUrl: place.googleMapsUri,
+    rawPayload: place,
+  }));
+};
+
+const buildOwnerAgentMessage = ({ city, product, customer, goal, importedCount, duplicateCount, hotLeads }) => [
+  "StoneLead AI Agent report",
+  `Goal: ${goal}`,
+  `City: ${city}`,
+  `Product: ${product}`,
+  `Customer type: ${customer}`,
+  `Imported: ${importedCount}`,
+  `Duplicates skipped: ${duplicateCount}`,
+  `High-fit leads: ${hotLeads.length}`,
+  "",
+  ...hotLeads.slice(0, 5).map((lead, index) =>
+    `${index + 1}. ${lead.name || lead.business_name} | Score ${lead.score} | ${lead.phone || "No phone"} | ${lead.location}`,
+  ),
+  "",
+  "Review before outreach. These are public/inbound leads, not guaranteed customers.",
+].join("\n");
+
 const getRequestClientUrl = (req) => {
   const origin = req.get("origin");
   if (origin && CLIENT_URLS.includes(origin)) return origin;
@@ -460,6 +692,10 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) return res.status(401).json({ error: "User not found." });
+    if (ADMIN_EMAILS.includes(String(user.email || "").toLowerCase()) && user.role !== "admin") {
+      user.role = "admin";
+      await user.save();
+    }
     req.user = user;
     next();
   } catch {
@@ -568,6 +804,10 @@ app.post("/api/auth/login", asyncHandler(async (req, res) => {
 
   if (!(await bcrypt.compare(password || "", user.password_hash))) {
     return res.status(401).json({ error: "Email or password is not correct." });
+  }
+  if (ADMIN_EMAILS.includes(normalizedEmail) && user.role !== "admin") {
+    user.role = "admin";
+    await user.save();
   }
   res.json({ token: signToken(user), user: user.toJSON() });
 }));
@@ -686,6 +926,9 @@ app.post("/api/inquiries", asyncHandler(async (req, res) => {
   await sendInquiryEmail(doc.toJSON()).catch((error) => {
     console.error("Failed to send inquiry email:", error);
   });
+  await notifyAdminOnWhatsApp("website inquiry", doc.toJSON()).catch((error) => {
+    console.error("Failed to send WhatsApp inquiry notification:", error);
+  });
   res.status(201).json(doc.toJSON());
 }));
 
@@ -798,6 +1041,143 @@ app.post("/api/review-upload", auth, upload.single("image"), asyncHandler(async 
   res.status(201).json({ url: await uploadImage(req.file) });
 }));
 
+const runLeadAgentWorkflow = async (input = {}) => {
+  const productInterest = normalizeLeadEnum(input.productInterest, "PAVING_STONE", Object.keys(leadProductLabels));
+  const customerType = normalizeLeadEnum(input.customerType, "CONTRACTOR", Object.keys(leadCustomerTypeLabels));
+  const city = clean(input.city) || "Bengaluru";
+  const state = clean(input.state) || "Karnataka";
+  const quantity = Math.max(1, Math.min(Number(input.quantity) || 5, 20));
+  const minScore = Math.max(1, Math.min(Number(input.minScore) || 75, 100));
+  const notifyWhatsApp = input.notifyWhatsApp !== false;
+  const query = buildLeadAgentQuery({ ...input, productInterest, customerType, city, state });
+
+  const places = await findGoogleMapsLeads({ query, city, limit: quantity });
+  const imported = [];
+  const skippedDuplicates = [];
+
+  for (const place of places) {
+    const duplicateFilter = {
+      $or: [
+        place.sourceUrl ? { sourceUrl: place.sourceUrl } : null,
+        place.phone ? { phone: place.phone } : null,
+        { name: place.name, city: place.city },
+        { business_name: place.name, city: place.city },
+      ].filter(Boolean),
+    };
+    const duplicate = await LeadAgentProfile.findOne(duplicateFilter).select("_id name business_name");
+    if (duplicate) {
+      skippedDuplicates.push(duplicate.toJSON());
+      continue;
+    }
+
+    const leadBase = {
+      name: place.name,
+      business_name: place.name,
+      companyName: place.name,
+      phone: place.phone,
+      whatsapp: place.phone,
+      website: place.website,
+      location: place.location,
+      city: place.city,
+      state,
+      source: "GOOGLE_MAPS",
+      sourceUrl: place.sourceUrl,
+      productInterest,
+      product_interest: productInterest,
+      customerType,
+      client_type: customerType,
+      projectType: "BOTH",
+      notes: `AI Agent search: ${clean(input.goal) || query}. Imported from Google Maps public listing. Verify before outreach.`,
+      rawPayload: place.rawPayload,
+    };
+    const scoring = scoreLeadProfile(leadBase);
+    const isHot = scoring.score >= minScore;
+    const doc = await LeadAgentProfile.create({
+      ...leadBase,
+      status: isHot ? "INTERESTED" : "NEW",
+      score: scoring.score,
+      scoreReasons: scoring.reasons,
+      qualificationSummary: scoring.summary,
+      nextFollowUpAt: isHot ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10) : null,
+      next_follow_up: isHot ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10) : null,
+    });
+    imported.push(doc.toJSON());
+  }
+
+  const hotLeads = imported.filter((lead) => Number(lead.score || 0) >= minScore);
+  const ownerMessage = buildOwnerAgentMessage({
+    city,
+    product: leadProductLabels[productInterest],
+    customer: leadCustomerTypeLabels[customerType],
+    goal: clean(input.goal) || query,
+    importedCount: imported.length,
+    duplicateCount: skippedDuplicates.length,
+    hotLeads,
+  });
+  const waUrl = `https://wa.me/${String(process.env.WHATSAPP_NOTIFY_TO || process.env.ADMIN_WHATSAPP_NUMBER || "918217257354").replace(/\D/g, "")}?text=${encodeURIComponent(ownerMessage)}`;
+
+  if (notifyWhatsApp) {
+    await notifyAdminOnWhatsApp("lead agent report", {
+      name: "StoneLead AI Agent",
+      product_interest: leadProductLabels[productInterest],
+      client_type: leadCustomerTypeLabels[customerType],
+      city,
+      source: "GOOGLE_MAPS",
+      status: `${imported.length} imported, ${hotLeads.length} hot`,
+      message: ownerMessage,
+    }).catch((error) => {
+      console.error("Failed to send lead agent WhatsApp notification:", error);
+    });
+  }
+
+  return {
+    goal: clean(input.goal) || query,
+    query,
+    imported,
+    importedCount: imported.length,
+    hotLeads,
+    hotCount: hotLeads.length,
+    skippedDuplicates: skippedDuplicates.length,
+    ownerMessage,
+    whatsapp: { attempted: notifyWhatsApp, sent: false, waUrl, reason: "Open WhatsApp alert if Cloud API is not configured." },
+  };
+};
+
+app.post("/api/admin/lead-agent/run", auth, adminOnly, asyncHandler(async (req, res) => {
+  res.json(await runLeadAgentWorkflow(req.body));
+}));
+
+app.get("/api/admin/lead-agent/schedule", auth, adminOnly, asyncHandler(async (_req, res) => {
+  const settings = await SiteSetting.findById("main");
+  res.json(settings?.lead_agent_schedule || {
+    enabled: false,
+    time: "18:00",
+    state: "Karnataka",
+    city: "Bengaluru",
+    productInterest: "PAVING_STONE",
+    customerType: "CONTRACTOR",
+    quantity: 5,
+    minScore: 75,
+  });
+}));
+
+app.put("/api/admin/lead-agent/schedule", auth, adminOnly, asyncHandler(async (req, res) => {
+  const schedule = {
+    enabled: req.body.enabled === true,
+    time: String(req.body.time || "18:00").slice(0, 5),
+    state: clean(req.body.state) || "Karnataka",
+    city: clean(req.body.city) || "Bengaluru",
+    productInterest: normalizeLeadEnum(req.body.productInterest, "PAVING_STONE", Object.keys(leadProductLabels)),
+    customerType: normalizeLeadEnum(req.body.customerType, "CONTRACTOR", Object.keys(leadCustomerTypeLabels)),
+    quantity: Math.max(1, Math.min(Number(req.body.quantity) || 5, 20)),
+    minScore: Math.max(1, Math.min(Number(req.body.minScore) || 75, 100)),
+    lastRunDate: req.body.lastRunDate || null,
+    updatedAt: new Date().toISOString(),
+  };
+  const doc = await SiteSetting.findByIdAndUpdate("main", { lead_agent_schedule: schedule }, { new: true, upsert: true });
+  res.json(doc.lead_agent_schedule);
+}));
+
 app.post("/api/admin/:table", auth, adminOnly, asyncHandler(async (req, res) => {
   const { table } = req.params;
   const Model = models[table];
@@ -857,6 +1237,58 @@ app.delete("/api/admin/:table/:id", auth, adminOnly, asyncHandler(async (req, re
   res.json({ ok: true });
 }));
 
+const getIndiaScheduleNow = () => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date()).reduce((acc, part) => ({ ...acc, [part.type]: part.value }), {});
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour}:${parts.minute}`,
+  };
+};
+
+const checkLeadAgentSchedule = async () => {
+  if (mongoose.connection.readyState !== 1) return;
+  const settings = await SiteSetting.findById("main");
+  const schedule = settings?.lead_agent_schedule;
+  if (!schedule?.enabled) return;
+
+  const now = getIndiaScheduleNow();
+  if (schedule.lastRunDate === now.date || schedule.time !== now.time) return;
+
+  const runningSchedule = { ...schedule, lastRunDate: now.date };
+  await SiteSetting.findByIdAndUpdate("main", { lead_agent_schedule: runningSchedule }, { upsert: true });
+  await runLeadAgentWorkflow({
+    ...schedule,
+    goal: `Daily scheduled lead collection for ${leadProductLabels[schedule.productInterest] || "stone products"} in ${schedule.city}, ${schedule.state}`,
+    notifyWhatsApp: true,
+  }).catch(async (error) => {
+    console.error("Daily lead agent schedule failed:", error?.message || error);
+    await SiteSetting.findByIdAndUpdate("main", {
+      "lead_agent_schedule.lastError": error?.message || "Schedule failed",
+      "lead_agent_schedule.lastErrorAt": new Date().toISOString(),
+    });
+  });
+};
+
+app.get("/api/cron/lead-agent", asyncHandler(async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+    return res.status(401).json({ error: "Unauthorized cron request." });
+  }
+  if (mongoose.connection.readyState !== 1) {
+    await connectDatabase().catch(() => false);
+  }
+  await checkLeadAgentSchedule();
+  res.json({ ok: true });
+}));
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   if (err?.code === 11000) return res.status(409).json({ error: "This slug or email already exists." });
@@ -870,6 +1302,11 @@ if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
   });
+  setInterval(() => {
+    checkLeadAgentSchedule().catch((error) => {
+      console.error("Lead agent schedule check failed:", error?.message || error);
+    });
+  }, 60 * 1000);
 }
 
 export { app, databaseReady };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Clock, Mail, MapPin, MessageCircle } from "lucide-react";
 import { publicApi } from "@/lib/api";
+import { WHATSAPP_DISPLAY } from "@/lib/whatsapp";
 
 export const AtelierInfo = () => {
   const [mapPos, setMapPos] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
@@ -29,7 +30,7 @@ export const AtelierInfo = () => {
             <div className="mt-10 space-y-6">
               {[
                 { icon: MapPin, label: "Atelier", value: "India" },
-                { icon: MessageCircle, label: "WhatsApp", value: "+91 82172 57354" },
+                { icon: MessageCircle, label: "WhatsApp", value: WHATSAPP_DISPLAY },
                 { icon: Mail, label: "Email", value: "sjgranitepavingstones@gmail.com" },
                 { icon: Clock, label: "Hours", value: "Mon-Sat - 9am - 7pm" },
               ].map((info) => (

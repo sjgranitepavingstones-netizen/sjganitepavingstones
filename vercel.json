@@ -7,6 +7,12 @@
       "maxDuration": 30
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/lead-agent",
+      "schedule": "30 12 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

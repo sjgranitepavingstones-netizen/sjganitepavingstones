@@ -1,6 +1,7 @@
 import { absoluteUrl } from "@/lib/seo";
 
 export const WHATSAPP_NUMBER = "918217257354";
+export const WHATSAPP_DISPLAY = "+91 821 725 7354";
 
 type WhatsAppProduct = {
   name: string;

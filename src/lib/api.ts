@@ -139,6 +139,12 @@ export const adminApi = {
     request<T>(`/admin/${table}/${id}`, { method: "PUT", body: JSON.stringify(payload), auth: true }),
   remove: (table: string, id: string) =>
     request(`/admin/${table}/${id}`, { method: "DELETE", auth: true }),
+  runLeadAgent: (payload: any) =>
+    request<any>("/admin/lead-agent/run", { method: "POST", body: JSON.stringify(payload), auth: true }),
+  getLeadAgentSchedule: () =>
+    request<any>("/admin/lead-agent/schedule", { auth: true }),
+  saveLeadAgentSchedule: (payload: any) =>
+    request<any>("/admin/lead-agent/schedule", { method: "PUT", body: JSON.stringify(payload), auth: true }),
   upload: (file: File) => {
     const body = new FormData();
     body.append("image", file);

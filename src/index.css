@@ -141,3 +141,98 @@
   .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--transition-luxury), transform 1s var(--transition-luxury); }
   .reveal.in { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes lead-flow {
+  0% { transform: translateX(0); opacity: 0.2; }
+  12% { opacity: 1; }
+  100% { transform: translateX(190%); opacity: 0.9; }
+}
+
+.lead-workflow-track {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 76px;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.45), hsl(var(--primary) / 0.15));
+}
+
+.lead-workflow-runner {
+  position: absolute;
+  left: 10%;
+  top: 72px;
+  z-index: 3;
+  height: 10px;
+  width: 10px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 8px hsl(var(--primary) / 0.12), 0 0 24px hsl(var(--primary));
+  animation: lead-runner 5s ease-in-out infinite;
+}
+
+.lead-workflow-step {
+  animation: lead-card-pulse 5s ease-in-out infinite;
+}
+
+.lead-workflow-step:nth-child(1) { animation-delay: 0s; }
+.lead-workflow-step:nth-child(2) { animation-delay: 1.25s; }
+.lead-workflow-step:nth-child(3) { animation-delay: 2.5s; }
+.lead-workflow-step:nth-child(4) { animation-delay: 3.75s; }
+
+.lead-step-node {
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.35s ease;
+}
+
+.lead-step-check {
+  display: none;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.lead-workflow-step .lead-step-check {
+  animation: lead-check 5s steps(1, end) infinite;
+}
+
+.lead-workflow-step .lead-step-number {
+  animation: lead-number 5s steps(1, end) infinite;
+}
+
+.lead-workflow-step:nth-child(1) .lead-step-check,
+.lead-workflow-step:nth-child(1) .lead-step-number { animation-delay: 0s; }
+.lead-workflow-step:nth-child(2) .lead-step-check,
+.lead-workflow-step:nth-child(2) .lead-step-number { animation-delay: 1.25s; }
+.lead-workflow-step:nth-child(3) .lead-step-check,
+.lead-workflow-step:nth-child(3) .lead-step-number { animation-delay: 2.5s; }
+.lead-workflow-step:nth-child(4) .lead-step-check,
+.lead-workflow-step:nth-child(4) .lead-step-number { animation-delay: 3.75s; }
+
+@keyframes lead-runner {
+  0%, 8% { left: 10%; transform: translateX(-50%); }
+  25%, 33% { left: 36.7%; transform: translateX(-50%); }
+  50%, 58% { left: 63.3%; transform: translateX(-50%); }
+  75%, 83% { left: 90%; transform: translateX(-50%); }
+  100% { left: 10%; transform: translateX(-50%); }
+}
+
+@keyframes lead-card-pulse {
+  0%, 18% {
+    border-color: hsl(var(--primary) / 0.65);
+    box-shadow: 0 18px 45px hsl(var(--primary) / 0.12);
+    transform: translateY(-4px);
+  }
+  28%, 100% {
+    border-color: hsl(var(--foreground) / 0.1);
+    box-shadow: none;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lead-check {
+  0%, 20% { display: none; }
+  21%, 100% { display: inline; }
+}
+
+@keyframes lead-number {
+  0%, 20% { display: inline; }
+  21%, 100% { display: none; }
+}

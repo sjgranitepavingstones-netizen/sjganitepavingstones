@@ -1,12 +1,11 @@
 import { MessageCircle } from "lucide-react";
-
-const WHATSAPP = "918217257354"; // wa.me format (no +)
+import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 export const FloatingContact = () => {
   return (
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col gap-3">
       <a
-        href={`https://wa.me/${WHATSAPP}`}
+        href={`https://wa.me/${WHATSAPP_NUMBER}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"

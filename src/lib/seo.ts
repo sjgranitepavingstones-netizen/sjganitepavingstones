@@ -257,7 +257,7 @@ export const localBusinessSchema = () => ({
   url: absoluteUrl("/"),
   logo: absoluteUrl(logoImage),
   image: [logoImage, ...PRODUCT_IMAGES].map((image) => absoluteUrl(image)),
-  telephone: "+918217257354",
+  telephone: "+91 821 725 7354",
   email: "sjgranitepavingstones@gmail.com",
   foundingDate: "2013",
   founder: {
@@ -325,7 +325,7 @@ export const serviceSchema = (name: string, description: string, path: string) =
   provider: {
     "@type": "LocalBusiness",
     name: BRAND_NAME,
-    telephone: "+918217257354",
+    telephone: "+91 821 725 7354",
     url: absoluteUrl("/"),
   },
   url: absoluteUrl(path),

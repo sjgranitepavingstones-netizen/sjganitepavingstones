@@ -4,9 +4,21 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { adminApi } from "@/lib/api";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, Upload, Image as ImgIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  Bell,
+  Database,
+  Pencil,
+  Plus,
+  Search,
+  Sparkles,
+  Target,
+  Trash2,
+  Upload,
+  Image as ImgIcon,
+} from "lucide-react";
 
-type Tab = "products" | "variants" | "categories" | "hero" | "reviews" | "inquiries" | "settings";
+type Tab = "products" | "variants" | "categories" | "hero" | "reviews" | "inquiries" | "lead-agent" | "settings";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "products", label: "Products" },
@@ -15,6 +27,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "hero", label: "Hero Images" },
   { id: "reviews", label: "Reviews" },
   { id: "inquiries", label: "Inquiries" },
+  { id: "lead-agent", label: "Lead Agent" },
   { id: "settings", label: "Settings" },
 ];
 
@@ -50,6 +63,7 @@ const Admin = () => {
         {tab === "hero" && <HeroImagesAdmin />}
         {tab === "reviews" && <ReviewsAdmin />}
         {tab === "inquiries" && <InquiriesAdmin />}
+        {tab === "lead-agent" && <LeadAgentAdmin />}
         {tab === "settings" && <SettingsAdmin />}
       </section>
       <Footer />
@@ -628,6 +642,608 @@ const InquiriesAdmin = () => {
     </div>
   );
 };
+
+// ============ STONELEAD AI COMMAND CENTER ============
+const productLabels = {
+  PAVING_STONE: "Paving stones",
+  COBBLESTONE: "Cobblestones",
+  FLOOR_STONE: "Floor stones",
+  GARDEN_STONE: "Garden stones",
+  OUTDOOR_TILE: "Outdoor tiles/stones",
+  COMMERCIAL_PROJECT: "Commercial projects",
+} as const;
+
+const customerTypeLabels = {
+  BUILDER: "Builder",
+  CONTRACTOR: "Contractor",
+  ARCHITECT: "Architect",
+  REAL_ESTATE_DEVELOPER: "Real estate developer",
+  HOME_OWNER: "Home owner",
+  LANDSCAPE_DESIGNER: "Landscape designer",
+  CONSTRUCTION_COMPANY: "Construction company",
+  RESORT_HOTEL: "Resort / hotel",
+  FARMHOUSE: "Farmhouse",
+  GARDEN_DESIGNER: "Garden designer",
+  TILE_STONE_DEALER: "Tile / stone dealer",
+  OTHER: "Other",
+} as const;
+
+const sourceLabels = {
+  GOOGLE_MAPS: "Google Maps",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  WHATSAPP: "WhatsApp",
+  WEBSITE: "Website",
+  CSV_UPLOAD: "CSV upload",
+  LOCAL_LISTING: "Local listing",
+  CONTRACTOR_LIST: "Contractor list",
+  MANUAL: "Manual",
+} as const;
+
+const statusLabels = {
+  NEW: "New",
+  CONTACTED: "Contacted",
+  INTERESTED: "Interested",
+  QUOTATION_SENT: "Quotation Sent",
+  CONVERTED: "Converted",
+  REJECTED: "Rejected",
+  OPTED_OUT: "Opted Out",
+} as const;
+
+const projectTypeLabels = {
+  RESIDENTIAL: "Residential",
+  COMMERCIAL: "Commercial",
+  BOTH: "Residential + commercial",
+} as const;
+
+const leadStates = ["Karnataka", "Maharashtra", "Tamil Nadu", "Telangana", "Kerala", "Delhi", "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal"];
+const leadCitiesByState: Record<string, string[]> = {
+  Karnataka: ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
+  Maharashtra: ["Mumbai", "Pune", "Navi Mumbai", "Nagpur", "Nashik"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Hosur", "Salem"],
+  Telangana: ["Hyderabad", "Warangal", "Karimnagar"],
+  Kerala: ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur"],
+  Delhi: ["New Delhi", "Delhi", "Dwarka"],
+  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+  Rajasthan: ["Jaipur", "Udaipur", "Jodhpur", "Kota"],
+  "Uttar Pradesh": ["Lucknow", "Noida", "Ghaziabad", "Kanpur"],
+  "West Bengal": ["Kolkata", "Howrah", "Siliguri"],
+};
+
+const leadName = (lead: any) => lead.companyName || lead.business_name || lead.name || "Untitled lead";
+const leadProduct = (lead: any) => lead.productInterest || lead.product_interest || "PAVING_STONE";
+const leadCustomer = (lead: any) => lead.customerType || lead.client_type || "OTHER";
+const leadStatus = (lead: any) => lead.status || "NEW";
+const leadLocation = (lead: any) => lead.location || [lead.city, lead.state].filter(Boolean).join(", ");
+
+const LeadAgentAdmin = () => {
+  const [leads, setLeads] = useState<any[]>([]);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [notice, setNotice] = useState("");
+  const [agentResult, setAgentResult] = useState<any | null>(null);
+  const [overlay, setOverlay] = useState("");
+  const [collecting, setCollecting] = useState(false);
+  const [leadTarget, setLeadTarget] = useState({
+    state: "Karnataka",
+    city: "Bengaluru",
+    productInterest: "PAVING_STONE",
+    customerType: "CONTRACTOR",
+    quantity: 5,
+    minScore: 75,
+  });
+  const [schedule, setSchedule] = useState<any>({
+    enabled: false,
+    time: "18:00",
+    state: "Karnataka",
+    city: "Bengaluru",
+    productInterest: "PAVING_STONE",
+    customerType: "CONTRACTOR",
+    quantity: 5,
+    minScore: 75,
+  });
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const leadsRef = useRef<HTMLDivElement>(null);
+
+  const load = async () => {
+    const data = await adminApi.list("lead_agent_profiles", { orderBy: "created_at", desc: true });
+    setLeads(data || []);
+  };
+
+  useEffect(() => {
+    load();
+    adminApi.getLeadAgentSchedule().then((data) => {
+      if (data) setSchedule((current: any) => ({ ...current, ...data }));
+    }).catch(() => undefined);
+  }, []);
+
+  const totals = summarizeLeads(leads);
+
+  const updateLeadTarget = (patch: Partial<typeof leadTarget>) => {
+    setLeadTarget((current) => {
+      const next = { ...current, ...patch };
+      if (patch.state) next.city = leadCitiesByState[patch.state]?.[0] || "";
+      return next;
+    });
+  };
+
+  const updateSchedule = (patch: any) => {
+    setSchedule((current: any) => {
+      const next = { ...current, ...patch };
+      if (patch.state) next.city = leadCitiesByState[patch.state]?.[0] || "";
+      return next;
+    });
+  };
+
+  const selectedProductLabel = productLabels[leadTarget.productInterest as keyof typeof productLabels] || "stone products";
+
+  const saveLead = async (payload: any) => {
+    const cleanPayload = {
+      ...payload,
+      business_name: payload.business_name || payload.companyName || payload.name,
+      name: payload.name || payload.contact_name || payload.business_name || payload.companyName,
+      companyName: payload.companyName || payload.business_name,
+      product_interest: payload.productInterest || payload.product_interest,
+      client_type: payload.customerType || payload.client_type,
+      location: payload.location || [payload.city, payload.state].filter(Boolean).join(", "),
+      next_follow_up: payload.nextFollowUpAt || payload.next_follow_up,
+      score: Number(payload.score || 0),
+      quotationAmount: Number(payload.quotationAmount || 0),
+    };
+
+    if (!cleanPayload.business_name) throw new Error("Lead or company name is required");
+    if (cleanPayload.id) await adminApi.update("lead_agent_profiles", cleanPayload.id, cleanPayload);
+    else await adminApi.create("lead_agent_profiles", cleanPayload);
+  };
+
+  const handleSaveLead = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await saveLead(editing);
+      toast.success("Lead saved");
+      setEditing(null);
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Save failed");
+    }
+  };
+
+  const deleteLead = async (lead: any) => {
+    if (!confirm(`Delete this lead?\n\n${leadName(lead)}`)) return;
+    try {
+      await adminApi.remove("lead_agent_profiles", lead.id);
+      toast.success("Lead deleted");
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Delete failed");
+    }
+  };
+
+  const collectLeads = async ({
+    goal,
+    productInterest,
+    customerType,
+    quantity,
+    minScore,
+    city = "Bengaluru",
+    state = "Karnataka",
+  }: {
+    goal: string;
+    productInterest: string;
+    customerType: string;
+    quantity: number;
+    minScore: number;
+    city?: string;
+    state?: string;
+  }) => {
+    if (collecting) return;
+
+    setNotice("AI Agent running...");
+    setAgentResult(null);
+    setCollecting(true);
+    setOverlay("One-click lead workflow cholche: target read, Google Maps search, AI score, CRM save.");
+    try {
+      const [result] = await Promise.all([
+        adminApi.runLeadAgent({
+          goal,
+          city,
+          state,
+          productInterest,
+          customerType,
+          quantity,
+          minScore,
+          notifyWhatsApp: true,
+        }),
+        wait(5000),
+      ]);
+      setAgentResult(result);
+      await load();
+      setNotice(`AI Agent done: ${result.importedCount} leads imported, ${result.hotCount} high-fit leads found.`);
+      toast.success(`${result.importedCount} lead imported`);
+      window.setTimeout(() => leadsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI Agent failed";
+      setNotice(message);
+      toast.error(message);
+    } finally {
+      setOverlay("");
+      setCollecting(false);
+    }
+  };
+
+  const saveSchedule = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSavingSchedule(true);
+    try {
+      const saved = await adminApi.saveLeadAgentSchedule(schedule);
+      setSchedule(saved);
+      toast.success(saved.enabled ? "Daily evening lead agent enabled" : "Daily lead agent saved as paused");
+      setNotice(saved.enabled ? `Daily schedule saved: ${saved.city}, ${saved.state} at ${saved.time}.` : "Daily schedule saved but paused.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Schedule save failed");
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      {overlay && <LeadFindingOverlay message={overlay} />}
+
+      <section className="overflow-hidden border border-foreground/10 bg-muted/20">
+        <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+          <div>
+            <p className="mb-3 inline-flex border border-primary/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-primary">StoneLead AI</p>
+            <h2 className="font-serif text-3xl leading-tight sm:text-4xl md:text-5xl">Lead Command Center</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-foreground/65">
+              Select area, product and client count. The agent will collect public leads, score them, save them in CRM and prepare a WhatsApp report.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <LeadField label="State">
+                <select className={inputCls} value={leadTarget.state} onChange={(event) => updateLeadTarget({ state: event.target.value })}>
+                  {leadStates.map((state) => <option key={state} value={state}>{state}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="City / Area">
+                <select className={inputCls} value={leadTarget.city} onChange={(event) => updateLeadTarget({ city: event.target.value })}>
+                  {(leadCitiesByState[leadTarget.state] || []).map((city) => <option key={city} value={city}>{city}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="Product">
+                <select className={inputCls} value={leadTarget.productInterest} onChange={(event) => updateLeadTarget({ productInterest: event.target.value })}>
+                  {Object.entries(productLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="Client type">
+                <select className={inputCls} value={leadTarget.customerType} onChange={(event) => updateLeadTarget({ customerType: event.target.value })}>
+                  {Object.entries(customerTypeLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="How many clients">
+                <select className={inputCls} value={leadTarget.quantity} onChange={(event) => updateLeadTarget({ quantity: Number(event.target.value) })}>
+                  {[3, 5, 8, 10, 15, 20].map((count) => <option key={count} value={count}>{count} clients</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="Minimum score">
+                <select className={inputCls} value={leadTarget.minScore} onChange={(event) => updateLeadTarget({ minScore: Number(event.target.value) })}>
+                  {[60, 70, 75, 80, 90].map((score) => <option key={score} value={score}>{score}+</option>)}
+                </select>
+              </LeadField>
+            </div>
+            <button
+              type="button"
+              disabled={collecting}
+              onClick={() => collectLeads({
+                goal: `Find real ${selectedProductLabel} buyers from ${customerTypeLabels[leadTarget.customerType as keyof typeof customerTypeLabels]} in ${leadTarget.city}, ${leadTarget.state}`,
+                ...leadTarget,
+              })}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 bg-gold-gradient px-5 py-3 text-xs uppercase tracking-[0.16em] text-primary-foreground disabled:opacity-60 sm:w-auto sm:tracking-[0.18em]"
+            >
+              <Sparkles size={17} /> {collecting ? "Collecting Clients..." : `Collect ${leadTarget.quantity} Leads Now`}
+            </button>
+          </div>
+          <form onSubmit={saveSchedule} className="border border-foreground/10 bg-background/80 p-4">
+            <div className="mb-4">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Daily Evening Agent</p>
+              <h3 className="mt-1 font-serif text-2xl">Morning select, evening report</h3>
+              <p className="mt-2 text-sm leading-6 text-foreground/60">
+                Save this target in the morning. When the server is running, the agent will collect leads at the selected India time and send the report to WhatsApp.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <LeadField label="Enable daily run">
+                <select className={inputCls} value={schedule.enabled ? "yes" : "no"} onChange={(event) => updateSchedule({ enabled: event.target.value === "yes" })}>
+                  <option value="yes">Active</option>
+                  <option value="no">Paused</option>
+                </select>
+              </LeadField>
+              <LeadField label="Evening time">
+                <input type="time" className={inputCls} value={schedule.time || "18:00"} onChange={(event) => updateSchedule({ time: event.target.value })} />
+              </LeadField>
+              <LeadField label="State">
+                <select className={inputCls} value={schedule.state || "Karnataka"} onChange={(event) => updateSchedule({ state: event.target.value })}>
+                  {leadStates.map((state) => <option key={state} value={state}>{state}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="City / Area">
+                <select className={inputCls} value={schedule.city || "Bengaluru"} onChange={(event) => updateSchedule({ city: event.target.value })}>
+                  {(leadCitiesByState[schedule.state || "Karnataka"] || []).map((city) => <option key={city} value={city}>{city}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="Product">
+                <select className={inputCls} value={schedule.productInterest || "PAVING_STONE"} onChange={(event) => updateSchedule({ productInterest: event.target.value })}>
+                  {Object.entries(productLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </LeadField>
+              <LeadField label="Clients">
+                <select className={inputCls} value={schedule.quantity || 5} onChange={(event) => updateSchedule({ quantity: Number(event.target.value) })}>
+                  {[3, 5, 8, 10, 15, 20].map((count) => <option key={count} value={count}>{count} clients</option>)}
+                </select>
+              </LeadField>
+            </div>
+            <button disabled={savingSchedule} className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-primary/40 px-5 py-3 text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary/10 disabled:opacity-60">
+              {savingSchedule ? "Saving..." : "Save Daily Lead Plan"}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {notice && <div className="border border-primary/20 bg-primary/5 p-3 text-sm font-medium text-foreground/75">{notice}</div>}
+
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Metric title="Total leads" value={totals.total} icon={<Database size={18} />} />
+        <Metric title="Hot leads" value={totals.hot} icon={<Sparkles size={18} />} />
+        <Metric title="Follow-ups" value={totals.pendingFollowUps} icon={<Bell size={18} />} />
+        <Metric title="Converted" value={totals.converted} icon={<BadgeCheck size={18} />} />
+        <Metric title="Revenue estimate" value={`Rs ${totals.revenue.toLocaleString("en-IN")}`} icon={<Target size={18} />} />
+      </section>
+
+      {agentResult && (
+        <section className="border border-foreground/10 bg-background p-4 sm:p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Agent output</p>
+          <div className="mt-4 grid gap-3">
+            <textarea className={inputCls + " min-h-32"} value={agentResult.ownerMessage} readOnly />
+            <a className="inline-flex w-full justify-center border border-foreground/15 px-4 py-3 text-xs uppercase tracking-[0.16em] hover:border-primary hover:text-primary sm:w-fit" href={agentResult.waUrl} target="_blank" rel="noreferrer">
+              Open WhatsApp alert
+            </a>
+          </div>
+        </section>
+      )}
+
+      <div ref={leadsRef}>
+        <LeadTable leads={leads} onEdit={setEditing} onDelete={deleteLead} />
+      </div>
+
+      {editing?.id && <LeadEditModal editing={editing} setEditing={setEditing} onSubmit={handleSaveLead} />}
+    </div>
+  );
+};
+
+const LeadEditModal = ({ editing, setEditing, onSubmit }: { editing: any; setEditing: (value: any) => void; onSubmit: (event: React.FormEvent) => void }) => (
+  <div className="fixed inset-0 z-[115] grid place-items-end bg-black/40 px-3 py-4 backdrop-blur-sm sm:place-items-center">
+    <form onSubmit={onSubmit} className="max-h-[92vh] w-full max-w-5xl overflow-y-auto border border-foreground/10 bg-background p-4 shadow-2xl sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <SectionTitle icon={<Pencil size={20} />} title="Edit Client" subtitle="Update CRM details and follow-up status." />
+        <button type="button" onClick={() => setEditing(null)} className="border border-foreground/15 px-3 py-2 text-xs uppercase tracking-[0.14em]">Close</button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+      <LeadField label="Lead name"><input required className={inputCls} value={editing?.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value, business_name: e.target.value })} /></LeadField>
+      <LeadField label="Company"><input className={inputCls} value={editing?.companyName || editing?.business_name || ""} onChange={(e) => setEditing({ ...editing, companyName: e.target.value, business_name: e.target.value })} /></LeadField>
+      <LeadField label="Phone"><input className={inputCls} value={editing?.phone || ""} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></LeadField>
+      <LeadField label="Email"><input type="email" className={inputCls} value={editing?.email || ""} onChange={(e) => setEditing({ ...editing, email: e.target.value })} /></LeadField>
+      <LeadField label="Location"><input className={inputCls} value={editing?.location || ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} /></LeadField>
+      <LeadField label="Source"><select className={inputCls} value={editing?.source || "MANUAL"} onChange={(e) => setEditing({ ...editing, source: e.target.value })}>{Object.entries(sourceLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></LeadField>
+      <LeadField label="Interest"><select className={inputCls} value={leadProduct(editing || {})} onChange={(e) => setEditing({ ...editing, productInterest: e.target.value, product_interest: e.target.value })}>{Object.entries(productLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></LeadField>
+      <LeadField label="Customer"><select className={inputCls} value={leadCustomer(editing || {})} onChange={(e) => setEditing({ ...editing, customerType: e.target.value, client_type: e.target.value })}>{Object.entries(customerTypeLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></LeadField>
+      <LeadField label="Project"><select className={inputCls} value={editing?.projectType || "BOTH"} onChange={(e) => setEditing({ ...editing, projectType: e.target.value })}>{Object.entries(projectTypeLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></LeadField>
+      <LeadField label="Score"><input type="number" min={0} max={100} className={inputCls} value={editing?.score ?? 0} onChange={(e) => setEditing({ ...editing, score: e.target.value })} /></LeadField>
+      <LeadField label="Status"><select className={inputCls} value={leadStatus(editing || {})} onChange={(e) => setEditing({ ...editing, status: e.target.value })}>{Object.entries(statusLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></LeadField>
+      <LeadField label="Quotation"><input type="number" className={inputCls} value={editing?.quotationAmount ?? 0} onChange={(e) => setEditing({ ...editing, quotationAmount: e.target.value })} /></LeadField>
+      <LeadField label="Follow-up"><input type="date" className={inputCls} value={editing?.nextFollowUpAt || editing?.next_follow_up || ""} onChange={(e) => setEditing({ ...editing, nextFollowUpAt: e.target.value, next_follow_up: e.target.value })} /></LeadField>
+      <LeadField label="Notes" wide><textarea rows={3} className={inputCls} value={editing?.notes || ""} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} /></LeadField>
+      </div>
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <button type="button" onClick={() => setEditing(null)} className="border border-foreground/15 px-5 py-3 text-xs uppercase tracking-[0.18em]">Cancel</button>
+        <button className="bg-gold-gradient px-5 py-3 text-xs uppercase tracking-[0.18em] text-primary-foreground">Update Client</button>
+      </div>
+    </form>
+  </div>
+);
+
+const LeadTable = ({ leads, onEdit, onDelete }: { leads: any[]; onEdit: (lead: any) => void; onDelete: (lead: any) => void }) => (
+  <section className="overflow-hidden border border-foreground/10">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-foreground/10 p-5">
+      <SectionTitle icon={<Search size={20} />} title="CRM Leads" subtitle="Score, status, source, contact and follow-up." />
+    </div>
+    <div className="grid gap-3 p-3 md:hidden">
+      {leads.map((lead) => (
+        <div key={lead.id} className="border border-foreground/10 bg-muted/15 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold">{leadName(lead)}</p>
+              <p className="mt-1 text-sm text-foreground/55">{leadLocation(lead) || "Location not set"}</p>
+            </div>
+            <Score score={Number(lead.score || 0)} />
+          </div>
+          <div className="mt-3 grid gap-2 text-sm text-foreground/65">
+            <p><span className="font-semibold text-foreground">Interest:</span> {productLabels[leadProduct(lead) as keyof typeof productLabels] || leadProduct(lead)}</p>
+            <p><span className="font-semibold text-foreground">Source:</span> {sourceLabels[lead.source as keyof typeof sourceLabels] || lead.source || "-"}</p>
+            <p><span className="font-semibold text-foreground">Status:</span> {statusLabels[leadStatus(lead) as keyof typeof statusLabels] || leadStatus(lead)}</p>
+            <p><span className="font-semibold text-foreground">Follow-up:</span> {formatLeadDate(lead.nextFollowUpAt || lead.next_follow_up)}</p>
+          </div>
+          <div className="mt-3">
+            <ContactActions lead={lead} />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <button className="inline-flex items-center justify-center gap-2 border border-foreground/15 px-3 py-2 text-xs uppercase tracking-[0.12em] hover:border-primary hover:text-primary" type="button" onClick={() => onEdit(lead)}><Pencil size={14} /> Edit</button>
+            <button className="inline-flex items-center justify-center gap-2 border border-red-200 bg-red-50 px-3 py-2 text-xs uppercase tracking-[0.12em] text-red-700 hover:bg-red-100" type="button" onClick={() => onDelete(lead)}><Trash2 size={14} /> Delete</button>
+          </div>
+        </div>
+      ))}
+      {leads.length === 0 && <p className="p-6 text-center text-sm text-foreground/50">No leads saved yet.</p>}
+    </div>
+    <div className="hidden overflow-x-auto md:block">
+      <table className="w-full min-w-[980px] text-left text-sm">
+        <thead className="bg-primary/10 text-xs uppercase text-primary">
+          <tr>
+            <th className="p-3">Lead</th>
+            <th className="p-3">Contact</th>
+            <th className="p-3">Source</th>
+            <th className="p-3">Interest</th>
+            <th className="p-3">Score</th>
+            <th className="p-3">Status</th>
+            <th className="p-3">Quotation</th>
+            <th className="p-3">Follow-up</th>
+            <th className="p-3">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leads.map((lead) => (
+            <tr key={lead.id} className="border-t border-foreground/10">
+              <td className="p-3"><p className="font-semibold">{leadName(lead)}</p><p className="text-foreground/50">{leadLocation(lead)}</p></td>
+              <td className="p-3"><ContactActions lead={lead} /></td>
+              <td className="p-3">{sourceLabels[lead.source as keyof typeof sourceLabels] || lead.source || "-"}</td>
+              <td className="p-3">{productLabels[leadProduct(lead) as keyof typeof productLabels] || leadProduct(lead)}</td>
+              <td className="p-3"><Score score={Number(lead.score || 0)} /></td>
+              <td className="p-3">{statusLabels[leadStatus(lead) as keyof typeof statusLabels] || leadStatus(lead)}</td>
+              <td className="p-3">Rs {Number(lead.quotationAmount || 0).toLocaleString("en-IN")}</td>
+              <td className="p-3">{formatLeadDate(lead.nextFollowUpAt || lead.next_follow_up)}</td>
+              <td className="p-3">
+                <div className="flex gap-2">
+                  <button className="border border-foreground/15 px-3 py-2 text-xs hover:border-primary hover:text-primary" type="button" onClick={() => onEdit(lead)}><Pencil size={14} /></button>
+                  <button className="border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 hover:bg-red-100" type="button" onClick={() => onDelete(lead)}><Trash2 size={14} /></button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {leads.length === 0 && <tr><td colSpan={9} className="p-8 text-center text-foreground/50">No leads saved yet.</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
+
+const Metric = ({ title, value, icon }: { title: string; value: string | number; icon: React.ReactNode }) => (
+  <div className="border border-foreground/10 bg-muted/20 p-4">
+    <div className="mb-3 flex items-center justify-between"><p className="text-sm font-medium text-foreground/60">{title}</p><span className="text-primary">{icon}</span></div>
+    <p className="text-2xl font-bold sm:text-3xl">{value}</p>
+  </div>
+);
+
+const MiniStat = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="border border-foreground/10 bg-muted/20 p-3">
+    <p className="text-xs font-bold uppercase tracking-[0.12em] text-foreground/55">{label}</p>
+    <p className="mt-1 text-2xl font-bold">{value}</p>
+  </div>
+);
+
+const LeadField = ({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) => (
+  <label className={`grid gap-1 text-sm font-medium text-foreground ${wide ? "md:col-span-2 lg:col-span-4" : ""}`}>{label}{children}</label>
+);
+
+const SectionTitle = ({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) => (
+  <div>
+    <div className="flex items-center gap-2"><span className="text-primary">{icon}</span><h2 className="font-serif text-xl">{title}</h2></div>
+    {subtitle && <p className="mt-1 text-sm text-foreground/55">{subtitle}</p>}
+  </div>
+);
+
+const Score = ({ score }: { score: number }) => (
+  <span className="inline-flex rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">{score}</span>
+);
+
+const LeadFindingOverlay = ({ message }: { message: string }) => (
+  <div className="fixed inset-0 z-[120] grid place-items-center bg-black/45 px-4 backdrop-blur-sm">
+    <div className="w-full max-w-5xl overflow-hidden border border-primary/30 bg-background shadow-2xl">
+      <div className="border-b border-foreground/10 px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">Workflow Running</p>
+            <h2 className="mt-1 font-serif text-2xl sm:text-3xl">Collecting real client details...</h2>
+            <p className="mt-1 text-sm font-medium text-foreground/60">{message}</p>
+          </div>
+          <div className="rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+            Live Agent
+          </div>
+        </div>
+      </div>
+      <div className="relative overflow-hidden bg-muted/20 p-5 sm:p-6">
+        <div className="lead-workflow-track hidden sm:block" />
+        <div className="lead-workflow-runner hidden sm:block" />
+        <div className="relative grid gap-4 sm:grid-cols-4">
+          {[
+            ["Target", "Product + city", "Reading selected product, area and client type."],
+            ["Google Maps", "Public listing", "Finding matching public business listings."],
+            ["AI Score", "Fit + priority", "Checking relevance, duplicates and priority."],
+            ["CRM Save", "Ready to edit", "Saving clients and preparing WhatsApp report."],
+          ].map(([title, sub], index) => (
+            <div key={title} className="lead-workflow-step relative border border-foreground/10 bg-background p-4 text-center shadow-sm">
+              <span className="lead-step-node mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full border border-primary/30 bg-primary/10 text-sm font-bold text-primary">
+                <span className="lead-step-number">{index + 1}</span>
+                <span className="lead-step-check">✓</span>
+              </span>
+              <p className="text-sm font-semibold">{title}</p>
+              <p className="mt-1 text-xs text-foreground/50">{sub}</p>
+              <p className="mt-3 text-xs leading-5 text-foreground/55">{index === 0 ? "Reading selected product, area and client type." : index === 1 ? "Finding matching public business listings." : index === 2 ? "Checking relevance, duplicates and priority." : "Saving clients and preparing WhatsApp report."}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 border border-foreground/10 bg-background/70 p-4">
+          <div className="flex items-center gap-3">
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-primary shadow-[0_0_14px_hsl(var(--primary))]" />
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Automation log</p>
+          </div>
+          <div className="mt-3 grid gap-2 text-xs text-foreground/60 sm:grid-cols-2">
+            <p className="animate-pulse">Reading selected product and location...</p>
+            <p className="animate-pulse [animation-delay:0.5s]">Fetching public business listings...</p>
+            <p className="animate-pulse [animation-delay:1s]">Checking duplicate clients...</p>
+            <p className="animate-pulse [animation-delay:1.5s]">Saving client details below...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const ContactActions = ({ lead }: { lead: any }) => {
+  const phone = cleanLeadPhone(lead.whatsapp || lead.phone);
+  const email = String(lead.email || "").trim();
+  return (
+    <div className="flex flex-wrap gap-2">
+      {phone ? <><a className="border border-foreground/15 px-2 py-1 text-xs hover:border-primary hover:text-primary" href={`tel:${phone}`}>Call</a><a className="border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-800" href={`https://wa.me/${phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">WhatsApp</a></> : <span className="text-xs text-foreground/45">No phone</span>}
+      {email ? <a className="border border-foreground/15 px-2 py-1 text-xs hover:border-primary hover:text-primary" href={`mailto:${email}`}>Mail</a> : null}
+    </div>
+  );
+};
+
+const cleanLeadPhone = (phone?: string | null) => {
+  if (!phone) return "";
+  const trimmed = phone.trim();
+  if (trimmed.startsWith("+")) return trimmed;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length === 10 ? `+91${digits}` : trimmed;
+};
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const formatLeadDate = (value?: string | null) => value ? new Date(value).toLocaleDateString("en-IN") : "Not set";
+
+const summarizeLeads = (leads: any[]) => ({
+  total: leads.length,
+  hot: leads.filter((lead) => Number(lead.score || 0) >= 75).length,
+  pendingFollowUps: leads.filter((lead) => !["CONVERTED", "REJECTED", "OPTED_OUT"].includes(leadStatus(lead))).length,
+  converted: leads.filter((lead) => leadStatus(lead) === "CONVERTED").length,
+  revenue: leads.reduce((sum, lead) => sum + Number(lead.quotationAmount || 0), 0),
+  bySource: Object.entries(leads.reduce<Record<string, number>>((acc, lead) => {
+    const key = lead.source || "MANUAL";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {})),
+  byProduct: Object.entries(leads.reduce<Record<string, number>>((acc, lead) => {
+    const key = leadProduct(lead);
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {})),
+});
 
 // ============ HERO IMAGES (carousel) ============
 const HeroImagesAdmin = () => {

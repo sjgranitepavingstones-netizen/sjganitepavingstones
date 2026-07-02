@@ -1,6 +1,7 @@
 import { Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import sjLogo from "@/assets/sj-granite-paving-stone-logo.jpg";
+import { WHATSAPP_DISPLAY } from "@/lib/whatsapp";
 
 export const Footer = () => {
   const socialLinks = [
@@ -71,7 +72,7 @@ export const Footer = () => {
           <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-5 sm:tracking-[0.3em]">Contact</div>
           <ul className="space-y-3 text-sm text-secondary-foreground/80">
             <li>India</li>
-            <li>+91 82172 57354 (WhatsApp)</li>
+            <li>{WHATSAPP_DISPLAY} (WhatsApp)</li>
             <li>sjgranitepavingstones@gmail.com</li>
           </ul>
         </div>
