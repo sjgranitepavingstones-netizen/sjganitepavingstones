@@ -46,10 +46,10 @@ const INQUIRY_RECIPIENT_EMAIL = process.env.INQUIRY_RECIPIENT_EMAIL || "sjgranit
 const SMTP_FROM = process.env.SMTP_FROM || `SJ Granite Paving Stone <${INQUIRY_RECIPIENT_EMAIL}>`;
 const ALLOW_PASSWORD_RESET_LINK_RESPONSE = process.env.ALLOW_PASSWORD_RESET_LINK_RESPONSE === "true";
 const DEFAULT_ADMIN_EMAILS = ["sjgranitepavingstones@gmail.com"];
-const ADMIN_EMAILS = [...DEFAULT_ADMIN_EMAILS, ...(process.env.ADMIN_EMAILS || "")
+const ADMIN_EMAILS = [...new Set([...DEFAULT_ADMIN_EMAILS, ...(process.env.ADMIN_EMAILS || "")
   .split(",")
   .map((email) => email.trim().toLowerCase())
-  .filter(Boolean)];
+  .filter(Boolean)])];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -692,8 +692,13 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) return res.status(401).json({ error: "User not found." });
-    if (ADMIN_EMAILS.includes(String(user.email || "").toLowerCase()) && user.role !== "admin") {
+    const isConfiguredAdmin = ADMIN_EMAILS.includes(String(user.email || "").toLowerCase());
+    if (isConfiguredAdmin && user.role !== "admin") {
       user.role = "admin";
+      await user.save();
+    }
+    if (!isConfiguredAdmin && user.role === "admin") {
+      user.role = "user";
       await user.save();
     }
     req.user = user;
@@ -768,7 +773,7 @@ app.post("/api/auth/signup", asyncHandler(async (req, res) => {
   const exists = await User.findOne({ email: normalizedEmail });
   if (exists) return res.status(409).json({ error: "An account with this email already exists." });
   const userCount = await User.countDocuments();
-  const role = userCount === 0 || ADMIN_EMAILS.includes(normalizedEmail) ? "admin" : "user";
+  const role = ADMIN_EMAILS.includes(normalizedEmail) ? "admin" : "user";
   const user = await User.create({
     full_name: full_name.trim(),
     email: normalizedEmail,
@@ -805,8 +810,13 @@ app.post("/api/auth/login", asyncHandler(async (req, res) => {
   if (!(await bcrypt.compare(password || "", user.password_hash))) {
     return res.status(401).json({ error: "Email or password is not correct." });
   }
-  if (ADMIN_EMAILS.includes(normalizedEmail) && user.role !== "admin") {
+  const isConfiguredAdmin = ADMIN_EMAILS.includes(normalizedEmail);
+  if (isConfiguredAdmin && user.role !== "admin") {
     user.role = "admin";
+    await user.save();
+  }
+  if (!isConfiguredAdmin && user.role === "admin") {
+    user.role = "user";
     await user.save();
   }
   res.json({ token: signToken(user), user: user.toJSON() });
