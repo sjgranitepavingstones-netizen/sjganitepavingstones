@@ -70,7 +70,7 @@ export const Navbar = () => {
         <div className="hidden xl:flex items-center gap-2 shrink-0">
           {user ? (
             <>
-              {!loading && (
+              {!loading && isAdmin && (
                 <Link
                   to="/admin"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary/40 text-primary text-[10px] uppercase tracking-[0.22em] hover:bg-primary/10 transition-colors"
@@ -137,7 +137,7 @@ export const Navbar = () => {
           <li className="pt-2 border-t border-primary/10 flex flex-col gap-3">
             {user ? (
               <>
-                {!loading && (
+                {!loading && isAdmin && (
                   <Link to="/admin" onClick={() => setOpen(false)} className="text-xs uppercase tracking-[0.22em] text-primary inline-flex items-center gap-1.5">
                     <Shield className="h-3 w-3" /> Admin Panel
                   </Link>

@@ -1,5 +1,6 @@
 import {
   BrowserRouter,
+  Navigate,
   Route,
   Routes,
   useLocation,
@@ -16,7 +17,6 @@ import { RequireAdmin } from "@/components/RequireAdmin";
 import { FloatingContact } from "@/components/FloatingContact";
 
 import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
 import ProductsPage from "./pages/Products.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import CategoriesPage from "./pages/CategoriesPage.tsx";
@@ -169,10 +169,10 @@ const App = () => (
             }
           />
 
-          {/* 404 */}
+          {/* Old or removed URLs from Search Console go back to the live homepage. */}
           <Route
             path="*"
-            element={<NotFound />}
+            element={<Navigate to="/" replace />}
           />
         </Routes>
 
