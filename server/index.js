@@ -204,6 +204,52 @@ const LeadAgentProfile = mongoose.model("LeadAgentProfile", new mongoose.Schema(
   rawPayload: mongoose.Schema.Types.Mixed,
 }, commonOptions));
 
+const AdCampaign = mongoose.model("AdCampaign", new mongoose.Schema({
+  title: { type: String, required: true },
+  objective: { type: String, default: "LEAD_GENERATION" },
+  product: String,
+  city: String,
+  audience: String,
+  offer: String,
+  dailyBudget: Number,
+  durationDays: Number,
+  language: { type: String, default: "English" },
+  placements: { type: [String], default: ["Facebook Feed", "Instagram Reels"] },
+  aspectRatio: { type: String, default: "9:16" },
+  videoDuration: { type: Number, default: 20 },
+  image_urls: { type: [String], default: [] },
+  primaryText: String,
+  headline: String,
+  description: String,
+  callToAction: { type: String, default: "Get Quote" },
+  voiceScript: String,
+  voiceStyle: String,
+  storyboard: { type: [String], default: [] },
+  videoUrl: String,
+  landingUrl: String,
+  leadFormFields: { type: [String], default: ["name", "phone", "city", "requirement"] },
+  status: { type: String, default: "draft" },
+  metaCampaignId: String,
+  metaAdId: String,
+  notes: String,
+}, commonOptions));
+
+const AdLead = mongoose.model("AdLead", new mongoose.Schema({
+  campaign_id: { type: mongoose.Schema.Types.ObjectId, ref: "AdCampaign", default: null },
+  campaignTitle: String,
+  name: String,
+  phone: String,
+  whatsapp: String,
+  email: String,
+  city: String,
+  requirement: String,
+  budget: String,
+  source: { type: String, default: "AD_FORM" },
+  platform: { type: String, default: "facebook_instagram" },
+  status: { type: String, default: "new" },
+  rawPayload: mongoose.Schema.Types.Mixed,
+}, commonOptions));
+
 const HeroImage = mongoose.model("HeroImage", new mongoose.Schema({
   image_url: { type: String, required: true },
   caption: String,
@@ -238,6 +284,8 @@ const models = {
   reviews: Review,
   inquiries: Inquiry,
   lead_agent_profiles: LeadAgentProfile,
+  ad_campaigns: AdCampaign,
+  ad_leads: AdLead,
   hero_images: HeroImage,
   site_settings: SiteSetting,
 };
@@ -253,6 +301,8 @@ const tableConfig = {
   site_settings: { orderBy: "updated_at", public: true },
   inquiries: { orderBy: "created_at", public: false },
   lead_agent_profiles: { orderBy: "created_at", public: false },
+  ad_campaigns: { orderBy: "created_at", public: false },
+  ad_leads: { orderBy: "created_at", public: false },
 };
 
 const imageFieldsByTable = {
@@ -262,6 +312,7 @@ const imageFieldsByTable = {
   variant_images: ["image_url"],
   workflow_steps: ["image_url"],
   reviews: ["avatar_url"],
+  ad_campaigns: ["image_urls"],
   hero_images: ["image_url"],
   site_settings: ["owner_image_url"],
 };
@@ -497,6 +548,19 @@ const leadCustomerTypeLabels = {
   OTHER: "Other",
 };
 
+const leadBuyerIntentLabels = {
+  HOME_GARDEN: "Home garden and outdoor buyers",
+  DRIVEWAY_PARKING: "Driveway and parking buyers",
+  FARMHOUSE_VILLA: "Farmhouse and villa owners",
+  APARTMENT_COMMUNITY: "Apartment and community buyers",
+  RESORT_PROPERTY: "Resort and property maintenance buyers",
+  ACTIVE_PROJECTS: "Active construction project buyers",
+  NEW_CONSTRUCTION: "New building and villa projects",
+  LANDSCAPE_PROJECTS: "Landscape and garden projects",
+  HOTEL_RESORT: "Hotel, resort and farmhouse projects",
+  ARCHITECT_BUILDER: "Architect and builder purchase leads",
+};
+
 const normalizeLeadEnum = (value, fallback, allowed) => {
   const cleanValue = String(value || fallback).trim().toUpperCase();
   return allowed.includes(cleanValue) ? cleanValue : fallback;
@@ -505,9 +569,80 @@ const normalizeLeadEnum = (value, fallback, allowed) => {
 const buildLeadAgentQuery = (input) => {
   const product = (leadProductLabels[input.productInterest] || "paving stones").toLowerCase();
   const customer = (leadCustomerTypeLabels[input.customerType] || "contractor").toLowerCase();
+  const buyerIntent = normalizeLeadEnum(input.buyerIntent, "DRIVEWAY_PARKING", Object.keys(leadBuyerIntentLabels));
   const goal = clean(input.goal);
-  if (goal) return `${goal} ${product} ${customer}`;
-  return `${customer} construction building architecture landscape ${product}`;
+
+  if (input.customerType === "HOME_OWNER") {
+    const homeOwnerQuery = {
+      HOME_GARDEN: `villa community farmhouse garden outdoor renovation ${product}`,
+      DRIVEWAY_PARKING: `villa community apartment association parking driveway outdoor flooring ${product}`,
+      FARMHOUSE_VILLA: `farmhouse villa estate owners garden driveway outdoor stone requirement`,
+      APARTMENT_COMMUNITY: `apartment owners association resident welfare association gated community parking landscaping`,
+      RESORT_PROPERTY: `resort farmhouse homestay property maintenance garden parking outdoor stone`,
+      ACTIVE_PROJECTS: `apartment association villa community farmhouse property maintenance ${product}`,
+      NEW_CONSTRUCTION: `villa community farmhouse new home outdoor garden driveway ${product}`,
+      LANDSCAPE_PROJECTS: `villa garden farmhouse landscape outdoor paving requirement`,
+      HOTEL_RESORT: `resort farmhouse homestay garden parking outdoor stone requirement`,
+      ARCHITECT_BUILDER: `villa community apartment association farmhouse driveway ${product}`,
+    }[buyerIntent];
+
+    return `${homeOwnerQuery} real customer`;
+  }
+
+  if (goal) return `${goal} ${customer} buyer lead`;
+
+  const intentQuery = {
+    HOME_GARDEN: `villa garden farmhouse landscape outdoor ${product} requirement`,
+    DRIVEWAY_PARKING: `parking driveway outdoor flooring ${product} requirement`,
+    FARMHOUSE_VILLA: `farmhouse villa resort outdoor stone project`,
+    APARTMENT_COMMUNITY: `apartment association gated community parking landscaping ${product}`,
+    RESORT_PROPERTY: `resort hotel farmhouse property maintenance outdoor stone project`,
+    ACTIVE_PROJECTS: `architects landscape designers property managers ${product} project requirement`,
+    NEW_CONSTRUCTION: `villa home project architects driveway outdoor flooring`,
+    LANDSCAPE_PROJECTS: `landscape architects garden designers outdoor paving contractors villa garden`,
+    HOTEL_RESORT: `resort hotel farmhouse landscape contractors outdoor stone project`,
+    ARCHITECT_BUILDER: `architects builders real estate developers construction project contractors`,
+  }[buyerIntent];
+
+  return `${intentQuery} ${customer} buyers`;
+};
+
+const isLikelyWrongBuyerLead = (place, customerType = "") => {
+  const haystack = [
+    place.name,
+    place.location,
+    place.website,
+    place.sourceUrl,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  const isSellerOrFactory = [
+    /\bstone\s+(supplier|dealer|shop|store|trader|traders|wholesale|wholesaler|manufacturer|factory|exporter|merchant)\b/,
+    /\b(granite|marble|tiles?|blocks?|pavers?|cobble\s*stone|paving\s*stone)\s+(supplier|dealer|shop|store|trader|traders|wholesale|wholesaler|manufacturer|manufacturers|factory|exporter|merchant)\b/,
+    /\b(granite|marble|tiles?|blocks?|pavers?|cobble\s*stone|paving\s*stone)\b.{0,40}\b(supplier|dealer|shop|store|trader|traders|wholesale|wholesaler|manufacturer|manufacturers|factory|exporter|merchant)\b/,
+    /\b(factory|manufacturer|manufacturers|industrial supplier|building material supplier|hardware store)\b/,
+    /\bmarble\s+(and|&)\s+granite\b/,
+    /\btile\s+shop\b/,
+    /\bstone\s+mart\b/,
+  ].some((pattern) => pattern.test(haystack));
+
+  if (isSellerOrFactory) return true;
+
+  if (customerType === "HOME_OWNER") {
+    return [
+      /\bpavers?\b/,
+      /\btiles?\b/,
+      /\bgranite\b/,
+      /\bstones?\b/,
+      /\bmarble\b/,
+      /\bbuilders?\b/,
+      /\bconstruction\s+(company|companies|contractor|contractors)\b/,
+      /\binfratech\b/,
+      /\bdevelopers?\b/,
+      /\bcontractors?\b/,
+    ].some((pattern) => pattern.test(haystack));
+  }
+
+  return false;
 };
 
 const scoreLeadProfile = (lead) => {
@@ -535,57 +670,85 @@ const scoreLeadProfile = (lead) => {
   };
 };
 
-const findGoogleMapsLeads = async ({ query, city, limit }) => {
+const findGoogleMapsLeads = async ({ query, city, limit, customerType }) => {
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!key) {
     throw new Error("GOOGLE_MAPS_API_KEY is not configured. Add it in Vercel Environment Variables, then redeploy.");
   }
 
-  const searchResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": [
-        "places.id",
-        "places.displayName",
-        "places.formattedAddress",
-        "places.nationalPhoneNumber",
-        "places.internationalPhoneNumber",
-        "places.websiteUri",
-        "places.googleMapsUri",
-      ].join(","),
-    },
-    body: JSON.stringify({
-      textQuery: `${query} in ${city}`,
-      pageSize: Math.max(1, Math.min(Number(limit) || 5, 20)),
-      regionCode: "IN",
-    }),
-  });
+  const requestedLimit = Number(limit) || 5;
+  const queries = customerType === "HOME_OWNER"
+    ? [
+      query,
+      "apartment owners association resident welfare association parking maintenance",
+      "gated community villa association property manager parking garden",
+      "farmhouse resort homestay garden parking property maintenance",
+      "villa community estate association outdoor garden driveway",
+    ]
+    : [query];
+  const results = [];
+  const seen = new Set();
+  const maxCollected = customerType === "HOME_OWNER" ? requestedLimit * 4 : requestedLimit;
 
-  if (!searchResponse.ok) {
-    const errorText = await searchResponse.text();
-    let message = "Google Maps search failed.";
-    try {
-      const parsedError = JSON.parse(errorText);
-      message = parsedError.error?.message || message;
-    } catch {
-      if (errorText) message = errorText;
+  for (const searchQuery of queries) {
+    const searchResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": key,
+        "X-Goog-FieldMask": [
+          "places.id",
+          "places.displayName",
+          "places.formattedAddress",
+          "places.nationalPhoneNumber",
+          "places.internationalPhoneNumber",
+          "places.websiteUri",
+          "places.googleMapsUri",
+        ].join(","),
+      },
+      body: JSON.stringify({
+        textQuery: `${searchQuery} in ${city}`,
+        pageSize: Math.max(1, Math.min(requestedLimit * 3, 20)),
+        regionCode: "IN",
+      }),
+    });
+
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text();
+      let message = "Google Maps search failed.";
+      try {
+        const parsedError = JSON.parse(errorText);
+        message = parsedError.error?.message || message;
+      } catch {
+        if (errorText) message = errorText;
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
+
+    const searchData = await searchResponse.json();
+    const places = Array.isArray(searchData.places) ? searchData.places : [];
+    places.map((place) => ({
+      name: place.displayName?.text || "Unknown place",
+      location: place.formattedAddress || city,
+      city,
+      phone: place.internationalPhoneNumber || place.nationalPhoneNumber,
+      website: place.websiteUri,
+      sourceUrl: place.googleMapsUri,
+      rawPayload: place,
+    })).filter((place) => !isLikelyWrongBuyerLead(place, customerType)).forEach((place) => {
+      const keyValue = place.sourceUrl || `${place.name}-${place.location}`;
+      if (!seen.has(keyValue) && results.length < maxCollected) {
+        seen.add(keyValue);
+        results.push(place);
+      }
+    });
+
+    if (customerType !== "HOME_OWNER" && results.length >= requestedLimit) break;
   }
 
-  const searchData = await searchResponse.json();
-  const places = Array.isArray(searchData.places) ? searchData.places.slice(0, Number(limit) || 5) : [];
-  return places.map((place) => ({
-    name: place.displayName?.text || "Unknown place",
-    location: place.formattedAddress || city,
-    city,
-    phone: place.internationalPhoneNumber || place.nationalPhoneNumber,
-    website: place.websiteUri,
-    sourceUrl: place.googleMapsUri,
-    rawPayload: place,
-  }));
+  return results
+    .sort((a, b) => Number(Boolean(b.phone)) - Number(Boolean(a.phone)))
+    .slice(0, requestedLimit);
 };
 
 const buildOwnerAgentMessage = ({ city, product, customer, goal, importedCount, duplicateCount, hotLeads }) => [
@@ -942,6 +1105,58 @@ app.post("/api/inquiries", asyncHandler(async (req, res) => {
   res.status(201).json(doc.toJSON());
 }));
 
+app.post("/api/ad-leads", asyncHandler(async (req, res) => {
+  const payload = cleanPayload(req.body);
+  if (!payload.name || !payload.phone) {
+    return res.status(400).json({ error: "Name and phone are required." });
+  }
+
+  const campaign = payload.campaign_id && mongoose.Types.ObjectId.isValid(payload.campaign_id)
+    ? await AdCampaign.findById(payload.campaign_id)
+    : null;
+  const doc = await AdLead.create({
+    ...payload,
+    campaign_id: campaign?._id || null,
+    campaignTitle: payload.campaignTitle || campaign?.title,
+    whatsapp: payload.whatsapp || payload.phone,
+    source: payload.source || "AD_FORM",
+    platform: payload.platform || "facebook_instagram",
+    rawPayload: payload.rawPayload || payload,
+  });
+
+  await notifyAdminOnWhatsApp("ad lead", {
+    name: doc.name,
+    phone: doc.phone,
+    location: doc.city,
+    product_interest: campaign?.product || doc.requirement,
+    notes: `${doc.campaignTitle || "Ad campaign"} - ${doc.requirement || "No requirement note"}`,
+  }).catch((error) => {
+    console.error("Failed to send WhatsApp ad lead notification:", error);
+  });
+
+  res.status(201).json(doc.toJSON());
+}));
+
+app.get("/api/meta/lead-webhook", (req, res) => {
+  const verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
+  if (verifyToken && req.query["hub.verify_token"] === verifyToken) {
+    return res.send(req.query["hub.challenge"]);
+  }
+  res.status(403).send("Webhook verification failed");
+});
+
+app.post("/api/meta/lead-webhook", asyncHandler(async (req, res) => {
+  await AdLead.create({
+    name: "Facebook Lead",
+    phone: "",
+    source: "META_LEAD_WEBHOOK",
+    platform: "facebook_instagram",
+    status: "new",
+    rawPayload: req.body,
+  });
+  res.sendStatus(200);
+}));
+
 app.post("/api/reviews", auth, asyncHandler(async (req, res) => {
   const content = String(req.body.content || "").trim();
   if (content.length < 10 || content.length > 1000) {
@@ -1054,6 +1269,7 @@ app.post("/api/review-upload", auth, upload.single("image"), asyncHandler(async 
 const runLeadAgentWorkflow = async (input = {}) => {
   const productInterest = normalizeLeadEnum(input.productInterest, "PAVING_STONE", Object.keys(leadProductLabels));
   const customerType = normalizeLeadEnum(input.customerType, "CONTRACTOR", Object.keys(leadCustomerTypeLabels));
+  const buyerIntent = normalizeLeadEnum(input.buyerIntent, "DRIVEWAY_PARKING", Object.keys(leadBuyerIntentLabels));
   const city = clean(input.city) || "Bengaluru";
   const state = clean(input.state) || "Karnataka";
   const quantity = Math.max(1, Math.min(Number(input.quantity) || 5, 20));
@@ -1061,7 +1277,7 @@ const runLeadAgentWorkflow = async (input = {}) => {
   const notifyWhatsApp = input.notifyWhatsApp !== false;
   const query = buildLeadAgentQuery({ ...input, productInterest, customerType, city, state });
 
-  const places = await findGoogleMapsLeads({ query, city, limit: quantity });
+  const places = await findGoogleMapsLeads({ query, city, limit: quantity, customerType });
   const imported = [];
   const skippedDuplicates = [];
 
@@ -1096,8 +1312,9 @@ const runLeadAgentWorkflow = async (input = {}) => {
       product_interest: productInterest,
       customerType,
       client_type: customerType,
+      buyerIntent,
       projectType: "BOTH",
-      notes: `AI Agent search: ${clean(input.goal) || query}. Imported from Google Maps public listing. Verify before outreach.`,
+      notes: `AI Agent buyer search: ${clean(input.goal) || query}. Targeting ${leadBuyerIntentLabels[buyerIntent]}. Stone sellers/dealers are filtered where possible. Verify before outreach.`,
       rawPayload: place.rawPayload,
     };
     const scoring = scoreLeadProfile(leadBase);
@@ -1118,7 +1335,7 @@ const runLeadAgentWorkflow = async (input = {}) => {
   const ownerMessage = buildOwnerAgentMessage({
     city,
     product: leadProductLabels[productInterest],
-    customer: leadCustomerTypeLabels[customerType],
+    customer: `${leadCustomerTypeLabels[customerType]} / ${leadBuyerIntentLabels[buyerIntent]}`,
     goal: clean(input.goal) || query,
     importedCount: imported.length,
     duplicateCount: skippedDuplicates.length,
@@ -1165,7 +1382,8 @@ app.get("/api/admin/lead-agent/schedule", auth, adminOnly, asyncHandler(async (_
     state: "Karnataka",
     city: "Bengaluru",
     productInterest: "PAVING_STONE",
-    customerType: "CONTRACTOR",
+    customerType: "HOME_OWNER",
+    buyerIntent: "DRIVEWAY_PARKING",
     quantity: 5,
     minScore: 75,
   });
@@ -1178,7 +1396,8 @@ app.put("/api/admin/lead-agent/schedule", auth, adminOnly, asyncHandler(async (r
     state: clean(req.body.state) || "Karnataka",
     city: clean(req.body.city) || "Bengaluru",
     productInterest: normalizeLeadEnum(req.body.productInterest, "PAVING_STONE", Object.keys(leadProductLabels)),
-    customerType: normalizeLeadEnum(req.body.customerType, "CONTRACTOR", Object.keys(leadCustomerTypeLabels)),
+    customerType: normalizeLeadEnum(req.body.customerType, "HOME_OWNER", Object.keys(leadCustomerTypeLabels)),
+    buyerIntent: normalizeLeadEnum(req.body.buyerIntent, "DRIVEWAY_PARKING", Object.keys(leadBuyerIntentLabels)),
     quantity: Math.max(1, Math.min(Number(req.body.quantity) || 5, 20)),
     minScore: Math.max(1, Math.min(Number(req.body.minScore) || 75, 100)),
     lastRunDate: req.body.lastRunDate || null,

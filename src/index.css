@@ -85,12 +85,24 @@
 
 @layer base {
   * { @apply border-border; }
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "ss01", "cv01";
+    min-width: 320px;
+    overflow-x: hidden;
   }
+  #root { min-height: 100vh; }
   h1, h2, h3, h4, h5 { @apply font-serif tracking-tight; }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+  }
 }
 
 @layer utilities {

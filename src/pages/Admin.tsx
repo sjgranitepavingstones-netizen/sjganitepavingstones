@@ -643,6 +643,374 @@ const InquiriesAdmin = () => {
   );
 };
 
+// ============ AD STUDIO ============
+const adProducts = ["Granite paving stones", "Cobblestones", "Garden stone", "Stone benches", "Parking stone", "Floor stone"];
+const adAudiences = ["Home owners", "Villa owners", "Farmhouse owners", "Apartment associations", "Resorts and homestays", "Garden and parking buyers"];
+const adLanguages = {
+  English: {
+    locale: "en-IN",
+    headlineSuffix: "for Indian Homes",
+    script: (product: string, city: string, offer: string) => `Looking for premium ${product.toLowerCase()} in ${city}? SJ Granite Paving Stone, established in 2013, supplies and installs natural stone for gardens, driveways, parking areas, villas and farmhouses. Get ${offer.toLowerCase()} today. Tap the button and share your requirement.`,
+  },
+  Hindi: {
+    locale: "hi-IN",
+    headlineSuffix: "ghar aur garden ke liye",
+    script: (product: string, city: string, offer: string) => `${city} mein premium ${product.toLowerCase()} chahiye? SJ Granite Paving Stone 2013 se natural stone supply aur installation karta hai. Garden, driveway, parking aur farmhouse ke liye mazboot stone solution. ${offer}. Abhi form fill kijiye.`,
+  },
+  Kannada: {
+    locale: "kn-IN",
+    headlineSuffix: "home mattu garden ge",
+    script: (product: string, city: string, offer: string) => `${city} alli premium ${product.toLowerCase()} bekidya? SJ Granite Paving Stone 2013 inda garden, parking, driveway mattu farmhouse ge natural stone supply mattu installation madutte. ${offer}. Iga form fill madi.`,
+  },
+  Bengali: {
+    locale: "bn-IN",
+    headlineSuffix: "home, garden ar parking er jonno",
+    script: (product: string, city: string, offer: string) => `${city}-te premium ${product.toLowerCase()} lagbe? SJ Granite Paving Stone 2013 theke garden, driveway, parking, villa ar farmhouse-er jonno natural stone supply and installation kore. ${offer}. Ekhon form fill korun.`,
+  },
+  Tamil: {
+    locale: "ta-IN",
+    headlineSuffix: "home matrum garden ku",
+    script: (product: string, city: string, offer: string) => `${city} il premium ${product.toLowerCase()} venuma? SJ Granite Paving Stone 2013 mudhal garden, driveway, parking matrum farmhouse ku natural stone supply and installation seigirathu. ${offer}. Ippove form fill pannunga.`,
+  },
+  Telugu: {
+    locale: "te-IN",
+    headlineSuffix: "home mariyu garden kosam",
+    script: (product: string, city: string, offer: string) => `${city} lo premium ${product.toLowerCase()} kavala? SJ Granite Paving Stone 2013 nundi garden, driveway, parking mariyu farmhouse kosam natural stone supply and installation chestundi. ${offer}. Ippude form fill cheyandi.`,
+  },
+  Malayalam: {
+    locale: "ml-IN",
+    headlineSuffix: "home garden parking inu",
+    script: (product: string, city: string, offer: string) => `${city} il premium ${product.toLowerCase()} venamo? SJ Granite Paving Stone 2013 muthal garden, driveway, parking, farmhouse enivaykku natural stone supply and installation cheyyunnu. ${offer}. Ippol form fill cheyyuka.`,
+  },
+  Marathi: {
+    locale: "mr-IN",
+    headlineSuffix: "home garden parking sathi",
+    script: (product: string, city: string, offer: string) => `${city} madhye premium ${product.toLowerCase()} pahije ka? SJ Granite Paving Stone 2013 pasun garden, driveway, parking ani farmhouse sathi natural stone supply ani installation karte. ${offer}. Ata form fill kara.`,
+  },
+} as const;
+const adPlacements = ["Facebook Feed", "Facebook Reels", "Instagram Feed", "Instagram Reels", "Instagram Stories"];
+const adRatios = ["9:16", "1:1", "4:5", "16:9"];
+
+const buildAdPackage = (form: any) => {
+  const city = form.city || "Bengaluru";
+  const product = form.product || "Granite paving stones";
+  const audience = form.audience || "Home owners";
+  const offer = form.offer || "Free site consultation and quotation";
+  const language = (form.language || "English") as keyof typeof adLanguages;
+  const languagePack = adLanguages[language] || adLanguages.English;
+  const headline = `${product} ${languagePack.headlineSuffix}`;
+  const primaryText = [
+    `Upgrade your driveway, garden, parking area or outdoor space with premium natural ${product.toLowerCase()} from SJ Granite Paving Stone.`,
+    `${offer}. We manufacture, supply and install durable stone work for homes, villas, farmhouses and commercial outdoor spaces.`,
+    `Send your requirement today and our team will guide you with suitable sizes, colors and finish options.`,
+  ].join("\n\n");
+  const description = `Premium natural stone supply and installation in ${city}.`;
+  const voiceScript = languagePack.script(product, city, offer);
+  const storyboard = [
+    `0-3s: Show best ${product.toLowerCase()} photo with SJ Granite Paving Stone brand text.`,
+    "3-7s: Show driveway, garden or parking use-case with short benefit text.",
+    "7-12s: Show close-up stone texture, size/color options and installation quality.",
+    `12-17s: Show finished home, villa, farmhouse or parking project in ${city}.`,
+    "17-20s: Show call-to-action: Get free quotation. Form asks name, phone, city and requirement.",
+  ];
+
+  return {
+    headline,
+    primaryText,
+    description,
+    callToAction: "Get Quote",
+    voiceScript,
+    storyboard,
+    leadFormFields: ["Name", "Phone", "City", "Requirement", "Budget"],
+    recommendedAudience: `${audience} within 25-50 km of ${city}`,
+  };
+};
+
+const AdStudioAdmin = () => {
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [adLeads, setAdLeads] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    title: "Home garden and parking stone campaign",
+    product: "Granite paving stones",
+    city: "Bengaluru",
+    audience: "Home owners",
+    offer: "Free site consultation and quotation",
+    dailyBudget: 500,
+    durationDays: 7,
+    language: "English",
+    placements: ["Facebook Feed", "Instagram Reels"] as string[],
+    aspectRatio: "9:16",
+    videoDuration: 20,
+    image_urls: [] as string[],
+    status: "draft",
+  });
+  const generated = buildAdPackage(form);
+
+  const load = async () => {
+    const [campaignData, leadData] = await Promise.all([
+      adminApi.list("ad_campaigns", { orderBy: "created_at", desc: true }),
+      adminApi.list("ad_leads", { orderBy: "created_at", desc: true }),
+    ]);
+    setCampaigns(campaignData || []);
+    setAdLeads(leadData || []);
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const updateForm = (patch: Partial<typeof form>) => setForm((current) => ({ ...current, ...patch }));
+
+  const saveCampaign = async () => {
+    if (form.image_urls.length < 1) {
+      toast.error("Upload at least one ad image");
+      return;
+    }
+    setSaving(true);
+    try {
+      await adminApi.create("ad_campaigns", {
+        ...form,
+        ...generated,
+        dailyBudget: Number(form.dailyBudget || 0),
+        durationDays: Number(form.durationDays || 0),
+        landingUrl: `${window.location.origin}/contact?source=facebook-instagram-ad`,
+        voiceStyle: `${form.language} voice-over, warm and premium`,
+        status: "ready_to_publish",
+        notes: "Video and Meta publishing need connected video/TTS provider plus Facebook Page, Instagram account, Meta Pixel, Ad Account ID and access token.",
+      });
+      toast.success("Ad campaign package saved");
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Campaign save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const previewVoice = () => {
+    if (!("speechSynthesis" in window)) {
+      toast.error("Voice preview is not supported in this browser");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(generated.voiceScript);
+    utterance.lang = adLanguages[form.language as keyof typeof adLanguages]?.locale || "en-IN";
+    utterance.rate = 0.92;
+    utterance.pitch = 0.95;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const copyPackage = async () => {
+    const text = [
+      `Headline: ${generated.headline}`,
+      "",
+      "Primary text:",
+      generated.primaryText,
+      "",
+      `Description: ${generated.description}`,
+      `CTA: ${generated.callToAction}`,
+      "",
+      "Voice script:",
+      generated.voiceScript,
+      "",
+      "Video storyboard:",
+      ...generated.storyboard.map((step, index) => `${index + 1}. ${step}`),
+      "",
+      `Language: ${form.language}`,
+      `Placements: ${form.placements.join(", ")}`,
+      `Video format: ${form.aspectRatio}, ${form.videoDuration}s`,
+      `Audience: ${generated.recommendedAudience}`,
+      `Budget: Rs ${form.dailyBudget}/day for ${form.durationDays} days`,
+    ].join("\n");
+    await navigator.clipboard.writeText(text);
+    toast.success("Ad package copied");
+  };
+
+  return (
+    <div className="space-y-6">
+      <section className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="border border-foreground/10 bg-muted/20 p-4 sm:p-5">
+          <p className="mb-3 inline-flex border border-primary/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-primary">Ad Studio</p>
+          <h2 className="font-serif text-3xl leading-tight sm:text-4xl">Auto ad creator</h2>
+          <p className="mt-3 text-sm leading-7 text-foreground/65">
+            Upload product photos, choose target customer, then generate a ready Facebook and Instagram ad package with voice script and lead form setup.
+          </p>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <LeadField label="Campaign name" wide>
+              <input className={inputCls} value={form.title} onChange={(event) => updateForm({ title: event.target.value })} />
+            </LeadField>
+            <LeadField label="Product">
+              <select className={inputCls} value={form.product} onChange={(event) => updateForm({ product: event.target.value })}>
+                {adProducts.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </LeadField>
+            <LeadField label="City / area">
+              <input className={inputCls} value={form.city} onChange={(event) => updateForm({ city: event.target.value })} />
+            </LeadField>
+            <LeadField label="Audience">
+              <select className={inputCls} value={form.audience} onChange={(event) => updateForm({ audience: event.target.value })}>
+                {adAudiences.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </LeadField>
+            <LeadField label="Voice language">
+              <select className={inputCls} value={form.language} onChange={(event) => updateForm({ language: event.target.value })}>
+                {Object.keys(adLanguages).map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </LeadField>
+            <LeadField label="Video ratio">
+              <select className={inputCls} value={form.aspectRatio} onChange={(event) => updateForm({ aspectRatio: event.target.value })}>
+                {adRatios.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </LeadField>
+            <LeadField label="Video seconds">
+              <select className={inputCls} value={form.videoDuration} onChange={(event) => updateForm({ videoDuration: Number(event.target.value) })}>
+                {[15, 20, 30, 45].map((item) => <option key={item} value={item}>{item}s</option>)}
+              </select>
+            </LeadField>
+            <LeadField label="Offer" wide>
+              <input className={inputCls} value={form.offer} onChange={(event) => updateForm({ offer: event.target.value })} />
+            </LeadField>
+            <LeadField label="Daily budget">
+              <input type="number" min={100} className={inputCls} value={form.dailyBudget} onChange={(event) => updateForm({ dailyBudget: Number(event.target.value) })} />
+            </LeadField>
+            <LeadField label="Duration days">
+              <input type="number" min={1} className={inputCls} value={form.durationDays} onChange={(event) => updateForm({ durationDays: Number(event.target.value) })} />
+            </LeadField>
+            <LeadField label="Facebook / Instagram placement" wide>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {adPlacements.map((placement) => (
+                  <label key={placement} className="flex items-center gap-2 border border-foreground/10 px-3 py-2 text-xs text-foreground/70">
+                    <input
+                      type="checkbox"
+                      checked={form.placements.includes(placement)}
+                      onChange={(event) => updateForm({
+                        placements: event.target.checked
+                          ? [...form.placements, placement]
+                          : form.placements.filter((item) => item !== placement),
+                      })}
+                    />
+                    {placement}
+                  </label>
+                ))}
+              </div>
+            </LeadField>
+          </div>
+
+          <div className="mt-5">
+            <MultiImageUploader
+              label="Ad images: upload 5-7 product photos"
+              values={form.image_urls}
+              onChange={(urls) => updateForm({ image_urls: urls })}
+            />
+          </div>
+        </div>
+
+        <div className="border border-foreground/10 bg-background p-4 sm:p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Generated ad</p>
+          <div className="mt-4 space-y-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-foreground/45">Headline</p>
+              <h3 className="mt-1 font-serif text-2xl">{generated.headline}</h3>
+            </div>
+            <textarea className={`${inputCls} min-h-44`} value={generated.primaryText} readOnly />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="border border-foreground/10 p-3">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-foreground/45">Description</p>
+                <p className="mt-1 text-sm">{generated.description}</p>
+              </div>
+              <div className="border border-foreground/10 p-3">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-foreground/45">Audience</p>
+                <p className="mt-1 text-sm">{generated.recommendedAudience}</p>
+              </div>
+            </div>
+            <div className="border border-primary/20 bg-primary/5 p-3">
+              <p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Mic2 size={14} /> Voice script</p>
+              <p className="text-sm leading-7 text-foreground/70">{generated.voiceScript}</p>
+            </div>
+            <div className="border border-foreground/10 p-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">Video storyboard</p>
+              <ol className="space-y-2 text-sm leading-6 text-foreground/65">
+                {generated.storyboard.map((step, index) => <li key={step}>{index + 1}. {step}</li>)}
+              </ol>
+              <p className="mt-3 text-xs text-foreground/50">{form.aspectRatio} video - {form.videoDuration}s - {form.language} voice-over - {form.placements.join(", ")}</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <button type="button" onClick={previewVoice} className="inline-flex items-center justify-center gap-2 border border-foreground/15 px-4 py-3 text-xs uppercase tracking-[0.14em] hover:border-primary hover:text-primary">
+                <PlayCircle size={15} /> Voice
+              </button>
+              <button type="button" onClick={copyPackage} className="inline-flex items-center justify-center gap-2 border border-foreground/15 px-4 py-3 text-xs uppercase tracking-[0.14em] hover:border-primary hover:text-primary">
+                <Copy size={15} /> Copy
+              </button>
+              <button type="button" onClick={saveCampaign} disabled={saving} className="inline-flex items-center justify-center gap-2 bg-gold-gradient px-4 py-3 text-xs uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-60">
+                <Save size={15} /> {saving ? "Saving" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="border border-foreground/10 bg-background p-4 sm:p-5">
+          <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"><Megaphone size={15} /> Campaigns</p>
+          <div className="space-y-3">
+            {campaigns.length === 0 && <p className="text-sm text-foreground/50">No ad campaign saved yet.</p>}
+            {campaigns.map((campaign) => (
+              <div key={campaign.id} className="border border-foreground/10 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium">{campaign.title}</p>
+                    <p className="mt-1 text-xs text-foreground/45">{campaign.language || "English"} - {campaign.aspectRatio || "9:16"} - {campaign.videoDuration || 20}s</p>
+                    <p className="mt-1 text-xs text-foreground/55">{campaign.product} · {campaign.city} · Rs {campaign.dailyBudget || 0}/day</p>
+                  </div>
+                  <span className="border border-primary/20 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-primary">{campaign.status || "draft"}</span>
+                </div>
+                <div className="mt-3 flex gap-2 overflow-x-auto">
+                  {cleanImageUrls(campaign.image_urls).slice(0, 7).map((url) => (
+                    <img key={url} src={imageSrc(url)} onError={imageFallback} className="h-14 w-14 shrink-0 object-cover" />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border border-foreground/10 bg-background p-4 sm:p-5">
+          <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"><MousePointerClick size={15} /> Ad leads</p>
+          <div className="overflow-x-auto border border-foreground/10">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className="bg-muted/40 text-left text-[10px] uppercase tracking-[0.16em] text-foreground/50">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Phone</th>
+                  <th className="p-3">City</th>
+                  <th className="p-3">Requirement</th>
+                  <th className="p-3">Campaign</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adLeads.map((lead) => (
+                  <tr key={lead.id} className="border-t border-foreground/10">
+                    <td className="p-3 font-medium">{lead.name || "Facebook Lead"}</td>
+                    <td className="p-3">{lead.phone || lead.whatsapp || "-"}</td>
+                    <td className="p-3 text-foreground/65">{lead.city || "-"}</td>
+                    <td className="p-3 text-foreground/65">{lead.requirement || "-"}</td>
+                    <td className="p-3 text-foreground/65">{lead.campaignTitle || lead.platform || "-"}</td>
+                  </tr>
+                ))}
+                {adLeads.length === 0 && (
+                  <tr><td colSpan={5} className="p-8 text-center text-foreground/50">No ad leads yet. Leads from Facebook/Instagram form can be sent to /api/ad-leads or /api/meta/lead-webhook.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
 // ============ STONELEAD AI COMMAND CENTER ============
 const productLabels = {
   PAVING_STONE: "Paving stones",
@@ -666,6 +1034,19 @@ const customerTypeLabels = {
   GARDEN_DESIGNER: "Garden designer",
   TILE_STONE_DEALER: "Tile / stone dealer",
   OTHER: "Other",
+} as const;
+
+const buyerIntentLabels = {
+  HOME_GARDEN: "Home garden and outdoor buyers",
+  DRIVEWAY_PARKING: "Driveway and parking buyers",
+  FARMHOUSE_VILLA: "Farmhouse and villa owners",
+  APARTMENT_COMMUNITY: "Apartment and community buyers",
+  RESORT_PROPERTY: "Resort and property maintenance buyers",
+  ACTIVE_PROJECTS: "Active project buyers",
+  NEW_CONSTRUCTION: "New villa and home projects",
+  LANDSCAPE_PROJECTS: "Landscape and garden projects",
+  HOTEL_RESORT: "Hotel, resort and farmhouse projects",
+  ARCHITECT_BUILDER: "Architect and builder purchase leads",
 } as const;
 
 const sourceLabels = {
@@ -727,7 +1108,8 @@ const LeadAgentAdmin = () => {
     state: "Karnataka",
     city: "Bengaluru",
     productInterest: "PAVING_STONE",
-    customerType: "CONTRACTOR",
+    customerType: "HOME_OWNER",
+    buyerIntent: "DRIVEWAY_PARKING",
     quantity: 5,
     minScore: 75,
   });
@@ -737,7 +1119,8 @@ const LeadAgentAdmin = () => {
     state: "Karnataka",
     city: "Bengaluru",
     productInterest: "PAVING_STONE",
-    customerType: "CONTRACTOR",
+    customerType: "HOME_OWNER",
+    buyerIntent: "DRIVEWAY_PARKING",
     quantity: 5,
     minScore: 75,
   });
@@ -822,6 +1205,7 @@ const LeadAgentAdmin = () => {
     goal,
     productInterest,
     customerType,
+    buyerIntent,
     quantity,
     minScore,
     city = "Bengaluru",
@@ -830,6 +1214,7 @@ const LeadAgentAdmin = () => {
     goal: string;
     productInterest: string;
     customerType: string;
+    buyerIntent?: string;
     quantity: number;
     minScore: number;
     city?: string;
@@ -849,6 +1234,7 @@ const LeadAgentAdmin = () => {
           state,
           productInterest,
           customerType,
+          buyerIntent,
           quantity,
           minScore,
           notifyWhatsApp: true,
@@ -918,6 +1304,11 @@ const LeadAgentAdmin = () => {
                   {Object.entries(customerTypeLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
               </LeadField>
+              <LeadField label="Real client need">
+                <select className={inputCls} value={leadTarget.buyerIntent} onChange={(event) => updateLeadTarget({ buyerIntent: event.target.value })}>
+                  {Object.entries(buyerIntentLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </LeadField>
               <LeadField label="How many clients">
                 <select className={inputCls} value={leadTarget.quantity} onChange={(event) => updateLeadTarget({ quantity: Number(event.target.value) })}>
                   {[3, 5, 8, 10, 15, 20].map((count) => <option key={count} value={count}>{count} clients</option>)}
@@ -933,7 +1324,7 @@ const LeadAgentAdmin = () => {
               type="button"
               disabled={collecting}
               onClick={() => collectLeads({
-                goal: `Find real ${selectedProductLabel} buyers from ${customerTypeLabels[leadTarget.customerType as keyof typeof customerTypeLabels]} in ${leadTarget.city}, ${leadTarget.state}`,
+                goal: `Find real ${selectedProductLabel} buyers who may need stone work, targeting ${buyerIntentLabels[leadTarget.buyerIntent as keyof typeof buyerIntentLabels]} in ${leadTarget.city}, ${leadTarget.state}`,
                 ...leadTarget,
               })}
               className="mt-5 inline-flex w-full items-center justify-center gap-2 bg-gold-gradient px-5 py-3 text-xs uppercase tracking-[0.16em] text-primary-foreground disabled:opacity-60 sm:w-auto sm:tracking-[0.18em]"
@@ -974,6 +1365,11 @@ const LeadAgentAdmin = () => {
                   {Object.entries(productLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
               </LeadField>
+              <LeadField label="Real client need">
+                <select className={inputCls} value={schedule.buyerIntent || "DRIVEWAY_PARKING"} onChange={(event) => updateSchedule({ buyerIntent: event.target.value })}>
+                  {Object.entries(buyerIntentLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </LeadField>
               <LeadField label="Clients">
                 <select className={inputCls} value={schedule.quantity || 5} onChange={(event) => updateSchedule({ quantity: Number(event.target.value) })}>
                   {[3, 5, 8, 10, 15, 20].map((count) => <option key={count} value={count}>{count} clients</option>)}
@@ -1001,6 +1397,11 @@ const LeadAgentAdmin = () => {
         <section className="border border-foreground/10 bg-background p-4 sm:p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Agent output</p>
           <div className="mt-4 grid gap-3">
+            {agentResult.query && (
+              <div className="border border-foreground/10 bg-muted/20 p-3 text-xs leading-5 text-foreground/60">
+                <span className="font-bold uppercase tracking-[0.12em] text-primary">Buyer search:</span> {agentResult.query}
+              </div>
+            )}
             <textarea className={inputCls + " min-h-32"} value={agentResult.ownerMessage} readOnly />
             <a className="inline-flex w-full justify-center border border-foreground/15 px-4 py-3 text-xs uppercase tracking-[0.16em] hover:border-primary hover:text-primary sm:w-fit" href={agentResult.waUrl} target="_blank" rel="noreferrer">
               Open WhatsApp alert
