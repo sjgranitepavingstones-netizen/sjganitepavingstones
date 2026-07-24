@@ -8,8 +8,8 @@ export default defineConfig(() => ({
     host: "::",
     port: 8080,
     proxy: {
-      "/api": "http://localhost:5000",
-      "/uploads": "http://localhost:5000",
+      "/api": "http://localhost:5050",
+      "/uploads": "http://localhost:5050",
     },
     hmr: {
       overlay: false,
