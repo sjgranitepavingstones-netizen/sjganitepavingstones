@@ -19,6 +19,7 @@ Ei project ta ekhon React.js frontend, Node.js + Express.js backend, aar MongoDB
 src/                 React frontend
 src/lib/api.ts       Frontend theke backend API call korar helper
 server/index.js      Express + MongoDB backend
+server/db.js         Single cached MongoDB/Mongoose connection
 uploads/             Admin panel theke upload kora image ekhane save hobe
 .env                 Local environment settings
 ```
@@ -42,6 +43,8 @@ npm install
 ```env
 VITE_API_URL="/api"
 MONGODB_URI="mongodb://127.0.0.1:27017/granite-paving-stone"
+MONGODB_MAX_POOL_SIZE="5"
+MONGODB_MIN_POOL_SIZE="0"
 PORT="5000"
 CLIENT_URL="http://localhost:8080"
 JWT_SECRET="replace-this-with-a-long-random-secret"
@@ -57,14 +60,14 @@ MongoDB Atlas use korle `MONGODB_URI` value ta Atlas connection string diye repl
 Frontend aar backend ek shathe run:
 
 ```bash
-npm run dev:full
+npm run dev
 ```
 
 Alada kore run korte chaile:
 
 ```bash
 npm run server
-npm run dev
+npm run dev:client
 ```
 
 Frontend usually ekhane open hobe:
@@ -87,7 +90,7 @@ Admin panel:
 /admin
 ```
 
-Prothom je user signup korbe, she automatic admin hobe. Chaile `.env` file-er `ADMIN_EMAILS` e email diye age theke admin set korte paren:
+Admin access `.env` file-er `ADMIN_EMAILS` e email diye set korte paren:
 
 ```env
 ADMIN_EMAILS="your@email.com,another@email.com"
@@ -133,3 +136,4 @@ npm run build
 ## Note
 
 Project ekhon MongoDB backend-er shathe `src/lib/api.ts` diye kaj kore. Old Supabase leftover remove kora hoyeche.
+MongoDB connection `server/db.js` theke single cached Mongoose connection hisebe manage hoy, Atlas M0 free tier-er jonno small connection pool use kore.

@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import sharp from "sharp";
@@ -10,16 +9,15 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-import dns from "dns";
 import { del, put } from "@vercel/blob";
 import { fileURLToPath } from "url";
+import { closeDatabase, connectDatabase, getDatabaseState, isDatabaseConnected, mongoose } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const uploadsDir = process.env.VERCEL === "1" ? "/tmp/uploads" : path.join(rootDir, "uploads");
 
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
 fs.mkdirSync(uploadsDir, { recursive: true });
 
 const app = express();
@@ -98,7 +96,9 @@ const commonOptions = {
   },
 };
 
-const User = mongoose.model("User", new mongoose.Schema({
+const defineModel = (name, schema) => mongoose.models[name] || mongoose.model(name, schema);
+
+const User = defineModel("User", new mongoose.Schema({
   full_name: String,
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password_hash: { type: String, required: true },
@@ -108,7 +108,7 @@ const User = mongoose.model("User", new mongoose.Schema({
   reset_token_expires_at: Date,
 }, commonOptions));
 
-const Category = mongoose.model("Category", new mongoose.Schema({
+const Category = defineModel("Category", new mongoose.Schema({
   slug: { type: String, required: true, unique: true, trim: true },
   name: { type: String, required: true },
   description: String,
@@ -116,7 +116,7 @@ const Category = mongoose.model("Category", new mongoose.Schema({
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
-const Product = mongoose.model("Product", new mongoose.Schema({
+const Product = defineModel("Product", new mongoose.Schema({
   category_id: { type: mongoose.Schema.Types.ObjectId, ref: "Category", default: null },
   slug: { type: String, required: true, unique: true, trim: true },
   name: { type: String, required: true },
@@ -126,7 +126,7 @@ const Product = mongoose.model("Product", new mongoose.Schema({
   featured: { type: Boolean, default: false },
 }, commonOptions));
 
-const ProductVariant = mongoose.model("ProductVariant", new mongoose.Schema({
+const ProductVariant = defineModel("ProductVariant", new mongoose.Schema({
   product_id: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
   name: { type: String, required: true },
   color: String,
@@ -136,13 +136,13 @@ const ProductVariant = mongoose.model("ProductVariant", new mongoose.Schema({
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
-const VariantImage = mongoose.model("VariantImage", new mongoose.Schema({
+const VariantImage = defineModel("VariantImage", new mongoose.Schema({
   variant_id: { type: mongoose.Schema.Types.ObjectId, ref: "ProductVariant", required: true },
   image_url: { type: String, required: true },
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
-const WorkflowStep = mongoose.model("WorkflowStep", new mongoose.Schema({
+const WorkflowStep = defineModel("WorkflowStep", new mongoose.Schema({
   step_number: { type: Number, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -150,7 +150,7 @@ const WorkflowStep = mongoose.model("WorkflowStep", new mongoose.Schema({
   duration_label: String,
 }, commonOptions));
 
-const Review = mongoose.model("Review", new mongoose.Schema({
+const Review = defineModel("Review", new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   author_name: { type: String, required: true },
   author_email: String,
@@ -161,7 +161,7 @@ const Review = mongoose.model("Review", new mongoose.Schema({
   featured: { type: Boolean, default: true },
 }, commonOptions));
 
-const Inquiry = mongoose.model("Inquiry", new mongoose.Schema({
+const Inquiry = defineModel("Inquiry", new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   phone: String,
@@ -171,7 +171,7 @@ const Inquiry = mongoose.model("Inquiry", new mongoose.Schema({
   status: { type: String, default: "new" },
 }, commonOptions));
 
-const LeadAgentProfile = mongoose.model("LeadAgentProfile", new mongoose.Schema({
+const LeadAgentProfile = defineModel("LeadAgentProfile", new mongoose.Schema({
   name: String,
   companyName: String,
   business_name: { type: String, required: true },
@@ -204,7 +204,7 @@ const LeadAgentProfile = mongoose.model("LeadAgentProfile", new mongoose.Schema(
   rawPayload: mongoose.Schema.Types.Mixed,
 }, commonOptions));
 
-const AdCampaign = mongoose.model("AdCampaign", new mongoose.Schema({
+const AdCampaign = defineModel("AdCampaign", new mongoose.Schema({
   title: { type: String, required: true },
   objective: { type: String, default: "LEAD_GENERATION" },
   product: String,
@@ -234,7 +234,7 @@ const AdCampaign = mongoose.model("AdCampaign", new mongoose.Schema({
   notes: String,
 }, commonOptions));
 
-const AdLead = mongoose.model("AdLead", new mongoose.Schema({
+const AdLead = defineModel("AdLead", new mongoose.Schema({
   campaign_id: { type: mongoose.Schema.Types.ObjectId, ref: "AdCampaign", default: null },
   campaignTitle: String,
   name: String,
@@ -250,13 +250,13 @@ const AdLead = mongoose.model("AdLead", new mongoose.Schema({
   rawPayload: mongoose.Schema.Types.Mixed,
 }, commonOptions));
 
-const HeroImage = mongoose.model("HeroImage", new mongoose.Schema({
+const HeroImage = defineModel("HeroImage", new mongoose.Schema({
   image_url: { type: String, required: true },
   caption: String,
   sort_order: { type: Number, default: 0 },
 }, commonOptions));
 
-const SiteSetting = mongoose.model("SiteSetting", new mongoose.Schema({
+const SiteSetting = defineModel("SiteSetting", new mongoose.Schema({
   _id: { type: String, default: "main" },
   map_latitude: Number,
   map_longitude: Number,
@@ -878,50 +878,22 @@ const adminOnly = (req, res, next) => {
 
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-let databaseConnectionPromise = null;
-
-const connectDatabase = async () => {
-  if (mongoose.connection.readyState === 1) return true;
-  if (databaseConnectionPromise) return databaseConnectionPromise;
-
-  databaseConnectionPromise = mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/granite-paving-stone", {
-    family: 4,
-    serverSelectionTimeoutMS: 15000,
-  })
-    .then(async () => {
-      await SiteSetting.findByIdAndUpdate("main", {
-        $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
-      }, { upsert: true });
-      console.log("MongoDB connected");
-      return true;
-    })
-    .catch((error) => {
-      console.error("MongoDB connection failed:", error?.message || error);
-      throw error;
-    })
-    .finally(() => {
-      databaseConnectionPromise = null;
-    });
-
-  return databaseConnectionPromise;
-};
-
 app.get("/api/health", asyncHandler(async (_req, res) => {
-  if (mongoose.connection.readyState !== 1) {
-    await connectDatabase().catch(() => false);
-  }
-  res.json({ ok: true, database: mongoose.connection.readyState === 1 });
+  const database = getDatabaseState();
+  res.json({ ok: true, database: database.connected, databaseState: database.readyStateName });
 }));
 
 app.use("/api", asyncHandler(async (req, res, next) => {
   if (req.path === "/health") return next();
-  if (mongoose.connection.readyState !== 1) {
+  if (!isDatabaseConnected()) {
     await connectDatabase().catch(() => false);
   }
-  if (mongoose.connection.readyState !== 1) {
+  if (!isDatabaseConnected()) {
+    const database = getDatabaseState();
     return res.status(503).json({
       code: "DATABASE_UNAVAILABLE",
-      error: "Database is not connected. Please check MongoDB Atlas Network Access and try again.",
+      error: "Database is temporarily unavailable. Please try again shortly.",
+      databaseState: database.readyStateName,
     });
   }
   next();
@@ -1483,7 +1455,7 @@ const getIndiaScheduleNow = () => {
 };
 
 const checkLeadAgentSchedule = async () => {
-  if (mongoose.connection.readyState !== 1) return;
+  if (!isDatabaseConnected()) return;
   const settings = await SiteSetting.findById("main");
   const schedule = settings?.lead_agent_schedule;
   if (!schedule?.enabled) return;
@@ -1511,8 +1483,8 @@ app.get("/api/cron/lead-agent", asyncHandler(async (req, res) => {
   if (secret && req.headers.authorization !== `Bearer ${secret}`) {
     return res.status(401).json({ error: "Unauthorized cron request." });
   }
-  if (mongoose.connection.readyState !== 1) {
-    await connectDatabase().catch(() => false);
+  if (!isDatabaseConnected()) {
+    await connectDatabase({ force: true }).catch(() => false);
   }
   await checkLeadAgentSchedule();
   res.json({ ok: true });
@@ -1525,17 +1497,54 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err?.message || "Something went wrong." });
 });
 
-const databaseReady = connectDatabase().catch(() => false);
+let databaseInitializationPromise = null;
+
+const initializeDatabase = async () => {
+  if (databaseInitializationPromise) return databaseInitializationPromise;
+
+  databaseInitializationPromise = connectDatabase({ force: true })
+    .then(async () => {
+      await SiteSetting.findByIdAndUpdate("main", {
+        $setOnInsert: { map_latitude: 12.9716, map_longitude: 77.5946, map_zoom: 14 },
+      }, { upsert: true });
+      return true;
+    })
+    .catch((error) => {
+      console.error("Database startup initialization failed:", error?.message || error);
+      return false;
+    });
+
+  return databaseInitializationPromise;
+};
+
+const databaseReady = initializeDatabase();
 
 if (process.env.VERCEL !== "1") {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
   });
-  setInterval(() => {
+
+  const leadAgentInterval = setInterval(() => {
     checkLeadAgentSchedule().catch((error) => {
       console.error("Lead agent schedule check failed:", error?.message || error);
     });
   }, 60 * 1000);
+
+  leadAgentInterval.unref?.();
+
+  const shutdown = async (signal) => {
+    console.log(`${signal} received. Closing API server and MongoDB connection.`);
+    clearInterval(leadAgentInterval);
+    server.close(async () => {
+      await closeDatabase().catch((error) => {
+        console.error("MongoDB shutdown failed:", error?.message || error);
+      });
+      process.exit(0);
+    });
+  };
+
+  process.once("SIGINT", () => { void shutdown("SIGINT"); });
+  process.once("SIGTERM", () => { void shutdown("SIGTERM"); });
 }
 
 export { app, databaseReady };
