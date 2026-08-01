@@ -32,10 +32,10 @@ export const Navbar = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-500",
+        "fixed top-0 inset-x-0 z-50 border-b border-primary/20 bg-secondary shadow-deep transition-[padding] duration-300",
         scrolled
-          ? "bg-secondary/95 backdrop-blur-xl border-b border-primary/10 py-2.5"
-          : "bg-secondary/40 backdrop-blur-sm py-3.5"
+          ? "py-2.5"
+          : "py-3.5"
       )}
     >
       <nav className="container flex items-center justify-between gap-3 xl:gap-5">

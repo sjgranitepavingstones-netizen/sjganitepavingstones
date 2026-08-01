@@ -1728,7 +1728,7 @@ const HeroImagesAdmin = () => {
     <div>
       <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
         <p className="text-xs text-foreground/60">
-          Recommended: 5-6 images for the homepage carousel ({items.length} added)
+          Recommended: 5-6 images. Mobile-safe size: 1600 x 1280 px. Desktop photo size: 1920 x 1080 px. Avoid white borders; keep important details centered ({items.length} added)
         </p>
         <div className="flex flex-wrap gap-2">
           <input
@@ -1761,7 +1761,7 @@ const HeroImagesAdmin = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((h) => (
           <div key={h.id} className="border border-foreground/10 group relative">
-            <img src={imageSrc(h.image_url)} onError={imageFallback} className="aspect-[16/9] w-full object-cover" />
+            <img src={imageSrc(h.image_url)} onError={imageFallback} className="aspect-[5/4] w-full bg-secondary object-contain sm:aspect-[16/9]" />
             <div className="p-3 text-xs">
               <div className="font-medium truncate">#{h.sort_order} {h.caption || "(no caption)"}</div>
             </div>

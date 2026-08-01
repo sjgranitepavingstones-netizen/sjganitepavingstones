@@ -5,8 +5,6 @@ import chairImg from "@/assets/product-chair.jpg";
 import cobblestoneImg from "@/assets/product-cobblestone.jpg";
 import flooringImg from "@/assets/product-flooring.jpg";
 import parkingImg from "@/assets/product-parking.jpg";
-import { ArrowRight, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
 import { publicApi } from "@/lib/api";
 
 type Slide = { id: string; image_url: string; caption: string | null };
@@ -20,6 +18,8 @@ const defaultSlides: Slide[] = [
   { id: "default-cobblestone", image_url: cobblestoneImg, caption: "Cobblestone pavers for landscape pathways" },
 ];
 
+const SLIDE_DURATION_MS = 7000;
+
 export const Hero = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [idx, setIdx] = useState(0);
@@ -32,93 +32,44 @@ export const Hero = () => {
 
   useEffect(() => {
     if (items.length < 2) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % items.length), 2500);
+    const t = setInterval(() => setIdx((i) => (i + 1) % items.length), SLIDE_DURATION_MS);
     return () => clearInterval(t);
   }, [items.length]);
 
   return (
-    <section id="home" className="relative min-h-[720px] w-full overflow-hidden bg-secondary sm:min-h-screen">
-      <div className="absolute inset-0">
+    <section
+      id="home"
+      className="relative mt-[68px] w-full overflow-hidden bg-secondary px-0 pb-12 pt-3 sm:mt-[76px] md:h-[calc(100vh-76px)] md:min-h-[620px] md:pb-0 md:pt-0"
+    >
+      <div className="relative mx-auto aspect-[5/4] w-full max-w-[680px] overflow-hidden bg-black shadow-deep md:absolute md:inset-x-0 md:bottom-0 md:top-8 md:aspect-auto md:max-w-none md:shadow-none">
         {items.map((s, i) => (
-          <img
+          <div
             key={s.id}
-            src={s.image_url}
-            alt={s.caption || "Granite paving stone and floor stone showcase in Bangalore"}
-            width={1920}
-            height={1088}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity [transition-duration:2000ms] ease-in-out ${i === idx ? "opacity-100 animate-ken-burns" : "opacity-0"}`}
-          />
+            className={`absolute inset-0 transition-opacity [transition-duration:2000ms] ease-in-out ${i === idx ? "opacity-100" : "opacity-0"}`}
+          >
+            <img
+              src={s.image_url}
+              alt={s.caption || "Granite paving stone and floor stone showcase in Bangalore"}
+              width={1920}
+              height={1088}
+              className={`absolute inset-0 h-full w-full object-contain md:object-cover ${i === idx ? "md:animate-ken-burns" : ""}`}
+            />
+          </div>
         ))}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_0%/0.55)_0%,hsl(0_0%_0%/0.3)_40%,hsl(0_0%_0%/0.85)_100%)]" />
       </div>
 
       {items.length > 1 && (
-        <>
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-2 sm:bottom-24">
-            {items.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIdx(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-1.5 transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-white/40 hover:bg-white/70"}`}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      <div className="relative z-10 container flex min-h-[720px] flex-col justify-center pt-24 pb-24 sm:min-h-screen sm:pt-32 sm:pb-20">
-        <div className="max-w-4xl">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 animate-fade-in-down">
-            <span className="h-px w-8 bg-gold-gradient sm:w-12" />
-            <span className="text-[10px] uppercase tracking-[0.22em] text-primary font-medium sm:text-xs sm:tracking-[0.4em]">
-              Professional Granite Paving Since 2013
-            </span>
-          </div>
-
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95] text-white animate-fade-in">
-            SJ Granite
-            <span className="block italic text-gold-gradient mt-2">Paving Stone</span>
-            <span className="block">India</span>
-          </h1>
-
-          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/80 font-light animate-fade-in sm:mt-8 sm:text-base md:text-lg [animation-delay:200ms]">
-            Granite paving stone, cobblestone, floor stone, parking pavers, stone chairs and garden stone furniture for Bangalore, Karnataka, Mumbai and all India projects.
-          </p>
-
-          <div className="mt-7 flex flex-col gap-3 animate-fade-in sm:mt-10 sm:flex-row sm:flex-wrap sm:gap-4 [animation-delay:400ms]">
-            <Link
-              to="/contact"
-              className="group inline-flex w-full items-center justify-center gap-3 px-5 py-4 bg-gold-gradient text-primary-foreground text-xs uppercase tracking-[0.18em] font-medium shimmer hover:shadow-gold-glow transition-all duration-500 sm:w-auto sm:px-8 sm:tracking-[0.3em]"
-            >
-              Get a Quote
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-4 max-w-3xl animate-fade-in sm:mt-16 sm:gap-8 md:grid-cols-4 [animation-delay:600ms]">
-            {[
-              { v: "BLR + KA", l: "Service Area" },
-              { v: "2013", l: "Established" },
-              { v: "5+", l: "Stone Categories" },
-              { v: "100%", l: "Service Focus" },
-            ].map((s) => (
-              <div key={s.l} className="border-l border-primary/40 pl-4">
-                <div className="font-serif text-2xl md:text-3xl text-gold-gradient">{s.v}</div>
-                <div className="text-[10px] uppercase tracking-[0.16em] text-white/60 mt-1 sm:tracking-[0.3em]">{s.l}</div>
-              </div>
-            ))}
-          </div>
+        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 md:bottom-8">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`h-1.5 transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-white/50 hover:bg-white/80"}`}
+            />
+          ))}
         </div>
-      </div>
-
-      <a
-        href="#products"
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 hidden flex-col items-center gap-2 text-white/60 hover:text-primary transition-colors animate-gold-pulse sm:flex sm:bottom-8"
-      >
-        <span className="text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em]">Scroll</span>
-        <ChevronDown className="h-4 w-4" />
-      </a>
+      )}
     </section>
   );
 };

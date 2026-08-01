@@ -74,7 +74,7 @@ const Index = () => {
   });
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-secondary">
       <Navbar />
 
       <Hero />
