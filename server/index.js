@@ -336,6 +336,55 @@ const cleanPayload = (payload = {}) => {
   return cleaned;
 };
 
+const INDIAN_PHONE_REGEX = /^\+91[6-9]\d{9}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const NAME_REGEX = /^[\p{L}\s.'-]+$/u;
+const USEFUL_TEXT_REGEX = /[\p{L}\p{N}]/u;
+
+const normalizeIndianPhone = (value) => {
+  const raw = String(value || "").trim();
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
+  if (digits.length === 10) return `+91${digits}`;
+  return raw.replace(/\s+/g, "");
+};
+
+const validateInquiryPayload = (rawPayload) => {
+  const payload = cleanPayload(rawPayload);
+  const name = String(payload.name || "").trim();
+  const email = String(payload.email || "").trim().toLowerCase();
+  const phone = normalizeIndianPhone(payload.phone);
+  const subject = String(payload.subject || "").trim();
+  const message = String(payload.message || "").trim();
+
+  if (name.length < 2 || name.length > 80 || !NAME_REGEX.test(name)) {
+    return { error: "Please enter a valid full name." };
+  }
+  if (!EMAIL_REGEX.test(email) || email.length > 255) {
+    return { error: "Please enter a valid email address." };
+  }
+  if (!INDIAN_PHONE_REGEX.test(phone)) {
+    return { error: "Phone number must be +91 followed by a valid 10 digit Indian mobile number." };
+  }
+  if (subject.length < 2 || subject.length > 120 || !USEFUL_TEXT_REGEX.test(subject)) {
+    return { error: "Please enter the product you are interested in." };
+  }
+  if (message.length < 15 || message.length > 1500 || !USEFUL_TEXT_REGEX.test(message)) {
+    return { error: "Project details must be between 15 and 1500 characters." };
+  }
+
+  return {
+    payload: {
+      ...payload,
+      name,
+      email,
+      phone,
+      subject,
+      message,
+    },
+  };
+};
+
 const imageUrlsFromDoc = (table, doc) => {
   if (!doc) return [];
   return (imageFieldsByTable[table] || [])
@@ -1063,16 +1112,13 @@ app.get("/api/admin/:table", auth, adminOnly, asyncHandler(async (req, res) => {
 }));
 
 app.post("/api/inquiries", asyncHandler(async (req, res) => {
-  const payload = cleanPayload(req.body);
-  if (!payload.name || !payload.email || !payload.message) {
-    return res.status(400).json({ error: "Name, email, and message are required." });
+  const validated = validateInquiryPayload(req.body);
+  if (validated.error) {
+    return res.status(400).json({ code: "VALIDATION_ERROR", error: validated.error });
   }
-  const doc = await Inquiry.create(payload);
+  const doc = await Inquiry.create(validated.payload);
   await sendInquiryEmail(doc.toJSON()).catch((error) => {
     console.error("Failed to send inquiry email:", error);
-  });
-  await notifyAdminOnWhatsApp("website inquiry", doc.toJSON()).catch((error) => {
-    console.error("Failed to send WhatsApp inquiry notification:", error);
   });
   res.status(201).json(doc.toJSON());
 }));

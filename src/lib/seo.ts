@@ -12,6 +12,8 @@ const DEFAULT_DESCRIPTION =
   "SJ Granite Paving Stone supplies natural stone, granite paving stone, cobblestone pavers, floor stone, wall stone, outside stone, garden stone, parking stone and outdoor stone furniture for residential, commercial and landscape projects.";
 
 const PRODUCT_IMAGES = [pavingImage, cobblestoneImage, flooringImage, benchImage, chairImage];
+const SEO_KEYWORD_LIMIT = 1000;
+const SEO_GLOBAL_FALLBACK_LIMIT = 220;
 
 export const INDIA_STATE_LOCATIONS = [
   "Andhra Pradesh",
@@ -108,19 +110,211 @@ export const locationNameFromSlug = (slug?: string) => {
     .join(" ");
 };
 
+const CORE_STONE_TERMS = [
+  "natural stone",
+  "natural stones",
+  "stone paving",
+  "paving stone",
+  "paving stones",
+  "granite paving stone",
+  "granite paving stones",
+  "granite stone paving",
+  "granite stone",
+  "cobblestone",
+  "cobble stone",
+  "cobble paving",
+  "cobble stones",
+  "cobblestone pavers",
+  "cobblestone paving",
+  "natural cobblestone",
+  "granite cobblestone",
+  "floor stone",
+  "floor stones",
+  "outdoor floor stone",
+  "wall stone",
+  "wall stones",
+  "outside stone",
+  "outside stones",
+  "outdoor stone",
+  "parking stone",
+  "parking stones",
+  "driveway stone",
+  "driveway pavers",
+  "garden stone",
+  "garden stones",
+  "landscape stone",
+  "landscaping stone",
+  "patio stone",
+  "pathway stone",
+  "walkway stone",
+  "courtyard stone",
+  "stone slabs",
+  "granite slabs",
+  "stone tiles",
+  "granite tiles",
+  "rough granite stone",
+  "flamed granite stone",
+  "anti slip stone",
+  "stone bench",
+  "stone benches",
+  "granite bench",
+  "stone chair",
+  "stone chairs",
+  "granite chair",
+  "stone table",
+  "garden stone furniture",
+  "outdoor stone furniture",
+  "granite garden furniture",
+  "stone seating",
+  "granite seating",
+];
+
+const SEO_INTENTS = [
+  "supplier",
+  "manufacturer",
+  "dealer",
+  "wholesaler",
+  "retailer",
+  "contractor",
+  "installer",
+  "installation",
+  "supply",
+  "supply and installation",
+  "price",
+  "cost",
+  "quotation",
+  "near me",
+  "for sale",
+  "online",
+  "design",
+  "ideas",
+  "work",
+  "service",
+  "company",
+  "factory",
+  "bulk supplier",
+  "project supplier",
+  "commercial supplier",
+];
+
+const PROJECT_USE_CASES = [
+  "home",
+  "villa",
+  "farmhouse",
+  "resort",
+  "hotel",
+  "garden",
+  "landscape",
+  "driveway",
+  "parking area",
+  "parking lot",
+  "pathway",
+  "walkway",
+  "courtyard",
+  "patio",
+  "terrace",
+  "outdoor area",
+  "apartment",
+  "commercial project",
+  "public park",
+  "temple",
+  "school",
+  "office",
+  "construction site",
+];
+
+const SEO_MODIFIERS = [
+  "best",
+  "premium",
+  "durable",
+  "heavy duty",
+  "natural",
+  "outdoor",
+  "anti slip",
+  "weather resistant",
+  "long lasting",
+  "low maintenance",
+  "custom",
+  "affordable",
+  "quality",
+  "black",
+  "grey",
+  "red",
+  "brown",
+  "rough finish",
+  "flamed finish",
+];
+
+const SEO_BRAND_KEYWORDS = [
+  "SJ Granite Paving Stone",
+  "sj granite stone",
+  "sj granite paving stone",
+  "SJ Granite Paving Stone India",
+  "SJ Granite Paving Stone Bangalore",
+  "SJ Granite Paving Stone Bengaluru",
+  "SJ Granite Paving Stone Mumbai",
+];
+
+const normalizeKeywordList = (keywords: string[], limit = SEO_KEYWORD_LIMIT) => Array.from(new Set(
+  keywords
+    .map((keyword) => keyword.trim().replace(/\s+/g, " "))
+    .filter(Boolean)
+)).slice(0, limit);
+
+const buildGenericStoneKeywords = () => {
+  const keywords: string[] = [
+    ...SEO_BRAND_KEYWORDS,
+    ...CORE_STONE_TERMS,
+    "netural stone",
+    "naturalstone",
+    "pavingstones",
+    "pavingstone",
+    "netualstone",
+    "stones",
+    "stone",
+    "granite",
+  ];
+
+  CORE_STONE_TERMS.forEach((term) => {
+    SEO_INTENTS.forEach((intent) => {
+      keywords.push(`${term} ${intent}`);
+    });
+    PROJECT_USE_CASES.forEach((useCase) => {
+      keywords.push(`${term} for ${useCase}`);
+      keywords.push(`${useCase} ${term}`);
+    });
+    SEO_MODIFIERS.forEach((modifier) => {
+      keywords.push(`${modifier} ${term}`);
+    });
+  });
+
+  const priorityTerms = CORE_STONE_TERMS.slice(0, 36);
+  priorityTerms.forEach((term) => {
+    LOCATION_SEO_TARGETS.forEach((location) => {
+      keywords.push(`${term} ${location}`);
+    });
+  });
+
+  const serviceTerms = CORE_STONE_TERMS.slice(0, 26);
+  const serviceIntents = ["supplier", "manufacturer", "dealer", "installer", "price", "near me"];
+  serviceTerms.forEach((term) => {
+    serviceIntents.forEach((intent) => {
+      ["India", "Bangalore", "Bengaluru", "Karnataka", "Mumbai", "Mysuru", "Mangalore"].forEach((location) => {
+        keywords.push(`${term} ${intent} ${location}`);
+      });
+    });
+  });
+
+  return normalizeKeywordList(keywords);
+};
+
 export const locationKeywords = (location: string) => [
   `SJ Granite Paving Stone ${location}`,
-  `granite paving stone ${location}`,
-  `paving stone ${location}`,
-  `cobblestone ${location}`,
-  `cobblestone pavers ${location}`,
-  `floor stone ${location}`,
-  `wall stone ${location}`,
-  `outside stone ${location}`,
-  `parking stone ${location}`,
-  `natural stone supplier ${location}`,
-  `stone furniture ${location}`,
-  `garden stone ${location}`,
+  ...CORE_STONE_TERMS.slice(0, 28).flatMap((term) => [
+    `${term} ${location}`,
+    `${term} supplier ${location}`,
+    `${term} price ${location}`,
+  ]),
   `granite paving stone India`,
   `cobblestone pavers India`,
   `floor stone India`,
@@ -129,44 +323,9 @@ export const locationKeywords = (location: string) => [
   `parking stone India`,
   `natural stone supplier India`,
   `outdoor stone furniture India`,
-];
+].filter((keyword, index, list) => list.indexOf(keyword) === index);
 
-export const genericStoneKeywords = [
-  "SJ Granite Paving Stone",
-  "sj granite stone",
-  "sj granite paving stone",
-  "natural stone",
-  "netural stone",
-  "natural stone supplier",
-  "natural stone paving",
-  "granite paving stone",
-  "paving stone",
-  "paving stones",
-  "cobblestone",
-  "cobble stone",
-  "cobblestone pavers",
-  "floor stone",
-  "wall stone",
-  "pavingstones",
-  "pavingstone",
-  "netualstone",
-   "stones",
-   "stone",
-   "granite",
-   "cobblestone",
-    "cobble stone",
-  "wall stones",
-  "outside stone",
-  "outside stones",
-  "outdoor stone",
-  "parking stone",
-  "stone furniture",
-  "garden stone",
-  "garden stones",
-  "stone benches",
-  "stone chairs",
-  "outdoor stone furniture",
-];
+export const genericStoneKeywords = buildGenericStoneKeywords();
 
 export const SERVICE_LOCATIONS = [
   "India",
@@ -377,7 +536,10 @@ export const useSeo = ({
   robots = "index, follow, max-image-preview:large",
   schema,
 }: SeoOptions) => {
-  const keywordsMeta = keywords.join(", ");
+  const keywordsMeta = normalizeKeywordList([
+    ...keywords,
+    ...genericStoneKeywords.slice(0, SEO_GLOBAL_FALLBACK_LIMIT),
+  ]).join(", ");
   const schemaJson = useMemo(() => {
     if (!schema) return "";
     const graph = Array.isArray(schema) ? schema.map(removeContext) : [removeContext(schema)];
