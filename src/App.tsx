@@ -27,6 +27,7 @@ import Signup from "./pages/Signup.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Admin from "./pages/Admin.tsx";
 import TermsAndConditions from "./pages/TermsAndConditions.tsx";
+import SeoLandingPage from "./pages/SeoLandingPage.tsx";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -105,6 +106,12 @@ const App = () => (
           <Route
             path="/terms"
             element={<TermsAndConditions />}
+          />
+
+          {/* Dedicated SEO Landing Pages */}
+          <Route
+            path="/seo/:slug"
+            element={<SeoLandingPage />}
           />
 
           {/* Dynamic Local SEO Routes */}

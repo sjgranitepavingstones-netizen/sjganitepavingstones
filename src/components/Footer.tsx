@@ -2,6 +2,7 @@ import { Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import sjLogo from "@/assets/sj-granite-paving-stone-logo.jpg";
 import { WHATSAPP_DISPLAY } from "@/lib/whatsapp";
+import { SEO_LANDING_PAGES } from "@/lib/seoLandingPages";
 
 export const Footer = () => {
   const socialLinks = [
@@ -75,6 +76,24 @@ export const Footer = () => {
             <li>{WHATSAPP_DISPLAY} (WhatsApp)</li>
             <li>sjgranitepavingstones@gmail.com</li>
           </ul>
+        </div>
+      </div>
+      <div className="border-t border-primary/10">
+        <div className="container py-10">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-primary mb-5 sm:tracking-[0.3em]">
+            Stone Services
+          </div>
+          <div className="grid gap-x-6 gap-y-3 text-xs text-secondary-foreground/70 sm:grid-cols-2 lg:grid-cols-4">
+            {SEO_LANDING_PAGES.map((page) => (
+              <Link
+                key={page.slug}
+                to={`/seo/${page.slug}`}
+                className="link-gold hover:text-primary transition-colors"
+              >
+                {page.h1}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
       <div className="border-t border-primary/10">
